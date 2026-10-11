@@ -16,7 +16,8 @@ impl MoveFs for Faults {
         RealFs.same_file(a, b)
     }
     fn rename_no_replace(&self, a: &Path, b: &Path) -> std::io::Result<()> {
-        if self.0.iter().any(|p| p == a) {
+        // Plans may use another case spelling of the same packet on case-insensitive volumes.
+        if self.0.iter().any(|p| RealFs.same_file(p, a)) {
             Err(std::io::Error::new(std::io::ErrorKind::PermissionDenied, "injected partial move"))
         } else {
             RealFs.rename_no_replace(a, b)
@@ -261,8 +262,9 @@ fn queued_stem_retry_preserves_shared_packet_after_batch_rollback() {
     assert!(!second_packet.exists());
     let pending = queues(&s);
     assert_eq!(pending.len(), 1);
-    assert_eq!(pending[0].from, shared);
-    assert_eq!(pending[0].to, second_packet);
+    assert!(RealFs.same_file(&pending[0].from, &shared));
+    // The plan preserves its discovered extension spelling; APFS may discover the XMP alias.
+    assert_eq!(pending[0].to.with_extension("xmp"), second_packet);
     let catalog_before = s.catalog.to_snapshot();
     let history_before = (s.undo.len(), s.redo.len(), s.commits());
 
