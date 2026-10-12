@@ -1951,5 +1951,8 @@
   "Adding to Apple Photos…": "Añadiendo a Fotos de Apple…",
   "not added to Apple Photos (cancelled)": "no se añadieron a Fotos de Apple (cancelado)",
   "The first time, macOS asks whether LightCraft may control Photos.": "La primera vez, macOS pregunta si LightCraft puede controlar Fotos.",
-  "Adding to Apple Photos": "Añadiendo a Fotos de Apple"
+  "Adding to Apple Photos": "Añadiendo a Fotos de Apple",
+  "Advanced grain": "Grano avanzado",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "Grano inspirado en película de 35 mm: 400 sutil, 800 texturado, 1600 marcado. Conserva la elección de grano avanzado.",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "Grano orgánico adaptado al color, con respuesta tonal automática y suavizado sutil de detalles finos. Sigue la gradación de color."
 }

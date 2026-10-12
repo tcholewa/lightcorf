@@ -7,6 +7,7 @@
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
 pub mod controls;
+pub mod grain;
 pub mod presets;
 pub mod segmask;
 pub mod settings;
@@ -132,6 +133,7 @@ impl DevelopSettings {
             }
             Section::Color => self.wb.mode = WbMode::AsShot,
             Section::Detail => self.enhance.denoise_on = None,
+            Section::Grain => self.grain.advanced = false,
             _ => {}
         }
     }

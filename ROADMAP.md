@@ -2,7 +2,7 @@
 
 **Stage: alpha** · next: beta, ~14 points and ~330–590 h away
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-12 · **Change:** minor (compressed ORF: 23 verified Olympus / OM bodies, including PEN E-PL7; RAW decoding 78%) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-12 · **Change:** minor (GRAIN.1: grain fidelity marked partial, checklist 81.5%; compressed ORF: 23 verified Olympus / OM bodies, including PEN E-PL7; RAW decoding 78%) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -12,7 +12,7 @@ from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are 
 
 | | Value | Kind |
 |---|---:|---|
-| **Feature breadth** (checklist) | **81.6%** of 531 rows (P0 98.0%, P1 95.2%, P2 50.0%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
+| **Feature breadth** (checklist) | **81.5%** of 531 rows (P0 98.0%, P1 94.9%, P2 50.0%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
 | **Feature breadth** (weighted by use) | **~78%** | estimated |
 | **Ready for real work** (full target) | **~61%** (56–66%) | estimated: weighted sum over the dimensions |
 | **Mainstream practitioner** | **~50%** (45–55%) | estimated |
@@ -45,7 +45,7 @@ Hours are calibrated on this repo's PR history; see
 
 | Dimension | Ready | Breadth | Remaining | Doc |
 |---|---:|---:|---:|---|
-| Features | ~61% | ~78% (checklist 81.6%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
+| Features | ~61% | ~78% (checklist 81.5%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
 | ↳ RAW cameras, colour, lens profiles | ~57% | 86% of 1,446 Adobe models decode, 18% verified | 247–465 h | [raw-parity](docs/raw-parity.md) |
 | UI/UX fidelity | ~70% | ~85% | 40–70 h | [ui-parity](docs/ui-parity.md) |
 | File formats (non-raw) | ~70% | ~85% | 30–55 h | [file-format-parity](docs/file-format-parity.md) |
@@ -167,6 +167,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | minor | GRAIN.1: ISO-inspired profiles and opt-in advanced grain; Grain marked partial because stock/Lightroom fidelity is unmeasured; breadth 81.5%, P1 94.9%, readiness unchanged |
 | 2026-10-12 | minor | Compressed ORF: 23 exact sensor references including PEN E-PL7; 258 models verified, use-weighted coverage 87%, RAW decoding 78%, RAW readiness 57%, mainstream 50%; beta blocker closed |
 | 2026-10-11 | minor | EOS R5 Mark II CR3 verified: CR3 on four verified bodies, RAW decoding 76% → 77%; headline numbers unchanged |
 | 2026-10-10 | minor | RAW measured model by model; RAW decode and colour as explicit rows: full 59% → 61%, mainstream 51% → 49%, essentials 63% → 64%; beta ~14 points |

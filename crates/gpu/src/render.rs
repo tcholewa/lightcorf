@@ -44,6 +44,7 @@ struct Planes {
     base: Option<(local::BaseKey, Arc<Buf>)>,
     clarity: Option<(u32, Arc<Buf>)>,
     texture: Option<(u32, Arc<Buf>)>,
+    grain: Option<(u32, Arc<Buf>)>,
     dark: Option<(u32, Arc<Buf>, f32)>,
     chroma: Option<(u32, Arc<Buf>)>,
 }
@@ -105,6 +106,7 @@ impl GpuStages {
             p.base.iter().for_each(|(_, b)| add(b));
             p.clarity.iter().for_each(|(_, b)| add(b));
             p.texture.iter().for_each(|(_, b)| add(b));
+            p.grain.iter().for_each(|(_, b)| add(b));
             p.dark.iter().for_each(|(_, b, _)| add(b));
         }
         if let Some((_, b)) = &*self.source.lock().unwrap_or_else(|e| e.into_inner()) {
@@ -823,6 +825,7 @@ struct Prep {
     base: Arc<Buf>,
     clarity: Option<Arc<Buf>>,
     texture: Option<Arc<Buf>>,
+    grain: Option<Arc<Buf>>,
     dark: Option<Arc<Buf>>,
     /// Blurred chromaticity (local Moiré / Noise).
     chroma: Option<Arc<Buf>>,
@@ -853,6 +856,7 @@ fn prepare(cx: &mut Cx<'_>, lin: &Buf, plan: &Plan<'_>, req: &RenderRequest, pla
     };
     let clarity = sig.clarity.map(|sg| plane_at(&mut planes.clarity, sg.to_bits(), || guided_fast(cx, &log_l, w, h, sg, local::CLARITY_EPS)));
     let texture = sig.texture.map(|sg| plane_at(&mut planes.texture, sg.to_bits(), || gaussian(cx, &log_l, w, h, 1, sg)));
+    let grain = sig.grain.map(|sg| plane_at(&mut planes.grain, sg.to_bits(), || gaussian(cx, &log_l, w, h, 1, sg)));
     let (dark, air) = match sig.dark {
         None => (None, 1.0),
         Some(sg) => match &planes.dark {
@@ -880,7 +884,7 @@ fn prepare(cx: &mut Cx<'_>, lin: &Buf, plan: &Plan<'_>, req: &RenderRequest, pla
             gaussian(cx, &ch, w, h, 3, sg)
         })
     });
-    Prep { log_l, base, clarity, texture, dark, chroma, air }
+    Prep { log_l, base, clarity, texture, grain, dark, chroma, air }
 }
 
 /// Most brush dabs the mask kernel evaluates per pixel (more: the CPU rasterizes the brush).
@@ -929,7 +933,7 @@ fn masks(cx: &mut Cx<'_>, lin: &Buf, prep: &Prep, plan: &Plan<'_>, host: &mut Ho
     use lightcraft_develop::{MaskOp, MaskShape};
     let s = &*plan.settings;
     let list: Vec<_> = s.masks.iter().filter(|m| m.visible && !m.components.is_empty()).collect();
-    if list.is_empty() {
+    if list.is_empty() && prep.grain.is_none() {
         return (None, Vec::new());
     }
     let (w, h) = (plan.w, plan.h);
@@ -940,7 +944,11 @@ fn masks(cx: &mut Cx<'_>, lin: &Buf, prep: &Prep, plan: &Plan<'_>, host: &mut Ho
     let [a, b, c, d, e, f] = frame.out_to_norm(w, h).0;
     let (kx, ky) = (frame.ow / long, frame.oh / long);
     let aff = [a * kx, b * ky, c * kx, d * ky, e * kx, f * ky].map(|v| (v as f32).to_bits());
-    let alpha = cx.zeroed(n * list.len() + if prep.chroma.is_some() { 3 * n } else { 0 });
+    let grain_offset = n * list.len() + if prep.chroma.is_some() { 3 * n } else { 0 };
+    let alpha = cx.zeroed(grain_offset + if prep.grain.is_some() { n } else { 0 });
+    if let Some(g) = &prep.grain {
+        cx.copy_into(g, &alpha, grain_offset);
+    }
     if let Some(ch) = &prep.chroma {
         cx.copy_into(ch, &alpha, n * list.len());
     }

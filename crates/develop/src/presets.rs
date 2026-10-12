@@ -130,7 +130,15 @@ pub fn extract_groups(s: &DevelopSettings, groups: &[SettingsGroup]) -> Value {
     for g in groups {
         for k in g.keys() {
             if let Some(v) = full.get(*k) {
-                out.insert((*k).to_string(), v.clone());
+                let mut v = v.clone();
+                // Persistence omits the default, but applying a copied Grain group must switch
+                // Advanced off as well as on. Old partial presets still preserve the mode.
+                if *g == SettingsGroup::Grain
+                    && let Some(o) = v.as_object_mut()
+                {
+                    o.insert("advanced".into(), Value::Bool(s.grain.advanced));
+                }
+                out.insert((*k).to_string(), v);
             }
         }
     }
@@ -185,7 +193,11 @@ fn scale_patch(base: &Value, patch: &Value, t: f64) -> Value {
 /// Apply a partial settings object with an amount (1.0 = 100 %). Out-of-range values are clamped
 /// through the control specs.
 pub fn apply_partial(s: &DevelopSettings, partial: &Value, amount: f64) -> DevelopSettings {
-    let base = s.to_json();
+    let mut base = s.to_json();
+    // Default-off is omitted from storage, but interpolation needs a real boolean base.
+    if let Some(g) = base.get_mut("grain").and_then(Value::as_object_mut) {
+        g.insert("advanced".into(), Value::Bool(s.grain.advanced));
+    }
     let patch = if (amount - 1.0).abs() < 1e-9 { partial.clone() } else { scale_patch(&base, partial, amount) };
     // (a white balance without a scale keeps its old meaning: `DevelopSettings::merged`)
     let mut out = s.merged(&patch).unwrap_or_else(|_| s.clone());

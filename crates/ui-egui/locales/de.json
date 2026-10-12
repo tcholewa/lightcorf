@@ -2109,5 +2109,8 @@
   "Adding to Apple Photos…": "Wird zu Apple Fotos hinzugefügt…",
   "not added to Apple Photos (cancelled)": "nicht zu Apple Fotos hinzugefügt (abgebrochen)",
   "The first time, macOS asks whether LightCraft may control Photos.": "Beim ersten Mal fragt macOS, ob LightCraft Fotos steuern darf.",
-  "Adding to Apple Photos": "Wird zu Apple Fotos hinzugefügt"
+  "Adding to Apple Photos": "Wird zu Apple Fotos hinzugefügt",
+  "Advanced grain": "Erweitertes Filmkorn",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "Von 35-mm-Film inspiriertes Korn: 400 dezent, 800 strukturiert, 1600 ausgeprägt. Die Auswahl für erweitertes Filmkorn bleibt erhalten.",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "Organisches, farbabhängiges Korn mit automatischer Tonwertanpassung und sanfter Glättung feiner Details. Folgt dem Color Grading."
 }

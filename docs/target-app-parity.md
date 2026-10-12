@@ -1,6 +1,6 @@
 # Target-app parity: LightCraft vs Adobe Lightroom
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-12 · **Change:** minor (compressed ORF completed: 23 newly verified Olympus / OM bodies including PEN E-PL7; RAW decoding 78%, mainstream 50%) · **Target:** Adobe Lightroom Classic 15.5 (August 2026) and Lightroom 9.6 (desktop)
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-12 · **Change:** minor (GRAIN.1: grain fidelity marked partial, checklist 81.5%; compressed ORF completed: 23 newly verified Olympus / OM bodies including PEN E-PL7; RAW decoding 78%, mainstream 50%) · **Target:** Adobe Lightroom Classic 15.5 (August 2026) and Lightroom 9.6 (desktop)
 
 The authoritative assessment of how close LightCraft is to Lightroom. The row-by-row checklist is
 [parity-checklist.md](parity-checklist.md); the ranked work list is [gaps.md](gaps.md); deep areas
@@ -12,7 +12,7 @@ have their own documents: [raw-parity.md](raw-parity.md), [file-format-parity.md
 
 | Number | Value | Kind |
 |---|---:|---|
-| **Feature breadth**, checklist | **81.6%** of 531 in-scope rows (P0 98.0%, P1 95.2%, P2 50.0%) | **measured**: recount of [parity-checklist.md](parity-checklist.md) rows (✅ 1, 🟡 ½, 🚫 left out), the same rule `cargo xtask parity` uses |
+| **Feature breadth**, checklist | **81.5%** of 531 in-scope rows (P0 98.0%, P1 94.9%, P2 50.0%) | **measured**: recount of [parity-checklist.md](parity-checklist.md) rows (✅ 1, 🟡 ½, 🚫 left out), the same rule `cargo xtask parity` uses |
 | **Feature breadth**, weighted by use | **~78%** | estimated: feature-area table below |
 | **Ready for real work** (full target) | **~61%** (range 56–66%) | estimated: weighted sum over the dimensions with written weights, see [below](#ready-for-real-work-mainstream-practitioner-and-essentials-user) |
 | **Mainstream practitioner** | **~50%** (range 45–55%) | estimated: weekly areas of a working photographer, depth 72.6% × 0.804 × colour 0.85 |
@@ -46,7 +46,7 @@ phase #85, duplicate Local entries #22, black GPU exports on an Intel iGPU #78).
 
 | Dimension | Breadth | Ready for real work | Remaining | Doc |
 |---|---:|---:|---:|---|
-| Features (weighted areas below) | ~78% (checklist 81.6%, measured) | ~61% | 600–1,100 h | [Features](#features) |
+| Features (weighted areas below) | ~78% (checklist 81.5%, measured) | ~61% | 600–1,100 h | [Features](#features) |
 | ↳ RAW cameras, colour and lens profiles (part of features) | 86% of Adobe's 1,446 models decode (18% verified), measured | ~57% | 247–465 h | [raw-parity.md](raw-parity.md) |
 | UI/UX fidelity | ~85% | ~70% | 40–70 h | [ui-parity.md](ui-parity.md) |
 | File formats (non-raw: images, sidecars, presets, catalogs) | ~85% | ~70% | 30–55 h | [file-format-parity.md](file-format-parity.md) |
@@ -274,6 +274,7 @@ most of its list; what remains is the data-heavy part (colour, lenses, models) i
 
 | Date | Checklist (all / P0 / P1 / P2) | Ready for real work | Remaining to full parity | Source |
 |---|---|---|---|---|
+| 2026-10-12 (grain) | 81.5% / 98.0% / 94.9% / 50.0% (531 rows) | unchanged | unchanged | Grain fidelity honestly marked partial; original advanced grain is opt-in |
 | 2026-10-12 (ORF) | 81.6% / 98.0% / 95.2% / 50.0% (531 rows) | ~61% full · ~50% mainstream · ~64% essentials | unchanged | Compressed ORF completed; checklist refreshed for features already on main (ORF rows remain partial) |
 | 2026-10-10 (RAW) | 81.1% (unchanged) | ~61% full · ~49% mainstream · ~64% essentials | unchanged | RAW measured model by model against Adobe's list; RAW decode and colour as explicit rows |
 | 2026-10-10 (final) | 81.1% (unchanged) | ~59% full (weighted sum) · ~51% mainstream · ~63% essentials | full 1,000–1,800 h · mainstream 450–840 h · essentials 160–300 h | method aligned with the standard |
@@ -299,6 +300,7 @@ P2 items 12–25 h; look tuning, performance, packaging, hardening 25–45 h.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | minor | GRAIN.1: ISO-inspired profiles and opt-in advanced grain; Grain marked partial because stock/Lightroom fidelity is unmeasured; breadth 81.5%, P1 94.9%, readiness unchanged |
 | 2026-10-12 | minor | Compressed ORF beta blocker closed: 23 exact Olympus / OM references, model breadth 86%, 258 verified (18%), use-weighted coverage 87%, RAW decoding 78%; full ~61%, mainstream ~50%, essentials ~64% |
 | 2026-10-11 | minor | EOS R5 Mark II CR3 verified (raw-parity.md): use-weighted share whose camera decodes 84% → 85%, RAW decoding 76% → 77%; full 60.6% → 60.7%, mainstream depth 71.8% → 72.1%, essentials depth 77.4% → 77.5%; the rounded numbers (~61%, ~49%, ~64%) are unchanged |
 | 2026-10-10 | minor | RAW measured model by model (raw-parity.md): RAW decoding (76%) and colour (35%) are explicit rows of the full sum (59% → 61%); mainstream uses the use-weighted 84% plus a ×0.85 colour discount (51% → 49%); essentials uses 84% × colour 0.75 (63% → 64%); beta ~14 points |

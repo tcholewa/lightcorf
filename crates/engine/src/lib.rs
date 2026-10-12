@@ -775,7 +775,15 @@ impl Session {
             return Vec::new();
         }
         let Some(old) = self.develop_of(id) else { return Vec::new() };
-        let Some(mut delta) = json_delta(&old.to_json(), &new.to_json()) else { return Vec::new() };
+        // Include default-off Advanced in the comparison; persistence omits it.
+        let sync_json = |s: &DevelopSettings| {
+            let mut v = s.to_json();
+            if let Some(g) = v.get_mut("grain").and_then(Value::as_object_mut) {
+                g.insert("advanced".into(), Value::Bool(s.grain.advanced));
+            }
+            v
+        };
+        let Some(mut delta) = json_delta(&sync_json(&old), &sync_json(new)) else { return Vec::new() };
         if let Some(o) = delta.as_object_mut() {
             for k in ["spots", "red_eye", "version", "process"] {
                 o.remove(k);

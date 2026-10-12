@@ -1,6 +1,6 @@
 # Isolated macOS deployment of PR #1162
 
-> **Last updated:** 2026-10-12 · **Change:** minor (local ARM64 test deployment)
+> **Last updated:** 2026-10-12 · **Change:** minor (local ARM64 test deployment; GRAIN.1 isolated update and rollback procedure)
 
 This deployment combines main `25ef65c81eef81833a50ff5b61f8676d80611b06` (0.7.0)
 with PR #1162, `60df6a30e12aabd67c4c0033a924369de9ea718e`, on local branch
@@ -156,4 +156,28 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | minor | GRAIN.1: update the isolated app/CLI while retaining catalog/preferences and rollback copies |
 | 2026-10-12 | minor | Pinned PR1162 integration, isolated ARM64 packaging, corpus and native acceptance, recovery instructions |
+
+## GRAIN.1 update of the isolated test installation
+
+`feature/analog-grain` starts at the ORF-enabled `8b5a0fcf`. After a green full CI run and
+commit, build the same ARM64 HEIF/font package and preserve the PR1162 bundle identity and
+`LSEnvironment` paths above. The existing test library and preferences remain in use.
+
+Before replacing the test app, CLI package or launcher, quit only the PR1162 app through its
+control channel. Keep timestamped rollback copies of those three components and snapshots
+of its closed library/catalog and configuration under `target/analog-grain/rollback/`.
+Validate staged signatures, then replace the isolated components. Do not overlay a running
+bundle. Verify signatures again, CLI command availability, and source-commit metadata.
+
+Acceptance uses a named virtual copy of the existing CC0 E-PL7 sample: click each ISO button,
+toggle Advanced, check hover/undo/custom/reset behavior, render/export, and quit/reopen to
+verify persistence. Inspect the Grain panel screenshot and `ui.inspect` performance/GPU
+fields. Store evidence and the deployment manifest under `target/analog-grain/`, which is
+ignored by Git. Preserve the original test photo's settings.
+
+To roll back, close the test app and restore the saved app, CLI package and launcher. The old
+build ignores `grain.advanced`; use the matching saved test library/configuration if exact
+pre-update rendering/state is needed. Never restore over edits made since the backup without
+first retaining them. The everyday `/Applications/LightCraft.app` is outside this update.

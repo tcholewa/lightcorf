@@ -346,6 +346,20 @@ pub struct DeepImage {
 }
 
 impl DeepImage {
+    /// Remove spatial-filter padding from a windowed render, preserving the sample format.
+    pub(crate) fn crop(self, window: crate::PixelWindow) -> Self {
+        let k = window.clamped(self.width, self.height);
+        let stride = self.width.max(1).saturating_mul(3);
+        fn cut<T: Copy>(v: &[T], stride: usize, k: crate::PixelWindow) -> Vec<T> {
+            v.chunks_exact(stride).skip(k.y).take(k.h).flat_map(|row| row.chunks_exact(3).skip(k.x).take(k.w).flatten().copied()).collect()
+        }
+        let samples = match self.samples {
+            DeepSamples::U16(v) => DeepSamples::U16(cut(&v, stride, k)),
+            DeepSamples::F32(v) => DeepSamples::F32(cut(&v, stride, k)),
+        };
+        Self { width: k.w, height: k.h, space: self.space, samples }
+    }
+
     /// The same image reduced to 8 bits, display-encoded with the space's curve.
     pub fn to_rgba8(&self) -> lightcraft_raster::Rgba8 {
         let mut out = lightcraft_raster::Rgba8::new(self.width, self.height);

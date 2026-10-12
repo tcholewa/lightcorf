@@ -214,6 +214,57 @@ fn ghash(i: i32, j: i32, seed: u32) -> f32 {
     return f32(v & 0xffffu) / 32768.0 - 1.0;
 }
 
+// Original sparse-convolution model; keep equations in pipeline::grain in step.
+fn ahash(x: i32, y: i32, seed: u32) -> u32 {
+    var v = (bitcast<u32>(x) * GRAIN_H0) ^ (bitcast<u32>(y) * GRAIN_H1) ^ (seed * GRAIN_H2);
+    v ^= v >> 13u;
+    v = v * GRAIN_H3;
+    return v ^ (v >> 15u);
+}
+fn asigned(v: u32) -> f32 { return f32(v & 0xffffu) / 32768.0 - 1.0; }
+fn arotate(v: u32, n: u32) -> u32 { return (v << n) | (v >> (32u - n)); }
+fn aclumps(point: vec2<f32>, seed: u32, rough: f32, footprint: f32, colour: f32) -> vec3<f32> {
+    let q = clamp(point, vec2<f32>(-1e6), vec2<f32>(1e6));
+    let cell = vec2<i32>(floor(q));
+    let f = q - floor(q);
+    var result = vec3<f32>(0.0);
+    for (var dy = -1; dy <= 1; dy++) {
+        for (var dx = -1; dx <= 1; dx++) {
+            let c = cell + vec2<i32>(dx, dy);
+            let h = ahash(c.x, c.y, seed);
+            let p = vec2<f32>(f32(dx) + f32(h & 1023u) / 1024.0, f32(dy) + f32((h >> 10u) & 1023u) / 1024.0);
+            let radius = 0.62 + 0.22 * rough * asigned(ahash(c.x, c.y, seed ^ 0x17abu));
+            let r2 = radius * radius;
+            let filtered = min(r2 + footprint * footprint / 6.0, 0.9801);
+            let delta = f - p;
+            let dist = delta.x * delta.x + delta.y * delta.y;
+            let t = max(1.0 - dist / filtered, 0.0);
+            let k = t * t * t * (r2 / filtered) * 2.8 / sqrt(1.0 + footprint * footprint);
+            let shared_noise = asigned(ahash(c.x, c.y, seed ^ 0x93d1u));
+            let chroma = vec3<f32>(asigned(arotate(h, 7u)), asigned(arotate(h, 17u)), asigned(arotate(h, 27u)));
+            result += k * (vec3<f32>(shared_noise) + colour * chroma);
+        }
+    }
+    return result;
+}
+fn analog_grain(rgb: vec3<f32>, x: u32, y: u32) -> vec3<f32> {
+    let px = f32(x) + 0.5;
+    let py = f32(y) + 0.5;
+    let q = vec2<f32>(pf(F_GRAIN_AFF) * px + pf(F_GRAIN_AFF + 2u) * py + pf(F_GRAIN_AFF + 4u),
+                     pf(F_GRAIN_AFF + 1u) * px + pf(F_GRAIN_AFF + 3u) * py + pf(F_GRAIN_AFF + 5u)) * pf(F_ANALOG_SC);
+    let rough = pf(F_ANALOG_ROUGH);
+    let seed = pu(F_ANALOG_SEED);
+    let foot = pf(F_ANALOG_FOOT);
+    let colour = pf(F_ANALOG_COLOUR);
+    let a = aclumps(q, seed, rough, foot, colour);
+    let b = aclumps(q * 0.53, seed ^ 0x735au, rough, foot * 0.53, colour);
+    let lum = clamp(lum2020(rgb), 0.0, 1.0);
+    let weight = pf(F_ANALOG_AMT) * 0.10 * (1.25 - 0.5 * lum);
+    let v = clamp(rgb, vec3<f32>(0.0), vec3<f32>(1.0));
+    let noise = clamp(a + b * rough * 0.65, vec3<f32>(-1.0), vec3<f32>(1.0));
+    return rgb + noise * weight * 4.0 * v * (vec3<f32>(1.0) - v);
+}
+
 fn grain_noise(x: f32, y: f32, seed: u32) -> f32 {
     let x0 = floor(x);
     let y0 = floor(y);
@@ -397,6 +448,11 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         let det = l_pre - tex[i];
         delta -= clamp(l_noise, -1.0, 1.0) * 0.9 * det * (1.0 - sstep(0.1, 0.5, abs(det)));
     }
+    if (pu(F_ANALOG) != 0u) {
+        let det = l_pre - masks[pu(F_ANALOG_BLUR) + i];
+        delta -= pf(F_ANALOG_SOFT) * det * (1.0 - sstep(0.5, 2.0, abs(det)))
+            * (1.0 - 0.35 * sstep(-2.0, 2.0, l0));
+    }
     if (delta != 0.0) {
         c = c * exp2(delta);
     }
@@ -422,6 +478,8 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         let t = clamp((mx - 1.0) / max(mx - o, 1e-6), 0.0, 1.0);
         d = d + (o - d) * t;
     }
+
+    if (pu(F_ANALOG) != 0u) { d = analog_grain(d, x, y); }
 
     // --- colour
     d = color_ops(d, lt[11], lt[12]);

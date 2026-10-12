@@ -19,7 +19,9 @@ const MAX_LSB: u8 = 3;
 fn gpu() -> bool {
     let ok = lightcraft_gpu::available();
     if !ok {
-        eprintln!("skipped: no GPU adapter");
+        let reason = lightcraft_gpu::unavailable_reason().unwrap_or_default();
+        assert!(!reason.contains("kernels failed to build"), "GPU shader validation failed: {reason}");
+        eprintln!("skipped: no GPU adapter: {reason}");
     }
     ok
 }
@@ -856,4 +858,36 @@ fn windows_of_a_big_photo_share_one_uploaded_source() {
     assert_eq!(lightcraft_gpu::shared_source_bytes(), 0, "an idle app gives it back");
     lightcraft_gpu::render(&src, &info, &s, &at(1000), Some(&after)).expect("gpu render");
     assert_eq!(lightcraft_gpu::source_uploads() - start, 2);
+}
+
+#[test]
+fn advanced_grain_profiles_colour_mono_masks_and_windows() {
+    if !gpu() {
+        return;
+    }
+    let src = scene(0, 800, 600);
+    let info = SourceInfo::default();
+    let req = RenderRequest::fit(800, 600);
+    for preset in lightcraft_develop::grain::PRESETS {
+        for treatment in [Treatment::Color, Treatment::Bw] {
+            let mut s = DevelopSettings { treatment, ..Default::default() };
+            preset.apply(&mut s.grain);
+            s.grain.advanced = true;
+            s.grain.seed = u32::MAX;
+            check("advanced grain", &src, &info, &s, &req);
+            let win = lightcraft_pipeline::PixelWindow { x: 135, y: 95, w: 247, h: 199 };
+            check("advanced grain window", &src, &info, &s, &RenderRequest { window: Some(win), ..req });
+            s.masks = vec![Mask {
+                components: vec![MaskComponent {
+                    shape: MaskShape::Linear { start: Point::new(0.0, 0.0), end: Point::new(1.0, 1.0) },
+                    name: None,
+                    op: MaskOp::Add,
+                    invert: false,
+                }],
+                adjust: lightcraft_develop::LocalAdjustments { moire: 30.0, exposure: 0.3, ..Default::default() },
+                ..Default::default()
+            }];
+            check("advanced grain with chroma mask", &src, &info, &s, &req);
+        }
+    }
 }
