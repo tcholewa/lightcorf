@@ -1,8 +1,8 @@
 # LightCraft roadmap
 
-**Stage: alpha** · next: beta, ~14 points and ~340–600 h away
+**Stage: alpha** · next: beta, ~14 points and ~330–590 h away
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-11 · **Change:** minor (EOS R5 Mark II CR3 verified; RAW decoding 77%) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-12 · **Change:** minor (compressed ORF: 23 verified Olympus / OM bodies, including PEN E-PL7; RAW decoding 78%) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -12,12 +12,12 @@ from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are 
 
 | | Value | Kind |
 |---|---:|---|
-| **Feature breadth** (checklist) | **81.1%** of 517 rows (P0 98.0%, P1 95.1%, P2 46.9%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
-| **Feature breadth** (weighted by use) | **~77%** | estimated |
+| **Feature breadth** (checklist) | **81.6%** of 531 rows (P0 98.0%, P1 95.2%, P2 50.0%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
+| **Feature breadth** (weighted by use) | **~78%** | estimated |
 | **Ready for real work** (full target) | **~61%** (56–66%) | estimated: weighted sum over the dimensions |
-| **Mainstream practitioner** | **~49%** (44–54%) | estimated |
+| **Mainstream practitioner** | **~50%** (45–55%) | estimated |
 | **Essentials user** | **~64%** (59–69%) | estimated |
-| Remaining to **beta** | **~340–600 h** (Opus 5.5 agent hours, ~60% parallel) | estimated |
+| Remaining to **beta** | **~330–590 h** (Opus 5.5 agent hours, ~60% parallel) | estimated |
 | Remaining to **full parity** | **~1,000–1,800 h** (~70% parallel) | estimated |
 
 Each audience with its own hours (Opus 5.5 agent wall-clock hours to ~95%):
@@ -25,12 +25,13 @@ Each audience with its own hours (Opus 5.5 agent wall-clock hours to ~95%):
 | Audience | Ready | Opus 5.5 agent wall-clock hours to ~95% | Work that dominates |
 |---|---:|---:|---|
 | Full target (ready for real work) | **~61%** | **1,000–1,800 h** (~70% parallelizes) | raw colour, lens and camera data; AI models; Classic output modules; localization; plug-in ecosystem |
-| Mainstream practitioner | **~49%** | **450–840 h** (~60% parallelizes) | camera colour and render fidelity; CR3 / ORF / HE NEF; lens database; subject / sky masks; Lightroom XMP exchange; stability |
+| Mainstream practitioner | **~50%** | **450–840 h** (~60% parallelizes) | camera colour and render fidelity; CR3 / HE NEF; lens database; subject / sky masks; Lightroom XMP exchange; stability |
 | Essentials user | **~64%** | **160–300 h** (~50% parallelizes) | default raw look for popular cameras; launch stability; basic-slider feel; opening CR3 / HEIC files people send |
 
 The gap between breadth and readiness is quality and coverage, not missing buttons: camera colour is
-estimated rather than measured, CR3 decodes on four verified Canon bodies, compressed ORF and HE NEF
-open as previews, rendering is tuned by eye, AI masks are heuristics, there is no lens database, and
+estimated rather than measured, CR3 decodes on four verified Canon bodies, Olympus / OM ORF
+decodes from sensor data on 23 newly verified bodies, HE NEF opens as previews, rendering is tuned
+by eye, AI masks are heuristics, there is no lens database, and
 tests run in CI on FreeBSD only. **Why alpha:** core workflows run end to end, but readiness is below
 the ~75% beta bar (it is above the ~40% alpha bar) and Lightroom's main inputs, raw files, still have blocking gaps (Canon, ~30% of
 raw users, decodes CR3 on four verified bodies). It passes the alpha gate: all six core workflows
@@ -44,8 +45,8 @@ Hours are calibrated on this repo's PR history; see
 
 | Dimension | Ready | Breadth | Remaining | Doc |
 |---|---:|---:|---:|---|
-| Features | ~61% | ~77% (checklist 81.1%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
-| ↳ RAW cameras, colour, lens profiles | ~56% | 81% of 1,446 Adobe models decode, 16% verified | 255–480 h | [raw-parity](docs/raw-parity.md) |
+| Features | ~61% | ~78% (checklist 81.6%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
+| ↳ RAW cameras, colour, lens profiles | ~57% | 86% of 1,446 Adobe models decode, 18% verified | 247–465 h | [raw-parity](docs/raw-parity.md) |
 | UI/UX fidelity | ~70% | ~85% | 40–70 h | [ui-parity](docs/ui-parity.md) |
 | File formats (non-raw) | ~70% | ~85% | 30–55 h | [file-format-parity](docs/file-format-parity.md) |
 | Hardware | ~40% | ~50% | 40–80 h | [hardware-parity](docs/hardware-parity.md) |
@@ -61,7 +62,7 @@ Hours are calibrated on this repo's PR history; see
 | Area | Ready | Breadth | Remaining |
 |---|---:|---:|---:|
 | Import and library | 80% | 90% | 25–45 h |
-| RAW decoding and camera coverage | 77% | 81% | 120–220 h |
+| RAW decoding and camera coverage | 78% | 86% | 112–205 h |
 | Colour, camera profiles, render fidelity | 35% | 65% | 80–150 h |
 | Global develop adjustments | 70% | 93% | 30–60 h |
 | Optics, lens profiles, crop and geometry | 50% | 80% | 40–80 h |
@@ -107,12 +108,17 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 3. Render-fidelity suite against Lightroom, then tuning (30–60 h)
 4. Full-resolution zoom (8–15 h)
 5. AI masks: Subject / Sky / People (40–70 h + model decision)
-6. Compressed ORF and HE NEF (28–55 h)
+6. HE NEF (20–40 h; compressed ORF completed)
 7. Lens profile database of our own (40–80 h)
 8. Tests in CI on macOS, Windows and Linux (6–12 h)
 9. Per-model raw verification (20–35 h)
 
 ## Progress log
+
+- 2026-10-12: Independent pure-Rust lossless ORF decoding, with all sensor pixels exact on 23
+  Olympus / OM bodies, including PEN E-PL7 and 80 MP high-res captures ([orf.md](docs/orf.md)).
+  258 models verified, 167 preview-only; use-weighted raw coverage ~87%, decoding readiness 78%,
+  RAW readiness ~57%, mainstream ~50%. Compressed ORF beta blocker closed.
 
 - 2026-10-11: Canon EOS R5 Mark II C-RAW decodes from sensor data (57% of its files opened as a
   preview): the CRX QP map's first-symbol literal and limited-length escape; four CC0 R5 Mark II files
@@ -161,6 +167,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | minor | Compressed ORF: 23 exact sensor references including PEN E-PL7; 258 models verified, use-weighted coverage 87%, RAW decoding 78%, RAW readiness 57%, mainstream 50%; beta blocker closed |
 | 2026-10-11 | minor | EOS R5 Mark II CR3 verified: CR3 on four verified bodies, RAW decoding 76% → 77%; headline numbers unchanged |
 | 2026-10-10 | minor | RAW measured model by model; RAW decode and colour as explicit rows: full 59% → 61%, mainstream 51% → 49%, essentials 63% → 64%; beta ~14 points |
 | 2026-10-10 | minor | Full ready restored to the additive weighted sum (~59%; method aligned with the standard, no new evidence); hours per audience; beta ~16 points away |

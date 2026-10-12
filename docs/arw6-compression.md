@@ -1,8 +1,17 @@
 # Sony ARW6 (Compressed RAW 2)
 
+> **Last updated:** 2026-10-12 · **Change:** minor (safe whole-file import probes)
+
 LightCraft decodes the raw sensor data of Sony's *Compressed* and *Compressed (HQ)* ARW files (TIFF Compression 32766, SonyRawFileType 6, "ARW 6.0") written by the A7R VI (ILCE-7RM6) in pure Rust. The shared RAW decoder serves import, desktop previews, editing, CLI rendering, web and export. Before this decoder these files failed the full decode and silently rendered from their embedded JPEG. The ILCE-7M5 (A7 V) writes the same codec; no sample of it was available, so it is unverified.
 
 Decode timings: see the end of this document (measured in the performance pass).
+
+Header probes validate every tile's stream and index tables and decode its first residual
+half to establish the sensor-row shift. These bytes can occur beyond the sparse reader's
+64 KiB strip prefix, so ARW6 import probes request the whole file. This prevents supported
+files from being rejected because unloaded bytes were interpreted as a residual stream.
+The CC0 sparse-corpus check covers this path; a synthetic compression-32766 regression
+ensures the planner never promises a complete description after skipping these streams.
 
 ## Format and implementation
 
@@ -172,3 +181,9 @@ Raw decode only, 4 CPUs, release build, best of 3 wall-clock (2026-10-10). Metho
 | ILCE-7RM6 APS-C, Compressed | 30.9 MB | 6592x4372 | 0.34 s |
 
 The 1.0 s budget for the full-frame file is met. Parallelised: rayon over the tiles, over the 13 streams of each tile and over its 3 components.
+
+## Revision history
+
+| Date | Change | Summary |
+|---|---|---|
+| 2026-10-12 | minor | ARW6 import probes request whole files because sparse prefixes omit residual streams; synthetic and real-file sparse regressions |

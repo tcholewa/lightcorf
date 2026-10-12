@@ -13,7 +13,7 @@
 //! tracks (keeping the raw track's coding headers and quantization maps, and the timed-metadata
 //! track where Canon puts the as-shot white balance), a RAF's CFA strip (keeping its compression
 //! header) and a Panasonic RW2's raw data. Formats whose header probe reads samples (NEF: masked
-//! columns; ORF: bit depth and CFA phase; PEF: dark borders) and anything else get
+//! columns; ORF: bit depth and CFA phase; PEF: dark borders; ARW6: residual rows) and anything else get
 //! [`HeaderPlan::Whole`], as does a structure that is incomplete, inconsistent or keeps metadata
 //! inside its sample data: the plan never guesses.
 
@@ -231,6 +231,13 @@ fn tiff_plan(bytes: &[u8], loaded: &Ranges, preview: bool) -> HeaderPlan {
         return HeaderPlan::Whole("its header probe reads samples");
     }
     let Ok(tiff) = Tiff::parse(bytes) else { return HeaderPlan::Whole("TIFF structure") };
+    // ARW6 validates every tile's stream/index tables and decodes its first residual half
+    // even in header mode. Those bytes can be far beyond the first strip's HEAD prefix.
+    // Until the planner locates each one, ask the caller for the whole file rather than
+    // letting the probe interpret unloaded zero/0xFF bytes as an unsupported raw.
+    if tiff.all_ifds().iter().any(|ifd| ifd.u64(t::COMPRESSION) == Some(32766)) {
+        return HeaderPlan::Whole("an ARW6 header probe reads residual streams");
+    }
     let mut holes = Ranges::new();
     for ifd in tiff.all_ifds() {
         let chunks: Vec<(u64, u64)> = match ifd.image() {
@@ -513,6 +520,26 @@ mod tests {
         cut.insert(15, 32);
         assert_eq!(r.minus(&cut).spans(), &[(10, 15), (32, 40)]);
         assert_eq!(r.total(), 20);
+    }
+
+    #[test]
+    fn arw6_streams_are_not_claimed_ready_after_skipping_samples() {
+        use lightcraft_tiff::{IfdBuilder, ImageData, TiffWriter, Value};
+
+        let mut image = IfdBuilder::new();
+        image.set(t::MAKE, Value::Ascii("SONY".into()));
+        image.set(t::IMAGE_WIDTH, Value::Long(vec![512]));
+        image.set(t::IMAGE_LENGTH, Value::Long(vec![512]));
+        image.set(t::COMPRESSION, Value::Short(vec![32766]));
+        image.set(t::PHOTOMETRIC, Value::Short(vec![t::photometric::CFA]));
+        image.set(t::BITS_PER_SAMPLE, Value::Short(vec![16]));
+        image.set(t::SAMPLES_PER_PIXEL, Value::Short(vec![1]));
+        image.set_image(ImageData::Strips { rows_per_strip: 512, strips: vec![vec![0x5a; 512 * 1024]] });
+        let file = TiffWriter::default().write(&[image]).unwrap();
+        for fill in [0, 0xff] {
+            let (plan, _, _) = run(&file, 512, fill);
+            assert_eq!(plan, HeaderPlan::Whole("an ARW6 header probe reads residual streams"));
+        }
     }
 
     #[test]
