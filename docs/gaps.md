@@ -1,6 +1,6 @@
 # Gaps: where LightCraft falls short of Lightroom
 
-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** minor (GRAIN.1: ISO-inspired profiles and advanced grain; fidelity remains partial; compressed ORF gap 6 closed: 23 newly verified Olympus / OM bodies including PEN E-PL7; CR3 entry names the EOS R7 C-RAW fix and the refused CRX variants; CI and Windows / Linux entries note the 0.6.0 riscv64 build; camera colour: tone curve from black-and-white camera JPEGs; Compare and Reference get sharp zoom windows; gap 4 shrinks; gap 14: the HDR switch is read from crs XMP; gaps 2 and 10: EOS R5 Mark II CR3 verified) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-12 · **Change:** minor (FILM.1: Tri-X-inspired preset; GRAIN.1: ISO-inspired profiles and advanced grain; fidelity remains partial; compressed ORF gap 6 closed: 23 newly verified Olympus / OM bodies including PEN E-PL7; CR3 entry names the EOS R7 C-RAW fix and the refused CRX variants; CI and Windows / Linux entries note the 0.6.0 riscv64 build; camera colour: tone curve from black-and-white camera JPEGs; Compare and Reference get sharp zoom windows; gap 4 shrinks; gap 14: the HDR switch is read from crs XMP; gaps 2 and 10: EOS R5 Mark II CR3 verified) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 Every known shortfall, one entry each, ranked by user impact (how many Lightroom users hit it, and
 how hard it blocks them), then by effort. **Agents pick work from the top** (the first entry nobody is
@@ -60,7 +60,8 @@ Beta-blocking gaps (B) total **~220–415 h**; with the stability and platform w
 
 GRAIN.1 adds original 400/800/1600 profiles and opt-in CPU/GPU grain ([model](analog-grain.md)).
 The Grain row is partial: controls and synthesis exist, but measured film-stock and Lightroom
-fidelity remain unverified. Gap 3 stays open; no readiness increase is claimed.
+fidelity remain unverified. FILM.1 adds an original Tri-X-inspired Push +2 B&W preset using
+this renderer, with no measured stock-matching claim. Gap 3 stays open; no readiness increase is claimed.
 
 ## Closed recently (kept for calibration)
 
@@ -81,6 +82,7 @@ fidelity remain unverified. Gap 3 stays open; no readiness increase is claimed.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | minor | FILM.1: Tri-X-inspired Push +2 preset using existing Advanced grain; measured fidelity remains open |
 | 2026-10-12 | minor | GRAIN.1: grain profiles and advanced synthesis; fidelity remains partial, gap 3 open |
 | 2026-10-12 | minor | Gap 6 (compressed ORF) closed with 23 exact sensor references including PEN E-PL7; verification now 258 models (18%), ~44% use-weighted verified; eight beta blockers remain |
 | 2026-10-11 | minor | Reviewed against main after 0.6.0: CR3 entry names the CRX variants `crx.rs` still refuses and the R7 / R6 Mark II C-RAW state (decoding, not verified, so the measured numbers don't move); CI and Windows / Linux entries note the riscv64 release build (#844); R7 fix added to Closed recently. Panel docking (UI.9, #869) closes no listed gap |

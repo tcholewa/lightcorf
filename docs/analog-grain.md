@@ -1,6 +1,6 @@
 # ISO-inspired grain
 
-> **Last updated:** 2026-10-12 · **Change:** major (GRAIN.1)
+> **Last updated:** 2026-10-12 · **Change:** major (FILM.1: Tri-X-inspired preset)
 
 Effects → Grain offers original 35mm-inspired **400**, **800**, and **1600** starting points.
 They suggest increasingly pronounced grain, not measured reproductions of a particular stock or
@@ -21,6 +21,51 @@ restrained colour variation on colour photos, and monochrome texture on B&W trea
 Visibility varies smoothly across tones, with quieter highlights and clean black/white endpoints.
 Coupled softening reduces fine luminance detail without changing the Detail sliders. Amount 0 or
 the Effects eye disables both effects. Reset Grain also turns Advanced off.
+
+## Tri-X-inspired image preset
+
+Presets → **B&W → Tri-X 400 — Push +2 (Inspired)** is an original full-image look,
+not a measured reproduction of Kodak film, a developer or a scanner. It uses the existing
+Advanced renderer with pronounced grain, neutral B&W and deliberately crushed blacks.
+The stock-inspired name and Push +2 describe the look: neither recorded ISO nor Exposure changes.
+
+| Component | Settings at 100% |
+|---|---|
+| Profile / treatment | Color (`lc.color`), profile amount 100; B&W |
+| Light | Contrast +45, Highlights −20, Shadows −25, Whites +10, Blacks −50 |
+| Parametric curve | Shadows −60, Darks −25, Lights +10, Highlights −10 |
+| B&W mix | Red +10, Orange +8, Yellow 0, Green −5, Aqua −10, Blue −15, Purple −5, Magenta 0 |
+| Effects | Texture +5, Clarity +15, Dehaze 0 |
+| Grain | Advanced on; Amount 50, Size 50, Roughness 70 |
+
+The preset replaces the creative look: previous saturation/vibrance, HSL mixer, Point Color,
+colour grading and master/RGB point curves reset to neutral; curve splits and Refine Saturation
+return to defaults. Exposure, WB, camera calibration/local tone, HDR, Detail, vignette,
+optics/geometry/crop, local edits, grain seed and process version stay unchanged. Disabled section
+eyes stay disabled, so they can suppress parts of the look, including grain.
+
+Use `preset.apply {"id":"lc.bw-trix400-push2","amount":100}` through the existing command
+interface, or `lightcraft-cli render input.jpg -o output.png --preset lc.bw-trix400-push2`.
+Hover preview, batch application, undo/redo, persistence and the 0–200% Amount slider follow other
+built-ins. At 0% the original edit is retained; numeric settings interpolate from that edit,
+while discrete values (including B&W, profile, point-curve arrays and Advanced) switch at 50%.
+The 400/800/1600 Grain buttons still change only three grain sliders and preserve the renderer.
+
+FILM.1 validation covers replacement/preservation, Amount 0/49/50/100/200%, batch undo/redo,
+neutral output and CPU/Metal windows. Native control-channel acceptance verifies hover, applying,
+undo/redo, PNG/JPEG export and exact catalog reopen in a scratch library. Fit and 100% captures
+were inspected. CPU/Metal comparisons on an original chart and the CC0 Sony A7 III / E-PL7 raws
+have maximum difference 1 level in 8-bit RGB (mean below 0.001); full-size exports were inspected.
+Full `cargo +1.95.0 xtask ci` passes all eight gates. Local evidence and scripts live in
+`target/tri-x-inspired/`; generated media stays untracked.
+
+No new grain model, schema or process version is introduced. Grain softening remains coupled to
+Amount and Size. The starting recipe was inspected on the CC0 Sony A7 III scene; that artistic
+check does not establish film-stock fidelity. Kodak's
+[Tri-X 400 description](https://www.kodak.com/en/still-film/product/professional/tri-x-400-film/)
+and [technical publication F-4017](https://business.kodakmoments.com/sites/default/files/files/resources/f4017_TriX.pdf)
+provide qualitative context for grain, sharpness and push processing; no external preset,
+scanned grain texture or proprietary asset is included.
 
 ## Rendering
 
@@ -118,4 +163,5 @@ No external grain code, scanned overlays, presets or Adobe assets are used.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-12 | major | FILM.1: original Tri-X 400 Push +2 inspired B&W preset; renderer unchanged |
 | 2026-10-12 | major | GRAIN.1: original ISO-inspired profiles and opt-in CPU/GPU grain |
