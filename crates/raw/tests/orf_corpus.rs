@@ -159,7 +159,7 @@ fn olympus_and_om_sensor_pixels_match_independent_reference() {
         let bytes = match std::fs::read(&path) {
             Ok(bytes) => bytes,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                eprintln!("skip: {} absent", path.display());
+                lightcraft_testkit::skip!(Corpus, "{} absent", path.display());
                 continue;
             }
             Err(e) => panic!("{}: {e}", path.display()),

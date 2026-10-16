@@ -111,7 +111,7 @@ fn tri_x_neutral_output_and_gpu_windows() {
     clean.grain.amount = 0.0;
     assert_ne!(cpu.image.as_bytes(), render(&src, &info, &clean, &req).image.as_bytes(), "grain is visible");
     if !crate::gpu::available() {
-        eprintln!("Tri-X GPU check skipped: {:?}", crate::gpu::unavailable_reason());
+        lightcraft_testkit::skip!(Gpu, "Tri-X GPU check: {:?}", crate::gpu::unavailable_reason());
         return;
     }
     for req in [req, RenderRequest { window: Some(PixelWindow { x: 53, y: 41, w: 107, h: 83 }), ..req }] {

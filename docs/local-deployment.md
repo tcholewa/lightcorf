@@ -1,6 +1,6 @@
 # Isolated macOS deployment of PR #1162
 
-> **Last updated:** 2026-10-12 · **Change:** minor (local ARM64 test deployment; GRAIN.1 isolated update and rollback procedure)
+> **Last updated:** 2026-10-16 · **Change:** minor (SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build)
 
 This deployment combines main `25ef65c81eef81833a50ff5b61f8676d80611b06` (0.7.0)
 with PR #1162, `60df6a30e12aabd67c4c0033a924369de9ea718e`, on local branch
@@ -50,7 +50,7 @@ matches the release workflow; `craft-fonts/` is gitignored:
 
 ```sh
 git clone https://github.com/storytold/craft-fonts.git craft-fonts
-git -C craft-fonts checkout --detach 8dcdacd5153e64560d109541a47d806f26f048c0
+git -C craft-fonts checkout --detach 3d9ab3a132ed0eff457e424226a435a901da30d3
 export CRAFT_FONTS_DIR="$PWD/craft-fonts"
 export CRAFT_FONTS_REQUIRED=1
 ```
@@ -156,6 +156,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-16 | minor | SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build |
 | 2026-10-12 | minor | GRAIN.1: update the isolated app/CLI while retaining catalog/preferences and rollback copies |
 | 2026-10-12 | minor | Pinned PR1162 integration, isolated ARM64 packaging, corpus and native acceptance, recovery instructions |
 
@@ -181,3 +182,35 @@ To roll back, close the test app and restore the saved app, CLI package and laun
 build ignores `grain.advanced`; use the matching saved test library/configuration if exact
 pre-update rendering/state is needed. Never restore over edits made since the backup without
 first retaining them. The everyday `/Applications/LightCraft.app` is outside this update.
+
+## SYNC.1 source update (2026-10-16)
+
+`feature/tri-x-inspired` merges upstream main `0da998f2` (0.8.0) while retaining
+PR #1162, `GRAIN.1` and `FILM.1`. The original local tip `2e76f189` is kept at
+`backup/pr1162-grain-before-update-20261015`. The merge preserves both histories;
+it does not push or publish them. The ORF import/reload regression follows the
+new preview-version stamp, and preset Amount handling retains upstream's borrowed
+100% path together with Advanced grain's default-off interpolation.
+
+This source update does not install a new app or CLI. The installed isolated
+components still correspond to the earlier deployment manifests. Build, package
+and verify them with the procedure above when a deployment is requested.
+
+The updated upstream source requires the release font input at
+`3d9ab3a132ed0eff457e424226a435a901da30d3`, including Noto Sans Thai.
+The original deployment used `8dcdacd5153e64560d109541a47d806f26f048c0`;
+its installed artifacts are unaffected by updating the gitignored build input.
+
+Verification for SYNC.1 passed all eight `cargo +1.95.0 xtask ci` gates on this
+Mac with the release font pin above. The Apple M1 Max Metal adapter ran the
+advanced-grain equivalence and Tri-X window comparisons; all 23 ORF reference
+fixtures were present and the exact sensor comparison passed. E-PL7 import/reload,
+grain Auto Sync and undo, and preset Amount tests passed. A headless UI run on the
+E-PL7 raw passed 13 requests (Tri-X, clicking ISO 800, settings, undo and captures),
+with no pending render at completion. Screenshots were inspected.
+
+The CI report records 21 optional checks skipped for absent corpus files (10),
+models (8) or extra font scripts (3); none is an ORF or GPU check. Detailed reports,
+fixture inventory and headless evidence are in gitignored
+`target/upstream-sync-20261016/`. No installed components or personal library data
+were changed by this source update.

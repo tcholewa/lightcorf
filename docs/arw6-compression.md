@@ -1,6 +1,6 @@
 # Sony ARW6 (Compressed RAW 2)
 
-> **Last updated:** 2026-10-12 · **Change:** minor (safe whole-file import probes)
+> **Last updated:** 2026-10-16 · **Change:** minor (SYNC.1: retain upstream ARW6 performance improvements and whole-file header fallback; sparse preview reads remain enabled)
 
 LightCraft decodes the raw sensor data of Sony's *Compressed* and *Compressed (HQ)* ARW files (TIFF Compression 32766, SonyRawFileType 6, "ARW 6.0") written by the A7R VI (ILCE-7RM6) in pure Rust. The shared RAW decoder serves import, desktop previews, editing, CLI rendering, web and export. Before this decoder these files failed the full decode and silently rendered from their embedded JPEG. The ILCE-7M5 (A7 V) writes the same codec; no sample of it was available, so it is unverified.
 
@@ -180,10 +180,28 @@ Raw decode only, 4 CPUs, release build, best of 3 wall-clock (2026-10-10). Metho
 | ILCE-7RM6 APS-C, Compressed (HQ) | 29.7 MB | 6592x4372 | 0.35 s |
 | ILCE-7RM6 APS-C, Compressed | 30.9 MB | 6592x4372 | 0.34 s |
 
-The 1.0 s budget for the full-frame file is met. Parallelised: rayon over the tiles, over the 13 streams of each tile and over its 3 components.
+The 1.0 s budget for the full-frame file is met. Parallelised: rayon over the tiles, over the 13 streams of each tile and over its 3 components, and the colour reconstruction over rows.
+
+2026-10-12 performance pass (output unchanged, bit for bit): the vertical wavelet pass lifts whole rows instead of gathering each column, `0^n 1` codes are counted with one `leading_zeros`, and the colour reconstruction reads rows as slices, in parallel. Same method, best of 5, the previous and the new decoder run alternately on the same machine (4 CPUs, which was busier than on 2026-10-10), best of two rounds:
+
+| File | Before | After |
+|---|---|---|
+| ILCE-7RM6 FF, Compressed (HQ) | 0.56 s | 0.46 s |
+| ILCE-7RM6 FF, Compressed | 0.54 s | 0.38 s |
+| ILCE-7RM6 APS-C, Compressed (HQ) | 0.34 s | 0.23 s |
+| ILCE-7RM6 APS-C, Compressed | 0.35 s | 0.24 s |
+
+2026-10-13 (output unchanged, bit for bit): the two halves of each stream, which are independent bit streams, decode in parallel; the vertical wavelet pass runs its rows in parallel; the horizontal pass lifts each row in place (scratch space reused per thread), rows in parallel, instead of allocating two vectors per row. Same method, best of 3, the previous and the new decoder run alternately, on another machine (Ryzen 7 9800X3D, a 4-CPU cgroup quota shared with other builds); CPU is the process CPU time of the decode (all threads):
+
+| File | Before | After | CPU before | CPU after |
+|---|---|---|---|---|
+| ILCE-7RM6 FF, Compressed (HQ) | 0.60 s | 0.48 s | 1.14 s | 0.87 s |
+| ILCE-7RM6 FF, Compressed | 0.62 s | 0.48 s | 1.14 s | 0.89 s |
+| ILCE-7RM6 APS-C, Compressed (HQ) | 0.34 s | 0.23 s | 0.50 s | 0.40 s |
+| ILCE-7RM6 APS-C, Compressed | 0.31 s | 0.24 s | 0.51 s | 0.42 s |
 
 ## Revision history
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-12 | minor | ARW6 import probes request whole files because sparse prefixes omit residual streams; synthetic and real-file sparse regressions |
+| 2026-10-16 | minor | SYNC.1: retain upstream ARW6 performance improvements and whole-file header fallback; sparse preview reads remain enabled |
