@@ -377,8 +377,8 @@ cargo run --release -p lightcraft-cli -- render photo.jpg -o out.jpg --set light
 cargo xtask ci                                          # fmt, clippy, tests, layering, wasm checks
 ```
 
-For a separate macOS test app built from main plus PR #1162, with its own library,
-preferences and CLI, see [the local deployment instructions](docs/local-deployment.md).
+For the local **Lightcraft BW** macOS build (PR #1162, advanced grain and Tri-X),
+with its retained library and preferences, see [the local deployment instructions](docs/local-deployment.md).
 
 CI defaults to line-table debug information and one build job per 1.5 GB of RAM
 available when it starts (at most one per CPU; 4 if memory can't be read), so an

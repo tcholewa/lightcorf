@@ -1,6 +1,59 @@
-# Isolated macOS deployment of PR #1162
+# Local macOS installations
 
-> **Last updated:** 2026-10-16 · **Change:** minor (SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build)
+> **Last updated:** 2026-10-16 · **Change:** minor (BW.1: Lightcraft BW replaces the PR1162-named desktop builds; saved library/preferences retained)
+
+
+## Lightcraft BW (current desktop installation)
+
+The local 0.8.0 app is `~/Applications/Lightcraft BW.app`, built from the verified
+ORF/grain/Tri-X integration `53540224`. Its bundle name and display name are
+**Lightcraft BW**, with identifier `ai.storyteller.lightcraft.bw`. This is a local
+ARM64 build with HEIF support, Inter and release-pinned craft-fonts
+`3d9ab3a132ed0eff457e424226a435a901da30d3`, signed ad hoc for this Mac.
+
+The bundle's `LSEnvironment` deliberately retains the existing paths:
+
+| Data | Path |
+|---|---|
+| Library | `~/Pictures/LightCraft PR1162 Library` |
+| Preferences / logs / models | `~/Library/Application Support/LightCraft PR1162` |
+
+Keeping these paths preserves saved edits and preferences without migrating or
+renaming user data. The executable inside the bundle remains `LightCraft`;
+upstream product labels remain LightCraft. Launch normally with:
+
+```sh
+open "$HOME/Applications/Lightcraft BW.app"
+```
+
+The PR1162 app and its `.before-analog-grain` / `.before-tri-x-inspired` app backups
+are removed from `~/Applications` after the replacement passes acceptance. Recovery
+copies live only in gitignored `target/lightcraft-bw/retired/`. The everyday
+`/Applications/LightCraft.app` and existing CLI packages are outside this app update.
+
+Build with the packaging procedure below, then copy its signed app into a separate
+stage, set the BW bundle metadata and retained data paths, include Inter's OFL,
+and sign the executable and bundle again. Require strict signature and plist checks
+before installing. Test staged and installed executables against fresh scratch
+libraries/configurations through the control channel: E-PL7 sensor import, Tri-X
+hover/apply, ISO grain controls, undo/redo, PNG/JPEG export, and exact settings after
+reopening. Inspect fit/100% captures and GPU/performance state. Only then retire
+the old application bundles. Hash the existing installation and saved-data files
+before and after to verify preservation.
+
+Build logs, scripts, signatures, acceptance summaries, captures and the final
+source/hash manifest belong in `target/lightcraft-bw/`. Installation validation passed
+on 2026-10-16: both staged and installed native Metal runs preserved exact settings
+after reopening; their PNG/JPEG exports were byte-identical. Fit and 100% native
+captures were inspected. Installed settled UI update was 0.66 ms; the measured
+render was 19.8 ms, with no GPU fallback or pending work. Strict signatures and
+all eight CI gates passed. Existing saved-data, everyday-app and CLI hashes were
+unchanged. The three retired app bundles use `.app-backup` recovery names.
+
+The PR1162 sections below
+record the earlier deployment and its recovery procedure.
+
+## Previous PR1162 installation
 
 This deployment combines main `25ef65c81eef81833a50ff5b61f8676d80611b06` (0.7.0)
 with PR #1162, `60df6a30e12aabd67c4c0033a924369de9ea718e`, on local branch
@@ -156,6 +209,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-16 | minor | BW.1: build/install Lightcraft BW; retire PR1162-named app bundles; retain existing catalog, preferences and CLI |
 | 2026-10-16 | minor | SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build |
 | 2026-10-12 | minor | GRAIN.1: update the isolated app/CLI while retaining catalog/preferences and rollback copies |
 | 2026-10-12 | minor | Pinned PR1162 integration, isolated ARM64 packaging, corpus and native acceptance, recovery instructions |
