@@ -36,6 +36,13 @@ LightCraft's Kelvin/tint scale. The old camera fit, matrices, profile tone and s
 reconstruction are bypassed. Embedded sensor lens opcodes/mattes are not transferred across Apple's
 crop geometry in this first version; ordinary manual geometry/optics and RGB masks remain available.
 
+New Core Image RAW imports start at sharpening **15** (previously 40), recorded as their import
+look so Reset returns to 15 and the photo starts unedited. Import presets and sidecars can override
+it. Existing photos retain their saved settings and original reset defaults; rendered files and the
+Rust decoder's defaults are unchanged. Tri-X presets preserve this sharpening amount. This lowers
+the initial strength only: Radius and Detail are not yet connected to the sharpening renderer, and
+higher amounts can still produce halos.
+
 `Photo.raw_backend`, `ProbeInfo.raw_backend` and `SourceInfo.raw_backend` carry provenance; catalog
 fields are optional for old records. `photo.inspect` includes backend capabilities. RAW cache keys
 include recipe, decoder and OS build. On an OS/recipe change RAW records are re-probed, including

@@ -431,3 +431,38 @@ fn slideshow_playback_settings_persist_with_the_library() {
     drop(s);
     let _ = std::fs::remove_dir_all(&lib);
 }
+
+#[test]
+fn coreimage_import_sharpening_persists_and_reset_respects_import_presets() {
+    use lightcraft_catalog::{Op, Photo, PhotoId, Source};
+    let mut s = Session::new();
+    let mut p = Photo::new(PhotoId(1), Source::File { path: "sample.ORF".into() }, "sample.ORF", "ORF", 24, 16, "");
+    p.kind = MediaKind::Raw;
+    p.as_shot_wb = Some((5200.0, 3.0));
+    p.raw_backend = Some("coreimage-linear-rec2020-v1:8:test".into());
+    p.develop = Arc::new(p.camera_defaults());
+    let old = p.clone();
+    crate::import::apply_import_defaults(&s, &mut p);
+    assert_eq!(p.develop.detail.sharpen_amount, 15.0);
+    assert_eq!(p.develop.wb, old.develop.wb);
+    assert!(!p.is_edited());
+    // The stored import look survives catalog serialization and a real Reset command.
+    let saved = serde_json::to_vec(&p).unwrap();
+    let reopened: Photo = serde_json::from_slice(&saved).unwrap();
+    s.catalog.apply(Op::AddPhoto { photo: Box::new(reopened) }).unwrap();
+    s.execute("library.select", &json!({"ids": [1]})).unwrap();
+    s.execute("develop.set", &json!({"control": "detail.sharpenAmount", "value": 55.0})).unwrap();
+    s.execute("develop.reset", &json!({})).unwrap();
+    assert_eq!(s.catalog.photo(PhotoId(1)).unwrap().develop.detail.sharpen_amount, 15.0);
+    assert!(!s.catalog.photo(PhotoId(1)).unwrap().is_edited());
+    let old: Photo = serde_json::from_slice(&serde_json::to_vec(&old).unwrap()).unwrap();
+    assert_eq!(old.develop.detail.sharpen_amount, 40.0);
+    assert_eq!(old.import_defaults().detail.sharpen_amount, 40.0);
+    // Explicit user defaults take precedence over the built-in amount.
+    s.presets.push(user_preset("user.sharp", json!({"detail": {"sharpen_amount": 25.0}})));
+    s.import_defaults.raw_preset = Some("user.sharp".into());
+    crate::import::apply_import_defaults(&s, &mut p);
+    assert_eq!(p.develop.detail.sharpen_amount, 25.0);
+    assert_eq!(p.import_defaults().detail.sharpen_amount, 25.0);
+    assert!(!p.is_edited());
+}

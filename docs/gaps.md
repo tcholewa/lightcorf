@@ -2,7 +2,7 @@
 
 > **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
 
-> **Last updated:** 2026-10-21 · **Change:** minor (CI.1: isolated macOS Core Image backend, verified local cameras and explicit sensor/DNG limitations)
+> **Last updated:** 2026-10-21 · **Change:** minor (CI.3: Core Image import sharpening 15; mark incomplete sharpening controls partial)
 
 Every known shortfall, one entry each, ranked by user impact (how many Lightroom users hit it, and
 how hard it blocks them), then by effort. **Agents pick work from the top** (the first entry nobody is
@@ -27,7 +27,7 @@ camera coverage or colour accuracy. See [acceptance and limitations](coreimage-r
 |---:|---|---|---|---:|---|
 | 1 B | **Camera colour is estimated, not measured** (LR-PROF-CAMERACOLOR). Raws start from a per-file fit to the camera JPEG, 5 bundled profiles or 52 spectral matrices (plus same-sensor bodies, e.g. the X-T30 through the X-T3); others use a neutral matrix (a black-and-white camera JPEG gives its tone curve only, #577; dark JPEG tones also guide the toe, #1307) | ΔE vs camera JPEG 2.9–10 after fitting (raw-parity.md); 0 chart-calibrated models vs 1,500 Adobe Standard profiles | every raw shooter sees colour that is close but not Lightroom's; some get neutral-matrix colour | 50–90 | [raw-parity](raw-parity.md#colour) |
 | 2 B | **CR3 variants no public file uses** (LR-IMP-FORMATS): `crx.rs` refuses vertical-tile C-RAW, partial-subband and other plane coding, multi-tile 0x200 and adaptive low-frequency gains, and those files fall back to the preview. All 110 CC0 CR3s on raw.pixls.us (31 folders) decode from sensor data, so none of these variants has a public sample; 26 CR3 bodies are verified (M50 / R100 / R8 exact, R5 Mark II pinned, 22 more pinned on one CC0 file each and checked against the camera JPEG, [cr3.md](cr3.md#further-bodies-one-cc0-file-each)). HEIF stills are `.HIF` files, not CR3; no CR3 sRAW / mRAW sample exists | measured: Canon's share whose camera fully works 73% → 94% (raw-parity.md); 18 of 22 popular Canon bodies write CR3, all 18 now verified | +0.3 points of photographers; the variants surface only as user files that open as a preview | 10–25 | [raw-parity](raw-parity.md#remaining-work-ranked-by-photographers-unlocked-per-hour) |
-| 3 B | **Render fidelity unmeasured** (LR-BEHAV-RENDER-FIDELITY): tone, highlights, texture / clarity / dehaze, NR, sharpening and grain are tuned by eye | no side-by-side suite; a retune needs a new process version (V1/V2 exist; Advanced grain is opt-in) | edits imported from Lightroom look different; the look "isn't Lightroom's" | 30–60 | [raw-parity](raw-parity.md), [process-versions](process-versions.md) |
+| 3 B | **Render fidelity unmeasured** (LR-BEHAV-RENDER-FIDELITY): tone, highlights, texture / clarity / dehaze, NR, sharpening and grain are tuned by eye; sharpening Radius/Detail are not wired into rendering and high amounts produce halos (LR-EDIT-DETAIL-SHARPEN) | no side-by-side suite; a retune needs a new process version (V1/V2 exist; Advanced grain is opt-in) | edits imported from Lightroom look different; the look "isn't Lightroom's" | 30–60 | [raw-parity](raw-parity.md), [process-versions](process-versions.md) |
 | 4 | ~~Original-pixel detail at 100%~~ (LR-VIEW-ZOOM): closed 2026-10-12, see Closed recently | checklist row ✅ | — | 0 | [ui-parity](ui-parity.md) |
 | 5 B | **AI masks: Subject, Sky, People, Background, Landscape** are heuristics; Object / Describe run SAM 3 but its download has no mirror configured | `crates/segment`; ai-masks.md; MASK rows 67% | masking is how most Lightroom users edit today | 40–70 + model decision | [target-app-parity](target-app-parity.md#ai) |
 | 7 | **Nikon High Efficiency NEF** (HE / HE★ on Z 8, Z 9, Z 6III, Z f, Z50II, Z5II when set to HE) | named and preview only (#193); needs a pure-Rust JPEG XS decoder | +1.1 points (only shots taken in HE; lossless works on the same bodies); low gain per hour (~0.04), so not a beta blocker | 20–40 | [raw-parity](raw-parity.md) |
@@ -97,6 +97,7 @@ this renderer, with no measured stock-matching claim. Gap 3 stays open; no readi
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | CI.3: new Core Image imports sharpen at 15; Radius/Detail renderer gaps downgrade Sharpening to partial, breadth 82.7%, P0 98.0%; readiness unchanged |
 | 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
 | 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local compressed ORF, advanced grain and Tri-X; retain both sets of fixes and evidence |
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |

@@ -5,11 +5,15 @@
 
 ## Lightcraft BW Core Image (separate experimental installation)
 
-Installed at `~/Applications/Lightcraft BW Core Image.app`, from source `0139d009` on
+Initial installation at `~/Applications/Lightcraft BW Core Image.app` used source `0139d009` on
 `feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
 minimum macOS is 12. This local ARM64 0.10.0 build includes HEIF, Inter, pinned craft-fonts
 `3d9ab3a132ed0eff457e424226a435a901da30d3` and a separately signed RAW helper inside `Contents/MacOS`.
 The app, helper, finished DMG and CLI package pass strict ad-hoc signature checks. It is not notarized.
+
+The initial installation evidence below is retained as its baseline. The CI.3 source update changes
+new Core Image RAW imports to sharpening 15; see [default behavior](coreimage-raw.md). Subsequent
+local build, signature and native acceptance records live in `target/sharpen-default-15/`.
 
 A normal launch was verified to use these independent defaults, with an empty new library:
 

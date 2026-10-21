@@ -352,21 +352,25 @@ pub fn apply_import_defaults(s: &Session, p: &mut Photo) {
     if let Some(mp) = d.metadata_preset.as_ref().and_then(|n| s.metadata_presets.iter().find(|m| m.name.eq_ignore_ascii_case(n))) {
         crate::cmd::metadata::apply_to(&mut p.meta, &mp.fields);
     }
-    let base = p.camera_defaults();
+    let camera = p.camera_defaults();
+    let base = fresh_camera_defaults(p);
     // a raw shown from its embedded JPEG gets the rendered-file default, not the raw one
     let raw = p.develops_raw();
     let preset = s.import_defaults.preset_for(raw, &p.meta.camera).and_then(|id| s.presets.iter().find(|x| x.id == id));
-    match preset {
-        Some(pr) => {
-            let look = std::sync::Arc::new(pr.apply(&base, 1.0));
-            p.develop = look.clone();
-            p.import_look = (*look != base).then_some(look);
-        }
-        None => {
-            p.develop = std::sync::Arc::new(base);
-            p.import_look = None;
-        }
+    let look = std::sync::Arc::new(preset.map_or(base.clone(), |pr| pr.apply(&base, 1.0)));
+    p.develop = look.clone();
+    // Record the gentler built-in look too: Reset and the edited badge must agree, while
+    // older catalogs retain their original camera defaults and saved edits.
+    p.import_look = (*look != camera).then_some(look);
+}
+
+/// Initial look only; never applied when reopening or reloading an existing catalog photo.
+fn fresh_camera_defaults(p: &Photo) -> lightcraft_develop::DevelopSettings {
+    let mut settings = p.camera_defaults();
+    if p.develops_raw() && p.raw_backend.as_deref().is_some_and(|stamp| stamp.starts_with("coreimage-")) {
+        settings.detail.sharpen_amount = 15.0;
     }
+    settings
 }
 
 pub fn is_supported(path: &Path) -> bool {
@@ -1545,7 +1549,7 @@ impl Session {
             p.embedded_lens = info.embedded_lens;
             p.preview_only = info.preview_only.clone();
         }
-        p.develop = std::sync::Arc::new(p.import_defaults());
+        p.develop = std::sync::Arc::new(fresh_camera_defaults(&p));
         let edge = edge.clamp(64, crate::media::SourceLevel::Thumb.max_edge());
         let level = crate::media::SourceLevel::Thumb;
         let source = self.media.origin_ref(&p.source, level.max_edge());
