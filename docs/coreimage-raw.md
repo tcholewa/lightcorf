@@ -105,8 +105,37 @@ BW app, configuration and library must remain unchanged.
 
 API references: Apple documents [baseline exposure zero as linear response](https://developer.apple.com/documentation/coreimage/cirawfilter/baselineexposure) and [EDR amount 1 as its default EDR](https://developer.apple.com/documentation/coreimage/cirawfilter/extendeddynamicrangeamount).
 
+## Local release measurements
+
+M1 Max, macOS 27.0.1 build 26A434, release builds: old BW source `ec987997` versus Core Image
+`0139d009`. Three separate CLI runs per case, 1600-pixel Tri-X JPEG; medians include startup,
+import/probe, development and encoding. Filesystem cache is mixed cold/warm. These compare complete
+commands, not demosaic algorithms or image quality.
+
+| Sample | Rust BW seconds | Core Image seconds | Core Image peak summed process RSS |
+|---|---:|---:|---:|
+| Original E-M1 `B6010001.ORF` | 0.39 | 1.13 | 1100 MiB |
+| OM-1 `_7190788.ORF` | 0.53 | 1.34 | 1373 MiB |
+| OM-1 high-res `_C031132.ORF` | 0.60 | 1.94 | 2609 MiB |
+
+This version always develops the complete RAW before resizing, unlike Rust's small-preview path.
+The measured fresh exports are 2.6–3.2× slower, with higher memory use. RSS sums parent and worker
+and can count shared memory twice; it is not a measurement of unique physical memory. Ten repeated
+20 MP OM-1 decodes in one worker took about 0.59 seconds each after startup; post-request worker RSS
+was 770.5–770.9 MiB across the run. This short run does not establish absence of long-term leaks.
+
+Cached UI edits were much faster: staged exposure edit 14.2 ms, installed exposure edit 44.5 ms,
+then installed settled render 14.8 ms / UI update 0.41 ms. No GPU fallback occurred. A full 50 MP,
+16-bit Tri-X TIFF export took 6.9 seconds. These results do not meet the ≤1-second full-export target;
+preview decode/memory optimization remains follow-up work. Exact results and scripts are local in
+`target/coreimage-raw/bench/`, `worker-memory.json` and `full-export/results.json`.
+
+The verified installation, independent defaults and preserved BW files are recorded in
+[local deployment](local-deployment.md#lightcraft-bw-core-image-separate-experimental-installation).
+
 ## Revision history
 
 | Date | Task | Change |
 |---|---|---|
+| 2026-10-21 | CI.2 | Installed release acceptance, separate defaults, preserved BW and measured performance |
 | 2026-10-21 | CI.1 | Strict isolated Apple RAW backend, local camera corpus and separate macOS identity |

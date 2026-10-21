@@ -1,9 +1,56 @@
 # Local macOS installations
 
-> **Last updated:** 2026-10-21 · **Change:** minor (BW.2: install verified Lightcraft BW 0.10.0; retain library, preferences and rollback app)
+> **Last updated:** 2026-10-21 · **Change:** minor (CI.2: install verified Core Image app alongside the existing BW app)
 
 
-## Lightcraft BW (current desktop installation)
+## Lightcraft BW Core Image (separate experimental installation)
+
+Installed at `~/Applications/Lightcraft BW Core Image.app`, from source `0139d009` on
+`feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
+minimum macOS is 12. This local ARM64 0.10.0 build includes HEIF, Inter, pinned craft-fonts
+`3d9ab3a132ed0eff457e424226a435a901da30d3` and a separately signed RAW helper inside `Contents/MacOS`.
+The app, helper, finished DMG and CLI package pass strict ad-hoc signature checks. It is not notarized.
+
+A normal launch was verified to use these independent defaults, with an empty new library:
+
+| Data | Path |
+|---|---|
+| Library | `~/Pictures/LightCraft BW Core Image Library` |
+| Preferences / logs / models | `~/Library/Application Support/LightCraft BW Core Image` |
+
+The existing `Lightcraft BW.app`, PR1162 library/preferences and personal `_orfs` samples remain
+unchanged: all 975 recorded file hashes match. The new app is installed beside BW; no old bundle
+was retired. Launch with:
+
+```sh
+open "$HOME/Applications/Lightcraft BW Core Image.app"
+```
+
+Staged and installed native acceptance passed all seven supplied samples (original E-M1, E-M1X,
+OM-1 standard/high-resolution/ORI and GX9 RW2). Tri-X hover/apply, grain controls, Amount
+0/49/50/100/200, undo/redo, PNG/JPEG export and exact catalog reopening passed. Native fit/100%
+screenshots were inspected; Metal was active without fallback. All staged/installed comparison
+exports are byte-identical. A full-resolution OM-1 high-resolution TIFF was also verified as
+8160×6120, 16-bit RGB. Acceptance used scratch libraries, not either personal library.
+
+The installed app's measured cached render was 14.8 ms (a preceding warm exposure edit took
+44.5 ms; staged exposure edit 14.2 ms), with a settled UI update of 0.41 ms. First loads include
+full RAW development and are slower; release CLI timing/memory measurements are in
+[Core Image RAW](coreimage-raw.md#local-release-measurements).
+
+Original E-M10 qualification remains pending its missing sample. AI sensor denoise, sensor-DNG
+conversion and camera calibration are unavailable. On tested macOS build 26A434, generated linear
+DNGs are rejected by Apple; HDR/panorama completion and rendered-DNG export report an error before
+saving. A native rendered-DNG export was verified to leave no output file. Ordinary rendered
+JPEG/PNG/TIFF export works. See [backend capabilities](coreimage-raw.md).
+
+All eight quality gates passed before the source commit and again before the deployment-record
+commit (22 explicit optional-data skips including original E-M10). Evidence, signed packages,
+source/installed hash manifest, camera results, defaults
+check, screenshots and performance measurements are under `target/coreimage-raw/`. The app was
+closed after acceptance and is ready for normal use. No push or publication was performed.
+
+## Lightcraft BW (existing Rust desktop installation)
 
 The local 0.10.0 app is `~/Applications/Lightcraft BW.app`, built from the verified
 ORF/grain/Tri-X integration `ec987997` (upstream main `abb49bdd`). Its bundle name and display name are
@@ -228,6 +275,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | CI.2: install separate Core Image app from 0139d009; verify cameras, defaults, signatures and preservation |
 | 2026-10-21 | minor | BW.2: build/install 0.10.0 from ec987997; native staged/installed acceptance and identical exports; preserve data paths, saved data and 0.8.0 rollback bundle |
 | 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local ORF/grain/Tri-X; installed components unchanged |
 | 2026-10-16 | minor | BW.1: build/install Lightcraft BW; retire PR1162-named app bundles; retain existing catalog, preferences and CLI |
