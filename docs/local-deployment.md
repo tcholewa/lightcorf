@@ -1,12 +1,12 @@
 # Local macOS installations
 
-> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: source updated to upstream 0.10.0; installed BW app remains 0.8.0)
+> **Last updated:** 2026-10-21 · **Change:** minor (BW.2: install verified Lightcraft BW 0.10.0; retain library, preferences and rollback app)
 
 
 ## Lightcraft BW (current desktop installation)
 
-The local 0.8.0 app is `~/Applications/Lightcraft BW.app`, built from the verified
-ORF/grain/Tri-X integration `53540224`. Its bundle name and display name are
+The local 0.10.0 app is `~/Applications/Lightcraft BW.app`, built from the verified
+ORF/grain/Tri-X integration `ec987997` (upstream main `abb49bdd`). Its bundle name and display name are
 **Lightcraft BW**, with identifier `ai.storyteller.lightcraft.bw`. This is a local
 ARM64 build with HEIF support, Inter and release-pinned craft-fonts
 `3d9ab3a132ed0eff457e424226a435a901da30d3`, signed ad hoc for this Mac.
@@ -42,16 +42,35 @@ the old application bundles. Hash the existing installation and saved-data files
 before and after to verify preservation.
 
 Build logs, scripts, signatures, acceptance summaries, captures and the final
-source/hash manifest belong in `target/lightcraft-bw/`. Installation validation passed
-on 2026-10-16: both staged and installed native Metal runs preserved exact settings
-after reopening; their PNG/JPEG exports were byte-identical. Fit and 100% native
-captures were inspected. Installed settled UI update was 0.66 ms; the measured
-render was 19.8 ms, with no GPU fallback or pending work. Strict signatures and
-all eight CI gates passed. Existing saved-data, everyday-app and CLI hashes were
-unchanged. The three retired app bundles use `.app-backup` recovery names.
+source/hash manifest for BW.2 are in `target/lightcraft-bw-20261021/`. The ARM64
+release was built with Rust 1.95.0, HEIF and the pinned fonts. The signed package,
+finished DMG and install-copy signatures passed strict verification. The BW
+variant was then signed and verified separately with its retained identity.
 
-The PR1162 sections below
-record the earlier deployment and its recovery procedure.
+Both staged and installed native Metal runs passed E-PL7 import, Tri-X hover/apply,
+ISO grain controls, Amount 0/49/50/100/200%, undo/redo, PNG/JPEG export and exact
+saved settings after reopening. Fit and 100% captures were inspected; neither
+run used headless screenshot fallback. The staged and installed PNG/JPEG exports
+are byte-identical. Installed render time was 19.2 ms, with a settled UI update
+of 0.48 ms, no GPU fallback and no pending render work. All eight
+`cargo +1.95.0 xtask ci` gates passed before packaging and again before committing
+the deployment record (21 optional missing-data/model/font skips, none ORF or
+GPU). The final CI report is in `target/lightcraft-bw-20261021/`.
+
+Existing catalog, saved preferences, everyday-app and CLI hashes are unchanged.
+The installed bundle is byte-identical to the staged BW bundle, and macOS app
+registration was refreshed. The app was closed after acceptance, ready for normal
+launch. No remote push or publication was performed.
+
+The previous 0.8.0 BW app is retained byte-for-byte at
+`target/lightcraft-bw-20261021/rollback/Lightcraft BW 0.8.0.app-backup`. To roll
+back, close BW and restore that bundle to `~/Applications/Lightcraft BW.app`;
+never overwrite edits made since the update with old library snapshots. The
+first BW installation's evidence remains in `target/lightcraft-bw/`, and the
+earlier retired PR1162 bundles remain in its `retired/` directory.
+
+The sections below record earlier deployments and the source-only SYNC updates;
+BW.2 supersedes their installed-version statements.
 
 ## Previous PR1162 installation
 
@@ -209,6 +228,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | BW.2: build/install 0.10.0 from ec987997; native staged/installed acceptance and identical exports; preserve data paths, saved data and 0.8.0 rollback bundle |
 | 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local ORF/grain/Tri-X; installed components unchanged |
 | 2026-10-16 | minor | BW.1: build/install Lightcraft BW; retire PR1162-named app bundles; retain existing catalog, preferences and CLI |
 | 2026-10-16 | minor | SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build |
