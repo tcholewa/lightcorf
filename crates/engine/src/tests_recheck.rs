@@ -42,6 +42,7 @@ fn library(name: &str) -> Lib {
     let p = s.catalog.photo(id).unwrap().clone();
     assert!(p.preview_only.is_some() && !p.preview_only_stale(), "just imported: decided by this version");
     s.apply_system(Op::SetContent {
+        raw_backend: None,
         id,
         width: p.width,
         height: p.height,

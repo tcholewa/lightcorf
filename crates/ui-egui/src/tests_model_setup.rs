@@ -1,4 +1,5 @@
-//! Synthetic setup flows: model installation must resume the requested action on its original targets.
+//! Synthetic setup flows for platforms with sensor denoise; macOS capability rejection is tested in tests_coreimage.
+#![cfg(not(target_os = "macos"))]
 use std::path::{Path, PathBuf};
 
 use lightcraft_catalog::{MediaKind, Op, Photo, PhotoId, Source};

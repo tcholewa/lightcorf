@@ -1,3 +1,5 @@
+> **Experimental macOS branch:** [Lightcraft BW Core Image](docs/coreimage-raw.md) uses Apple RAW development in an isolated helper, with a separate app/library. Other platforms keep the Rust backend.
+
 <p align="center">
   <a href="https://getartcraft.com/">
     <picture>

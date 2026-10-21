@@ -137,6 +137,31 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
     let content_hash = Some(lightcraft_preview::hash_bytes(bytes).to_string());
     let m = lightcraft_meta::extract(bytes);
     let (meta, captured) = meta_of(&m);
+    if crate::raw_backend::enabled() && lightcraft_raw::probe(bytes).is_some() {
+        let (width, height, as_shot_wb, raw_backend, preview_only) = match crate::raw_backend::probe(bytes) {
+            Ok(info) => (info.width as u32, info.height as u32, Some(crate::raw_backend::white_balance(&info)), Some(info.stamp()), None),
+            Err(e) if e.kind == lightcraft_raw_backend::ErrorKind::Unsupported => {
+                let (w, h) = embedded_preview_size(bytes).ok_or_else(|| e.to_string())?;
+                (w, h, None, Some(crate::raw_backend::runtime_stamp().to_string()), Some(e.to_string()))
+            }
+            Err(e) => return Err(e.to_string()),
+        };
+        return Ok(ProbeInfo {
+            width,
+            height,
+            format: ext_upper(name),
+            kind: MediaKind::Raw,
+            file_size: bytes.len() as u64,
+            captured,
+            meta,
+            as_shot_wb,
+            raw_backend,
+            content_hash,
+            xmp: lightcraft_meta::embedded(bytes).xmp,
+            preview_only,
+            ..Default::default()
+        });
+    }
     if lightcraft_raw::probe(bytes).is_some() {
         let raw = match lightcraft_raw::probe_info(bytes).map_err(|e| preview_reason(bytes, e)) {
             Ok(r) => r,
@@ -182,6 +207,7 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
             content_hash,
             xmp: lightcraft_meta::embedded(bytes).xmp,
             preview_only: None,
+            raw_backend: None,
         });
     }
     let fmt = lightcraft_codecs::sniff(bytes).ok_or("unrecognized file format")?;
@@ -215,6 +241,7 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
         embedded_lens: None,
         xmp: None,
         preview_only: None,
+        raw_backend: None,
     })
 }
 
@@ -409,6 +436,18 @@ fn load_bytes_now(
     max_edge: usize,
     denoise: Option<&DenoiseSpec>,
 ) -> Result<(Rgb32f, Option<Rgb32f>, SourceInfo), String> {
+    if crate::raw_backend::enabled() && lightcraft_raw::probe(&bytes).is_some() {
+        if denoise.is_some() {
+            return Err(crate::raw_backend::SENSOR_UNAVAILABLE.into());
+        }
+        return match crate::raw_backend::decode(&bytes, max_edge) {
+            Ok((image, info)) => Ok((image, None, info)),
+            Err(e) if e.kind == lightcraft_raw_backend::ErrorKind::Unsupported => {
+                load_embedded_preview(&bytes, max_edge).map(|(image, info)| (image, None, info)).ok_or_else(|| e.to_string())
+            }
+            Err(e) => Err(e.to_string()),
+        };
+    }
     if lightcraft_raw::probe(&bytes).is_some() {
         let mut raw = match lightcraft_raw::decode(&bytes).map_err(|e| preview_reason(&bytes, e)) {
             Ok(r) => r,
@@ -528,6 +567,7 @@ fn load_bytes_now(
                 local_tone,
                 // (the catalog knows the original's size: `media::source_info`)
                 native_long: None,
+                raw_backend: None,
             },
         ));
     }
@@ -2363,6 +2403,7 @@ pub(crate) mod tests {
         // Same content hash and file size: a new decoder, not a changed original, clears the flag.
         s.catalog
             .apply(lightcraft_catalog::Op::SetContent {
+                raw_backend: None,
                 id,
                 width: p.width,
                 height: p.height,

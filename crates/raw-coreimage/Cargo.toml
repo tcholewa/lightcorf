@@ -1,0 +1,19 @@
+[package]
+name = "lightcraft-raw-coreimage"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Isolated macOS Core Image FFI, used only by the RAW worker (L1)"
+[lints.rust]
+unsafe_code = "deny"
+[dependencies]
+lightcraft-raw-backend = { path = "../raw-backend" }
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = { workspace = true }
+objc2-foundation = { workspace = true, features = ["NSString", "NSDictionary", "NSValue", "NSProcessInfo", "NSError"] }
+objc2-core-image = { version = "0.3.2", default-features = false, features = ["std", "CIRAWFilter", "CIFilter", "CIImage", "CIContext", "CIRenderDestination", "CIVector", "objc2-core-graphics", "objc2-core-foundation"] }
+objc2-core-foundation = { version = "0.3.2", default-features = false, features = ["std", "CFCGTypes"] }
+objc2-core-graphics = { version = "0.3.2", default-features = false, features = ["std", "CGColorSpace", "CGGeometry"] }
+
+[dependencies.lightcraft-raster]
+workspace = true

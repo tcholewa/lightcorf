@@ -1180,7 +1180,13 @@ pub fn body(app: &mut LightcraftApp, ui: &mut egui::Ui, d: &mut ImportDialog) {
         }
         if !d.move_files {
             field(ui, "Raw files", |ui| {
-                let r = ui.checkbox(&mut d.dng, crate::i18n::tr("Copy as DNG"));
+                let available = !lightcraft_engine::raw_backend::enabled();
+                if !available {
+                    d.dng = false;
+                }
+                let r = ui
+                    .add_enabled(available, egui::Checkbox::new(&mut d.dng, crate::i18n::tr("Copy as DNG")))
+                    .on_disabled_hover_text(lightcraft_engine::raw_backend::SENSOR_UNAVAILABLE);
                 register(ui.ctx(), "check:importDng", r.rect);
             });
         }

@@ -699,6 +699,7 @@ fn a_photo_whose_file_changed_has_no_picture_until_it_is_made_again() {
     x.s.commit(
         "test",
         lightcraft_catalog::Op::SetContent {
+            raw_backend: None,
             id,
             width: p.width,
             height: p.height,

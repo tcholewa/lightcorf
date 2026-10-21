@@ -56,7 +56,13 @@ fn config_dir_with(platform: Platform, env: impl Fn(&str) -> Option<OsString>, p
         return Some(dir);
     }
     match platform {
-        Platform::Mac => env("HOME").map(|h| PathBuf::from(h).join("Library/Application Support/LightCraft")),
+        Platform::Mac => env("HOME").map(|h| {
+            PathBuf::from(h).join(if crate::raw_backend::enabled() {
+                "Library/Application Support/LightCraft BW Core Image"
+            } else {
+                "Library/Application Support/LightCraft"
+            })
+        }),
         Platform::Windows => env("APPDATA").map(|a| PathBuf::from(a).join("LightCraft")),
         Platform::Other => {
             env("XDG_CONFIG_HOME").map(PathBuf::from).or_else(|| env("HOME").map(|h| PathBuf::from(h).join(".config"))).map(|c| c.join("lightcraft"))

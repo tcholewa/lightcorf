@@ -1,6 +1,8 @@
 # Gaps: where LightCraft falls short of Lightroom
 
-> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: integrate upstream main abb49bdd (0.10.0) while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding)
+> **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
+
+> **Last updated:** 2026-10-21 · **Change:** minor (CI.1: isolated macOS Core Image backend, verified local cameras and explicit sensor/DNG limitations)
 
 Every known shortfall, one entry each, ranked by user impact (how many Lightroom users hit it, and
 how hard it blocks them), then by effort. **Agents pick work from the top** (the first entry nobody is
@@ -10,6 +12,14 @@ and [ROADMAP.md](../ROADMAP.md) if they move.
 
 Hours are Opus 5.5 agent wall-clock hours (see [target-app-parity.md](target-app-parity.md#how-hours-are-calibrated)).
 `B` marks a gap that blocks **beta**.
+
+## Core Image branch qualification
+
+The macOS branch still needs an original E-M10 sample and a compatible generated linear-DNG path.
+On build 26A434, Apple rejects LightCraft linear DNG output, so HDR/panorama completion and rendered
+DNG export fail before saving. Sensor denoise, sensor-DNG conversion and camera calibration are
+intentionally unavailable. Seven personal ORF/ORI/RW2 samples decode; that does not establish general
+camera coverage or colour accuracy. See [acceptance and limitations](coreimage-raw.md).
 
 ## Ranked
 
@@ -87,6 +97,7 @@ this renderer, with no measured stock-matching claim. Gap 3 stays open; no readi
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
 | 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local compressed ORF, advanced grain and Tri-X; retain both sets of fixes and evidence |
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
 | 2026-10-12 | minor | FILM.1: Tri-X-inspired Push +2 preset using existing Advanced grain; measured fidelity remains open |

@@ -781,7 +781,12 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
                         opts.format = shown;
                     }
                     if matches!(opts.format, F::Dng | F::RenderedDng) {
-                        choices(ui, "DNG of", "exportDngKind", &[(F::Dng, "Raw data"), (F::RenderedDng, "Rendered photo")], &mut opts.format);
+                        if lightcraft_engine::raw_backend::enabled() {
+                            opts.format = F::RenderedDng;
+                            ui.label("Rendered photo — Core Image does not expose sensor data");
+                        } else {
+                            choices(ui, "DNG of", "exportDngKind", &[(F::Dng, "Raw data"), (F::RenderedDng, "Rendered photo")], &mut opts.format);
+                        }
                     }
                     if !opts.format.is_rendered() {
                         let note = if opts.format == F::Dng {

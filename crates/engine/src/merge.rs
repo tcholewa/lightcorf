@@ -113,8 +113,17 @@ impl MergeJob {
         let one = |(_, path): &(PhotoId, String)| {
             let bytes = (self.read)(path)?;
             // a raw without colour matrices of its own starts from the colour it has when opened alone (#965)
-            let f = lightcraft_merge::load_frame_with(&bytes, self.preview, orient, &crate::camera_preview::starting_colour_tags)
-                .map_err(|e| format!("{path}: {e}"));
+            let f = if crate::raw_backend::enabled() && lightcraft_raw::probe(&bytes).is_some() {
+                crate::raw_backend::decode(&bytes, self.preview.unwrap_or(usize::MAX))
+                    .map(|(image, _)| {
+                        let metadata = lightcraft_meta::extract(&bytes);
+                        Frame::from_developed_raw(image, metadata)
+                    })
+                    .map_err(|e| format!("{path}: {e}"))
+            } else {
+                lightcraft_merge::load_frame_with(&bytes, self.preview, orient, &crate::camera_preview::starting_colour_tags)
+                    .map_err(|e| format!("{path}: {e}"))
+            };
             let k = done.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
             progress(span.0 + (span.1 - span.0) * k as f32 / n as f32, "Reading photos");
             f
@@ -225,6 +234,7 @@ impl MergeJob {
         }
         metadata.software = Some("LightCraft Photo Merge".into());
         let dng = lightcraft_merge::write_linear_dng(&image, &color, orientation, &metadata, baseline, samples, &lens).map_err(err)?;
+        crate::raw_backend::validate_generated_dng(&dng)?;
         info["width"] = json!(image.width);
         info["height"] = json!(image.height);
         let preview = match self.preview {

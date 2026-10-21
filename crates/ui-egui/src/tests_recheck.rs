@@ -33,6 +33,7 @@ fn app_with_stale_photo(dir: &Path) -> (LightcraftApp, PhotoId) {
     session
         .catalog
         .apply(Op::SetContent {
+            raw_backend: None,
             id,
             width: p.width,
             height: p.height,

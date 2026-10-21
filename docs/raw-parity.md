@@ -1,6 +1,8 @@
 # RAW parity: cameras, formats, demosaic, colour and lens profiles
 
-> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: integrate upstream main abb49bdd (0.10.0) while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6 (Camera Raw 18.7)
+> **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
+
+> **Last updated:** 2026-10-21 · **Change:** minor (CI.1: isolated macOS Core Image backend, verified local cameras and explicit sensor/DNG limitations) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6 (Camera Raw 18.7)
 
 Raw processing is the deepest single dimension of Lightroom parity: a photographer whose camera
 does not decode, or decodes with the wrong colour, cannot switch. This document measures it model by
@@ -292,6 +294,7 @@ Beyond decoding:
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
 | 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local compressed ORF, advanced grain and Tri-X; retain both sets of fixes and evidence |
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
 | 2026-10-12 | minor | Lossless compressed ORF completed, 23 exact full-sensor references: 258 verified, 985 unverified, 167 preview-only; use-weighted coverage 87% (44% verified); decoding 78%, RAW readiness 57%; unknown headers remain refused |

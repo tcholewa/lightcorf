@@ -1,8 +1,10 @@
 # LightCraft roadmap
 
+> **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](docs/coreimage-raw.md). No new parity claim is made by substituting the backend.
+
 **Stage: alpha** · next: beta, ~13 points and ~330–590 h away
 
-> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: integrate upstream main abb49bdd (0.10.0), preserving compressed ORF, advanced grain and Tri-X; readiness and coverage unchanged) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last updated:** 2026-10-21 · **Change:** minor (CI.1: isolated macOS Core Image backend, verified local cameras and explicit sensor/DNG limitations) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -12,7 +14,7 @@ from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are 
 
 | | Value | Kind |
 |---|---:|---|
-| **Feature breadth** (checklist) | **83.3%** of 539 rows (P0 98.3%, P1 94.7%, P2 55.7%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
+| **Feature breadth** (checklist) | **82.8%** of 539 rows (P0 98.3%, P1 94.7%, P2 54.3%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
 | **Feature breadth** (weighted by use) | **~77%** | estimated |
 | **Ready for real work** (full target) | **~62%** (57–67%) | estimated: weighted sum over the dimensions |
 | **Mainstream practitioner** | **~51%** (46–56%) | estimated |
@@ -44,7 +46,7 @@ Hours are calibrated on this repo's PR history; see
 
 | Dimension | Ready | Breadth | Remaining | Doc |
 |---|---:|---:|---:|---|
-| Features | ~62% | ~78% (checklist 83.3%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
+| Features | ~62% | ~78% (checklist 82.8%) | 600–1,100 h | [target-app-parity](docs/target-app-parity.md#features) |
 | ↳ RAW cameras, colour, lens profiles | ~62% | 87% of 1,446 Adobe models decode, 39% verified | 247–465 h | [raw-parity](docs/raw-parity.md) |
 | UI/UX fidelity | ~70% | ~85% | 32–54 h | [ui-parity](docs/ui-parity.md) |
 | File formats (non-raw) | ~70% | ~85% | 30–55 h | [file-format-parity](docs/file-format-parity.md) |
@@ -188,6 +190,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
 | 2026-10-21 | minor | SYNC.2: integrate upstream main abb49bdd (0.10.0), preserving compressed ORF, advanced grain and Tri-X; readiness and coverage unchanged |
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
 | 2026-10-12 | minor | GRAIN.1: ISO-inspired profiles and opt-in advanced grain; Grain marked partial because stock/Lightroom fidelity is unmeasured; breadth 81.5%, P1 94.9%, readiness unchanged |

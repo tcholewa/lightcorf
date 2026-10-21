@@ -71,6 +71,8 @@ pub struct CameraColor {
 /// Facts about the source the settings are interpreted against.
 #[derive(Clone, Debug, PartialEq)]
 pub struct SourceInfo {
+    /// Decoder and recipe provenance; absent for the Rust backend and rendered sources.
+    pub raw_backend: Option<String>,
     /// Lens corrections embedded in the file (DNG opcodes), relative to the EXIF-oriented source.
     pub lens: Option<lightcraft_develop::EmbeddedLens>,
     /// Raw sources use absolute Kelvin white balance; rendered sources use a relative scale around
@@ -104,6 +106,7 @@ impl Default for SourceInfo {
     fn default() -> Self {
         Self {
             raw: false,
+            raw_backend: None,
             as_shot_temp: 6500.0,
             as_shot_tint: 0.0,
             lens: None,

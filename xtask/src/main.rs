@@ -325,7 +325,18 @@ fn cmd_ci(args: &[&str]) -> Result<(), String> {
                 test(&["test", "-p", "lightcraft-engine", "--lib", "--features", "lightcraft-codecs/heif", "heic"], "heif")
             }),
         ),
-        ("test", Box::new(|| test(&["test", "--workspace"], "test"))),
+        (
+            "test",
+            Box::new(|| {
+                // Integration tests link the production engine and need its companion executable.
+                if cfg!(target_os = "macos") {
+                    let mut c = cargo();
+                    c.args(["build", "-p", "lightcraft-raw-worker"]);
+                    run(c, "cargo build -p lightcraft-raw-worker")?;
+                }
+                test(&["test", "--workspace"], "test")
+            }),
+        ),
     ];
     if hardware {
         steps.push((

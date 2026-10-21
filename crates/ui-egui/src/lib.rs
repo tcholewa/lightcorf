@@ -2157,6 +2157,8 @@ mod cache_tests {
     }
 }
 
+#[cfg(all(test, target_os = "macos"))]
+mod tests_coreimage;
 #[cfg(test)]
 mod tests_model_setup;
 

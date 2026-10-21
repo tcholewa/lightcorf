@@ -319,6 +319,20 @@ fn scan_shows_a_row_and_cancel_closes_it() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+// These tests exercise task lifecycle, not a particular RAW container. Apple's decoder rejects
+// our synthetic linear DNGs; use rendered bracket inputs on macOS and keep DNG coverage elsewhere.
+fn merge_fixture(bytes: Vec<u8>) -> (&'static str, Vec<u8>) {
+    if !lightcraft_engine::raw_backend::enabled() {
+        return ("dng", bytes);
+    }
+    use lightcraft_codecs::encode::{EncodeImage, EncodeMeta, Samples, encode_png};
+    let frame = lightcraft_merge::load_frame(&bytes, None, true).unwrap();
+    let samples: Vec<u16> = frame.image.data.iter().flatten().map(|v| (v.clamp(0.0, 1.0) * 65535.0).round() as u16).collect();
+    let exif = lightcraft_meta::write_exif(&frame.metadata);
+    let image = EncodeImage::new(frame.image.width as u32, frame.image.height as u32, 3, Samples::U16(&samples));
+    ("png", encode_png(&image, &EncodeMeta { exif: Some(&exif), ..Default::default() }).unwrap())
+}
+
 /// A library of three bracketed DNGs (−2, 0, +2 EV) on disk, all selected.
 fn bracket(tag: &str) -> (Headless, std::path::PathBuf) {
     let dir = std::env::temp_dir().join(format!("lc-activity-{tag}-{}", std::process::id()));
@@ -326,7 +340,8 @@ fn bracket(tag: &str) -> (Headless, std::path::PathBuf) {
     std::fs::create_dir_all(&dir).unwrap();
     let mut paths = Vec::new();
     for (i, bytes) in lightcraft_merge::synth::bracket_dngs(1600, 1200, &[-2.0, 0.0, 2.0]).unwrap().into_iter().enumerate() {
-        let p = dir.join(format!("IMG_{i}.dng"));
+        let (ext, bytes) = merge_fixture(bytes);
+        let p = dir.join(format!("IMG_{i}.{ext}"));
         std::fs::write(&p, bytes).unwrap();
         paths.push(p.to_string_lossy().to_string());
     }
@@ -405,7 +420,8 @@ fn batch_merge_runs_each_set_in_turn() {
     // different exposures, or the import would take set B for duplicates of set A
     for (set, evs) in [("A", [-2.0, 0.0, 2.0]), ("B", [-1.5, 0.5, 2.5]), ("C", [-1.0, 1.0, 3.0])] {
         for (i, bytes) in lightcraft_merge::synth::bracket_dngs(1600, 1200, &evs).unwrap().into_iter().enumerate() {
-            let p = dir.join(format!("{set}_{i}.dng"));
+            let (ext, bytes) = merge_fixture(bytes);
+            let p = dir.join(format!("{set}_{i}.{ext}"));
             std::fs::write(&p, bytes).unwrap();
             paths.push(p.to_string_lossy().to_string());
         }
@@ -428,13 +444,22 @@ fn batch_merge_runs_each_set_in_turn() {
     assert_eq!((rows.len(), rows.first().map(|r| r.kind)), (1, Some("merge")));
     // the first merge finishes and the second starts by itself
     assert!(h.step_until(T, |h| h.app.merge.batch.len() == 1 && h.app.merge.final_task.is_some()));
-    assert_eq!(h.app.session.catalog.len(), 10);
+    let expected = if lightcraft_engine::raw_backend::enabled() {
+        assert!(h.app.ui.status.contains("Generated DNG cannot be reopened by Core Image"), "{}", h.app.ui.status);
+        9 // unsupported generated output was rejected before saving/importing
+    } else {
+        10
+    };
+    assert_eq!(h.app.session.catalog.len(), expected);
     // cancelling the second drops the third
     let rows = h.app.session.activity.list();
     h.app.session.activity.cancel(rows[0].id).unwrap();
     assert!(h.step_until(T, |h| h.app.merge.final_task.is_none()));
     assert!(h.app.merge.batch.is_empty());
-    assert_eq!(h.app.session.catalog.len(), 10, "nothing more merged");
+    assert_eq!(h.app.session.catalog.len(), expected, "nothing more merged");
+    if lightcraft_engine::raw_backend::enabled() {
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 9, "no unsupported DNG saved");
+    }
     assert!(h.app.session.activity.list().is_empty());
     let _ = std::fs::remove_dir_all(dir);
 }

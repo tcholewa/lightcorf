@@ -74,7 +74,8 @@ fn list(s: &mut Session, _: &Value) -> Result<Value> {
         "productsDir": s.denoise_products_dir().map(|d| d.display().to_string()),
         "model": st.model,
         // whether this build can run denoise models (the `denoise` feature: our pure-Rust CPU/GPU runners)
-        "runtime": cfg!(feature = "denoise"),
+        "runtime": cfg!(feature = "denoise") && !crate::raw_backend::enabled(),
+        "unavailableReason": crate::raw_backend::enabled().then_some(crate::raw_backend::SENSOR_UNAVAILABLE),
         "auto": st.auto(),
         "cacheGb": st.cache_bytes() >> 30,
         "threads": st.threads,
@@ -522,9 +523,10 @@ fn status_json(s: &Session, photo: Option<PhotoId>) -> Value {
     let st = &s.denoise.settings;
     let model = s.denoise.active.as_ref().map(|a| json!({"id": a.id, "name": a.manifest.name}));
     let mut v = json!({
-        "enabled": s.denoise.active.is_some(),
+        "enabled": s.denoise.active.is_some() && !crate::raw_backend::enabled(),
         "model": model,
-        "runtime": cfg!(feature = "denoise"),
+        "runtime": cfg!(feature = "denoise") && !crate::raw_backend::enabled(),
+        "unavailableReason": crate::raw_backend::enabled().then_some(crate::raw_backend::SENSOR_UNAVAILABLE),
         "productsDir": s.denoise_products_dir().map(|d| d.display().to_string()),
         "queued": s.denoise.queued(),
         "running": s.denoise_running_json(),
@@ -544,6 +546,7 @@ fn status_json(s: &Session, photo: Option<PhotoId>) -> Value {
 
 /// A per-photo switch, independent of the selection and Auto Sync. Turning on starts at 50%.
 fn toggle(s: &mut Session, p: &Value) -> Result<Value> {
+    crate::raw_backend::require_sensor().map_err(EngineError::Other)?;
     const C: &str = "denoise.toggle";
     let id = match p.get("id") {
         Some(v) => PhotoId(v.as_u64().ok_or_else(|| bad(C, "`id` must be a photo id"))?),
@@ -586,6 +589,7 @@ fn toggle(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 fn queue(s: &mut Session, p: &Value) -> Result<Value> {
+    crate::raw_backend::require_sensor().map_err(EngineError::Other)?;
     const C: &str = "denoise.queue";
     s.denoise_refresh_active(true);
     if s.denoise.active.is_none() {
