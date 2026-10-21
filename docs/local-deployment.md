@@ -1,6 +1,6 @@
 # Local macOS installations
 
-> **Last updated:** 2026-10-16 · **Change:** minor (BW.1: Lightcraft BW replaces the PR1162-named desktop builds; saved library/preferences retained)
+> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: source updated to upstream 0.10.0; installed BW app remains 0.8.0)
 
 
 ## Lightcraft BW (current desktop installation)
@@ -209,6 +209,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local ORF/grain/Tri-X; installed components unchanged |
 | 2026-10-16 | minor | BW.1: build/install Lightcraft BW; retire PR1162-named app bundles; retain existing catalog, preferences and CLI |
 | 2026-10-16 | minor | SYNC.1: source updated to upstream main 0da998f2; installed app and CLI retain their earlier build |
 | 2026-10-12 | minor | GRAIN.1: update the isolated app/CLI while retaining catalog/preferences and rollback copies |
@@ -268,3 +269,35 @@ models (8) or extra font scripts (3); none is an ORF or GPU check. Detailed repo
 fixture inventory and headless evidence are in gitignored
 `target/upstream-sync-20261016/`. No installed components or personal library data
 were changed by this source update.
+
+## SYNC.2 source update (2026-10-21)
+
+`feature/tri-x-inspired` merges upstream main `abb49bdd` (0.10.0, 108 new
+commits since SYNC.1). The previous tip `99f4ede0` is retained at
+`backup/orf-trix-before-update-20261021`. Both histories are preserved.
+
+The merge retains PR #1162 compressed ORF decoding, the 400/800/1600 profiles,
+Advanced CPU/Metal grain, and `lc.bw-trix400-push2`. Upstream settings validation
+now clamps values at the merge boundary; the local preset Amount interpolation
+and explicit default-off Advanced handling remain intact. Upstream raw preview,
+metadata, export, print and security fixes are included. README, Portuguese
+translations and progress-document conflicts retain both sets of changes.
+
+The release font pin remains `3d9ab3a132ed0eff457e424226a435a901da30d3`.
+Detailed verification evidence is kept in `target/upstream-sync-20261021/`.
+This is a source integration only: the installed Lightcraft BW app remains the
+verified 0.8.0 build described above. No app/CLI installation, personal-library
+change, remote push or publication is part of this update.
+
+Verification: all eight `cargo +1.95.0 xtask ci` gates pass on the M1 Max.
+The 23 ORF fixtures are present and the exact sensor-pixel comparison passes;
+E-PL7 import/reload, Tri-X Amount/batch undo/correction preservation and CPU/Metal
+window comparisons, and Advanced grain Auto Sync and GPU equivalence pass.
+The report lists 21 optional missing-corpus/model/font skips, none ORF or GPU.
+The coverage check and regenerated parity summary pass with unchanged totals.
+
+A native scratch-library run passes E-PL7 import, Tri-X hover/apply, ISO grain
+controls, Amount 0/49/50/100/200%, undo/redo, PNG/JPEG export and exact catalog
+reopen. Fit and 100% screenshots were inspected and used native capture. Metal
+rendering took 21.7 ms; settled UI update was 0.68 ms, with no GPU fallback or
+pending render work. The test app was closed after acceptance.

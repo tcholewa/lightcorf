@@ -2,7 +2,7 @@
 
 **Stage: alpha** · next: beta, ~13 points and ~330–590 h away
 
-> **Last updated:** 2026-10-16 · **Change:** minor (SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last updated:** 2026-10-21 · **Change:** minor (SYNC.2: integrate upstream main abb49bdd (0.10.0), preserving compressed ORF, advanced grain and Tri-X; readiness and coverage unchanged) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -188,6 +188,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-21 | minor | SYNC.2: integrate upstream main abb49bdd (0.10.0), preserving compressed ORF, advanced grain and Tri-X; readiness and coverage unchanged |
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
 | 2026-10-12 | minor | GRAIN.1: ISO-inspired profiles and opt-in advanced grain; Grain marked partial because stock/Lightroom fidelity is unmeasured; breadth 81.5%, P1 94.9%, readiness unchanged |
 | 2026-10-12 | minor | Compressed ORF: 23 exact sensor references including PEN E-PL7; 258 models verified, use-weighted coverage 87%, RAW decoding 78%, RAW readiness 57%, mainstream 50%; beta blocker closed |
