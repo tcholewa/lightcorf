@@ -1,13 +1,20 @@
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (CI.4: install verified Core Image 0.11.0 from 7e33c3ae)
+> **Last updated:** 2026-10-22 · **Change:** minor (CI.6: install RAW processor selection and remove obsolete app builds)
 
 
-## Lightcraft BW Core Image (separate experimental installation)
+## Lightcraft BW Core Image (current installation)
 
-Current installation: **0.11.0**, source `7e33c3ae`, installed 2026-10-22 with HEIF and the pinned
-fonts. The application, helper and installed copy pass strict signatures and native acceptance.
-[CI.4 installation record](#ci4-core-image-0110-installation-2026-10-22) records the checks and rollback path.
+Current installation: **0.11.0**, source `5922963c`, installed 2026-10-22 with HEIF and the pinned
+fonts at `~/Applications/Lightcraft BW Core Image.app`. This is the only installed LightCraft app.
+Settings → Performance → RAW processing selects Apple Core Image or LightCraft Native (Rust),
+applied after restarting. The bundle identifier remains `com.diffico.lightcraft.bw.coreimage`.
+[CI.6 installation record](#ci6-current-build-and-cleanup-2026-10-22) records verification and cleanup.
+
+The records below describe earlier deployments. CI.6 supersedes their installed-version and rollback
+statements: obsolete installed, staged and backup app bundles were removed at the user's request.
+Their libraries, settings, source branches and verification evidence remain. Catalog format 10 used
+by the current app cannot be opened by older builds.
 
 Initial installation at `~/Applications/Lightcraft BW Core Image.app` used source `0139d009` on
 `feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
@@ -283,6 +290,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | CI.6: install 5922963c with restart-only RAW processor selection; remove obsolete app bundles and preserve personal data |
 | 2026-10-22 | minor | CI.4: install Core Image 0.11.0 from 7e33c3ae; preserve previous bundle, BW app and personal data |
 | 2026-10-22 | minor | SYNC.3: upstream 0.11.0 integrated on a new Core Image branch; previous source and installed apps preserved |
 | 2026-10-21 | minor | CI.2: install separate Core Image app from 0139d009; verify cameras, defaults, signatures and preservation |
@@ -425,3 +433,26 @@ recorded in [Core Image RAW](coreimage-raw.md).
 
 All eight final `cargo xtask ci` gates passed with 22 explicit optional-data skips; reports are
 kept alongside the installation evidence. No code or feature-parity counts changed in this task.
+
+## CI.6 current build and cleanup (2026-10-22)
+
+Installed source `5922963c` from `feature/raw-processor-setting` as ARM64 version 0.11.0 with HEIF,
+Inter and pinned craft-fonts `3d9ab3a132ed0eff457e424226a435a901da30d3`. The app and isolated RAW
+helper pass strict ad-hoc signature checks; staged and installed file hashes match.
+
+Installed native acceptance passed Core Image → Native → Core Image with all seven supplied RAW
+samples, JPEG/PNG exports, Tri-X, saved edits/history/versions, virtual copies, Reset sharpening 15,
+and the Settings selector including cancellation of a pending change. Core Image PNG exports before
+and after the round trip are byte-identical. Native Settings screenshots were inspected; Metal was
+active without headless fallback. Tests used a temporary library and configuration.
+
+Removed 21 obsolete app bundles, including the previous Core Image installation, `/Applications/LightCraft.app`,
+`~/Applications/Lightcraft BW.app`, and obsolete staged/rollback app bundles beneath `target/`.
+The old 0.7.0 app DMG was also removed. Only `~/Applications/Lightcraft BW Core Image.app` remains in the two Applications
+folders. The current signed staging bundle is retained as build evidence. Old libraries and settings
+were preserved: all 2,756 recorded personal-data/sample file hashes still match. Source branches,
+CLI installations and verification records were preserved.
+
+Evidence: `target/install-current-20261022/` contains the deployment and removal manifests,
+preservation hashes, release build log, installed native acceptance results and screenshots.
+All eight `cargo xtask ci` gates passed before the deployment-record commit. No push was requested.
