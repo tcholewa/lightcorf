@@ -1,18 +1,18 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (NAME.1: Lightcorf app naming with stable data identity)
+> **Last updated:** 2026-10-22 · **Change:** minor (NAME.2: renamed app installed and obsolete builds removed)
 
 
-## Lightcraft BW Core Image (current installation)
+## Lightcorf (current installation)
 
-Current installation: **0.11.0**, source `5922963c`, installed 2026-10-22 with HEIF and the pinned
-fonts at `~/Applications/Lightcraft BW Core Image.app`. This is the only installed LightCraft app.
+Current installation: **0.11.0**, source `04743d8f`, installed 2026-10-22 with HEIF and the pinned
+fonts at `~/Applications/Lightcorf.app`. This is the only installed LightCraft/Lightcorf app.
 Settings → Performance → RAW processing selects Apple Core Image or LightCraft Native (Rust),
 applied after restarting. The bundle identifier remains `com.diffico.lightcraft.bw.coreimage`.
-[CI.6 installation record](#ci6-current-build-and-cleanup-2026-10-22) records verification and cleanup.
+[NAME.2 installation record](#name2-lightcorf-installation-and-cleanup-2026-10-22) records verification and cleanup.
 
-The records below describe earlier deployments. CI.6 supersedes their installed-version and rollback
+The records below describe earlier deployments. NAME.2 supersedes their installed-version and rollback
 statements: obsolete installed, staged and backup app bundles were removed at the user's request.
 Their libraries, settings, source branches and verification evidence remain. Catalog format 10 used
 by the current app cannot be opened by older builds.
@@ -291,6 +291,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | NAME.2: installed renamed ARM64 app, verified both RAW processors, removed two old bundles and 13 installer archives |
 | 2026-10-22 | minor | NAME.1: Lightcorf bundle/executable/window/menu names; stable library and configuration identity |
 | 2026-10-22 | minor | PUB.1: public Lightcorf source publication, separate from the existing installed app |
 | 2026-10-22 | minor | CI.6: install 5922963c with restart-only RAW processor selection; remove obsolete app bundles and preserve personal data |
@@ -483,3 +484,25 @@ CRAFT_FONTS_DIR="$PWD/craft-fonts" bash packaging/macos/package.sh --arch aarch6
 The installation target is `~/Applications/Lightcorf.app`. Local installation verification uses
 scratch libraries for both RAW processors and preserves personal data. Older LightCraft/Lightcorf
 app bundles are removed only after the replacement passes native acceptance and signature checks.
+
+## NAME.2 Lightcorf installation and cleanup (2026-10-22)
+
+Installed `Lightcorf.app` 0.11.0 from source `04743d8f` at `~/Applications/Lightcorf.app`.
+The ARM64 release includes HEIF, the supervised RAW helper and pinned craft-fonts
+`3d9ab3a132ed0eff457e424226a435a901da30d3`. App/helper strict ad-hoc signatures pass;
+staged and installed files have identical hashes. This local build is not notarized.
+
+Native acceptance passed Core Image → Native → Core Image with all seven supplied samples,
+Tri-X, sharpening default/Reset 15, saved edits/history, virtual copies and exports.
+The Core Image PNG round trip is byte-identical. About, photo and Settings screenshots
+were inspected; Metal was active without fallback. The test app was closed afterward.
+
+Removed the previous installed and staged BW Core Image bundles and 13 obsolete DMG/CLI
+installer archives. Only Lightcorf is installed; its current staging bundle remains.
+All 2,756 recorded personal library, settings and sample hashes match. Existing data paths,
+source branches, installed CLI commands and verification evidence are preserved.
+
+Evidence: `target/install-lightcorf-20261022/` contains source CI/build logs, installation
+hashes, native acceptance/screenshots and removal manifests. Full `cargo xtask ci` passed
+for both the source rename and deployment record (22 explicit optional-data/model/font skips).
+No GitHub binary release or push was requested.
