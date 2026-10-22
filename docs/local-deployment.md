@@ -1,9 +1,13 @@
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (SYNC.3: integrate upstream 0.11.0 source; installed apps retain their previous builds)
+> **Last updated:** 2026-10-22 · **Change:** minor (CI.4: install verified Core Image 0.11.0 from 7e33c3ae)
 
 
 ## Lightcraft BW Core Image (separate experimental installation)
+
+Current installation: **0.11.0**, source `7e33c3ae`, installed 2026-10-22 with HEIF and the pinned
+fonts. The application, helper and installed copy pass strict signatures and native acceptance.
+[CI.4 installation record](#ci4-core-image-0110-installation-2026-10-22) records the checks and rollback path.
 
 Initial installation at `~/Applications/Lightcraft BW Core Image.app` used source `0139d009` on
 `feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
@@ -279,6 +283,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | CI.4: install Core Image 0.11.0 from 7e33c3ae; preserve previous bundle, BW app and personal data |
 | 2026-10-22 | minor | SYNC.3: upstream 0.11.0 integrated on a new Core Image branch; previous source and installed apps preserved |
 | 2026-10-21 | minor | CI.2: install separate Core Image app from 0139d009; verify cameras, defaults, signatures and preservation |
 | 2026-10-21 | minor | BW.2: build/install 0.10.0 from ec987997; native staged/installed acceptance and identical exports; preserve data paths, saved data and 0.8.0 rollback bundle |
@@ -395,3 +400,28 @@ edit of 45, and Reset back to 15. Fit, 100% and default-15 screenshots were insp
 scratch-app render was 48.7 ms with a 0.48 ms settled update, Metal active and no fallback; these
 are debug observations, not a release performance comparison. Sample-file and saved-plan hashes
 match the pre-merge manifest. No installed app or personal library was changed.
+
+## CI.4 Core Image 0.11.0 installation (2026-10-22)
+
+Installed `~/Applications/Lightcraft BW Core Image.app` from `7e33c3ae` on
+`feature/macos-coreimage-upstream-20261022`. ARM64 release, macOS 12 minimum, HEIF,
+Inter and craft-fonts `3d9ab3a1`; bundle ID `com.diffico.lightcraft.bw.coreimage`.
+The helper and app are signed inside-out with the local ad-hoc identity; strict signature
+verification passes. Staged and installed bundle file hashes are identical.
+
+The signed release passed all seven supplied-camera imports/JPEG exports, Tri-X hover/apply,
+grain profiles, Amount 0/49/50/100/200, undo/redo, PNG export, reload and exact catalog reopening.
+The installed copy passed native launch, sharpening 15, Tri-X preservation, Reset 15 and persistence
+of both the default and an explicit edit of 45 across restarts. Screenshots were inspected; Metal
+was active without fallback, with a settled installed update of 0.38 ms. All test launches used
+scratch libraries and configuration directories, closed after verification.
+
+The previous 0.10.0 Core Image app is retained at
+`target/install-coreimage-20261022/previous-installed.app-backup`. The original BW app, installed
+CLI, personal libraries/settings, samples and saved AI plan are unchanged: 978 recorded file hashes
+match. Evidence and the installation manifest are in `target/install-coreimage-20261022/`.
+Original E-M10 qualification still awaits its fixture; sensor-tool/DNG limitations remain as
+recorded in [Core Image RAW](coreimage-raw.md).
+
+All eight final `cargo xtask ci` gates passed with 22 explicit optional-data skips; reports are
+kept alongside the installation evidence. No code or feature-parity counts changed in this task.
