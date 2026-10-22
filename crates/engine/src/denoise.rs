@@ -757,7 +757,7 @@ pub(crate) struct Active {
 
 /// The photos whose files can be denoised at all: raw files developed from their sensor data and read from disk.
 pub(crate) fn eligible(p: &Photo) -> bool {
-    p.develops_raw() && matches!(p.source, Source::File { .. }) && !p.deleted
+    !crate::raw_backend::enabled() && p.develops_raw() && matches!(p.source, Source::File { .. }) && !p.deleted
 }
 
 /// A product's name: what it was made from and with.
@@ -884,6 +884,7 @@ fn layout_of(cfa: &lightcraft_raw::Cfa) -> Option<Layout> {
 /// Make the product of `spec` unless it is there: decode the photo, run the model over its mosaic, write the result.
 /// `Ok(true)` when it was made now, `Ok(false)` when it already existed.
 pub(crate) fn make_product(spec: &JobSpec, progress: Option<&Progress>) -> Result<bool, MakeError> {
+    crate::raw_backend::require_sensor().map_err(MakeError::Unsupported)?;
     let _slot = Slot::enter(&spec.product);
     if product::is_current(&spec.product, &spec.key) {
         return Ok(false);
@@ -1269,6 +1270,9 @@ impl Session {
     /// How photo `id` stands.
     pub fn denoise_photo_state(&self, id: PhotoId) -> PhotoState {
         let Some(p) = self.catalog.photo(id) else { return PhotoState::NotApplicable };
+        if crate::raw_backend::enabled() && p.develops_raw() {
+            return PhotoState::Failed { why: crate::raw_backend::SENSOR_UNAVAILABLE.into(), unsupported: true };
+        }
         if !eligible(p) {
             return PhotoState::NotApplicable;
         }

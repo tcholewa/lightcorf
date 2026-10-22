@@ -1,0 +1,11 @@
+[package]
+name = "lightcraft-raw-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Crash-isolated Core Image RAW worker"
+[lints]
+workspace = true
+[dependencies]
+lightcraft-raw-backend = { path = "../../crates/raw-backend" }
+lightcraft-raw-coreimage = { path = "../../crates/raw-coreimage" }

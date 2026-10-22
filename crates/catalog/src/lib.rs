@@ -206,6 +206,8 @@ pub enum Op {
     },
     /// What a photo's file is now (after it changed on disk: Reload).
     SetContent {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        raw_backend: Option<String>,
         id: PhotoId,
         width: u32,
         height: u32,
@@ -884,7 +886,7 @@ impl Catalog {
                 let old_format = format.map(|f| std::mem::replace(&mut p.format, f));
                 Op::Relink { id, file_name: old_name, source: std::mem::replace(&mut p.source, source), format: old_format }
             }
-            Op::SetContent { id, width, height, file_size, content_hash, preview_only, preview_checked } => {
+            Op::SetContent { id, width, height, file_size, content_hash, preview_only, preview_checked, raw_backend } => {
                 let p = self.photo_mut(id)?;
                 Op::SetContent {
                     id,
@@ -894,6 +896,7 @@ impl Catalog {
                     content_hash: std::mem::replace(&mut p.content_hash, content_hash),
                     preview_only: std::mem::replace(&mut p.preview_only, preview_only),
                     preview_checked: std::mem::replace(&mut p.preview_checked, preview_checked),
+                    raw_backend: std::mem::replace(&mut p.raw_backend, raw_backend),
                 }
             }
             Op::SetEmbeddedLens { id, lens } => {

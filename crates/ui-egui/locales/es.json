@@ -2342,5 +2342,9 @@
   "Checking the GPU…": "Comprobando la GPU…",
   "CPU": "CPU",
   "A face model uses the GPU only when a check shows it gives the same results faster.": "Un modelo de caras usa la GPU solo cuando una comprobación muestra que da los mismos resultados más rápido.",
-  "Checking the GPU for faces": "Comprobando la GPU para las caras"
+  "Checking the GPU for faces": "Comprobando la GPU para las caras",
+  "Advanced grain": "Grano avanzado",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "Grano inspirado en película de 35 mm: 400 sutil, 800 texturado, 1600 marcado. Conserva la elección de grano avanzado.",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "Grano orgánico adaptado al color, con respuesta tonal automática y suavizado sutil de detalles finos. Sigue la gradación de color.",
+  "Tri-X 400 — Push +2 (Inspired)": "Tri-X 400 — Forzado +2 (inspirado)"
 }

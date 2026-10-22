@@ -30,6 +30,7 @@ pub mod cull;
 pub mod dust;
 pub mod finish;
 pub mod geometry;
+pub mod grain;
 pub mod local;
 pub mod local_tone;
 pub mod lut;
@@ -70,6 +71,8 @@ pub struct CameraColor {
 /// Facts about the source the settings are interpreted against.
 #[derive(Clone, Debug, PartialEq)]
 pub struct SourceInfo {
+    /// Decoder and recipe provenance; absent for the Rust backend and rendered sources.
+    pub raw_backend: Option<String>,
     /// Lens corrections embedded in the file (DNG opcodes), relative to the EXIF-oriented source.
     pub lens: Option<lightcraft_develop::EmbeddedLens>,
     /// Raw sources use absolute Kelvin white balance; rendered sources use a relative scale around
@@ -103,6 +106,7 @@ impl Default for SourceInfo {
     fn default() -> Self {
         Self {
             raw: false,
+            raw_backend: None,
             as_shot_temp: 6500.0,
             as_shot_tint: 0.0,
             lens: None,
@@ -208,6 +212,7 @@ pub(crate) struct Prepared {
     pub base: Arc<Plane>,
     pub clarity_blur: Option<Arc<Plane>>,
     pub texture_blur: Option<Arc<Plane>>,
+    pub grain_blur: Option<Arc<Plane>>,
     pub dark: Option<Arc<Plane>>,
     /// Blurred chromaticity (`rgb / Y`) for local Moiré / Noise.
     pub chroma_blur: Option<Arc<Rgb32f>>,
@@ -306,7 +311,7 @@ impl StageCache {
             }
             let pl = &e.planes;
             let planes = pl.log_l.iter().chain(pl.base.iter().map(|x| &x.1)).chain(pl.clarity.iter().map(|x| &x.1));
-            for p in planes.chain(pl.texture.iter().map(|x| &x.1)).chain(pl.dark.iter().map(|x| &x.1)) {
+            for p in planes.chain(pl.texture.iter().map(|x| &x.1)).chain(pl.grain.iter().map(|x| &x.1)).chain(pl.dark.iter().map(|x| &x.1)) {
                 add(Arc::as_ptr(p) as usize, size(p));
             }
         }
@@ -423,7 +428,15 @@ pub fn plan<'a>(src: &Rgb32f, info: &SourceInfo, s: &'a DevelopSettings, req: &R
                 fixed_air = Some(local::frame_airlight(src, info, s, &frame, pw, ph));
             }
             // (spots grow the rendered window; only 8-bit renders are cut back to the request)
-            let work = if req.depth == OutputDepth::U8 { spots::window_for_reads(s, &frame, full_w, full_h, px_per_long, win) } else { win };
+            let mut work = if req.depth == OutputDepth::U8 { spots::window_for_reads(s, &frame, full_w, full_h, px_per_long, win) } else { win };
+            if let Some(g) = grain::AnalogGrain::new(s, px_per_long) {
+                let margin = lightcraft_raster::blur::box_radii(g.sigma(px_per_long)).into_iter().sum::<usize>();
+                let x = work.x.saturating_sub(margin);
+                let y = work.y.saturating_sub(margin);
+                let right = work.x.saturating_add(work.w).saturating_add(margin).min(full_w);
+                let bottom = work.y.saturating_add(work.h).saturating_add(margin).min(full_h);
+                work = PixelWindow { x, y, w: right.saturating_sub(x).max(1), h: bottom.saturating_sub(y).max(1) };
+            }
             if work != win {
                 keep = Some(PixelWindow { x: win.x - work.x, y: win.y - work.y, ..win });
             }
@@ -597,7 +610,10 @@ fn render_impl(src: Src<'_>, info: &SourceInfo, s: &DevelopSettings, req: &Rende
         c.put(CacheEntry { src: a.clone(), geo, sampled, lin: Some((lin_key, lin)), planes });
     }
     if req.depth != OutputDepth::U8 {
-        let deep = finish::finish_deep(&prep, s, frame, info, req.space, req.depth, req.proof);
+        let mut deep = finish::finish_deep(&prep, s, frame, info, req.space, req.depth, req.proof);
+        if let Some(k) = plan.keep {
+            deep = deep.crop(k);
+        }
         let image = deep.to_rgba8();
         let histogram = Histogram::of_srgb8(&image);
         lap("finish (deep)", &mut t);

@@ -164,6 +164,17 @@ fn edit_version(s: &mut Session, p: &Value, c: &str, label: &str, f: impl FnOnce
 
 pub fn specs() -> Vec<CommandSpec> {
     vec![
+        cmd!("develop.grainPreset", "Apply Grain Profile", [], None, "{iso: 400|800|1600}", has_active, |s, p| {
+            let preset = p
+                .get("iso")
+                .and_then(Value::as_u64)
+                .and_then(|iso| lightcraft_develop::grain::PRESETS.iter().find(|x| u64::from(x.iso) == iso))
+                .ok_or_else(|| bad("develop.grainPreset", "iso must be 400, 800 or 1600"))?;
+            edit(s, "develop.grainPreset", &format!("Grain {}", preset.iso), |d| {
+                preset.apply(&mut d.grain);
+                Ok(())
+            })
+        }),
         cmd!(
             "develop.set",
             "Set Develop Values",

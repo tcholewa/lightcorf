@@ -1024,6 +1024,7 @@ mod imp {
             let old = finished(&s, a, Some(vec![rect]), vec![(rect, Some(unit(&[(2, 1.0)])), rect)]);
             let (width, height) = s.catalog.photo(a).map(|p| (p.width, p.height)).unwrap();
             let replace = Op::SetContent {
+                raw_backend: None,
                 id: a,
                 width,
                 height,

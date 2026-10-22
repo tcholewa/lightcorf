@@ -137,6 +137,31 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
     let content_hash = Some(lightcraft_preview::hash_bytes(bytes).to_string());
     let m = lightcraft_meta::extract(bytes);
     let (meta, captured) = meta_of(&m);
+    if crate::raw_backend::enabled() && lightcraft_raw::probe(bytes).is_some() {
+        let (width, height, as_shot_wb, raw_backend, preview_only) = match crate::raw_backend::probe(bytes) {
+            Ok(info) => (info.width as u32, info.height as u32, Some(crate::raw_backend::white_balance(&info)), Some(info.stamp()), None),
+            Err(e) if e.kind == lightcraft_raw_backend::ErrorKind::Unsupported => {
+                let (w, h) = embedded_preview_size(bytes).ok_or_else(|| e.to_string())?;
+                (w, h, None, Some(crate::raw_backend::runtime_stamp().to_string()), Some(e.to_string()))
+            }
+            Err(e) => return Err(e.to_string()),
+        };
+        return Ok(ProbeInfo {
+            width,
+            height,
+            format: ext_upper(name),
+            kind: MediaKind::Raw,
+            file_size: bytes.len() as u64,
+            captured,
+            meta,
+            as_shot_wb,
+            raw_backend,
+            content_hash,
+            xmp: lightcraft_meta::embedded(bytes).xmp,
+            preview_only,
+            ..Default::default()
+        });
+    }
     if lightcraft_raw::probe(bytes).is_some() {
         let raw = match lightcraft_raw::probe_info(bytes).map_err(|e| preview_reason(bytes, e)) {
             Ok(r) => r,
@@ -182,6 +207,7 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
             content_hash,
             xmp: lightcraft_meta::embedded(bytes).xmp,
             preview_only: None,
+            raw_backend: None,
         });
     }
     let fmt = lightcraft_codecs::sniff(bytes).ok_or("unrecognized file format")?;
@@ -215,6 +241,7 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
         embedded_lens: None,
         xmp: None,
         preview_only: None,
+        raw_backend: None,
     })
 }
 
@@ -417,6 +444,18 @@ fn load_bytes_now(
     denoise: Option<&DenoiseSpec>,
     allow_reduced: bool,
 ) -> Result<(Rgb32f, Option<Rgb32f>, SourceInfo, bool), String> {
+    if crate::raw_backend::enabled() && lightcraft_raw::probe(&bytes).is_some() {
+        if denoise.is_some() {
+            return Err(crate::raw_backend::SENSOR_UNAVAILABLE.into());
+        }
+        return match crate::raw_backend::decode(&bytes, max_edge) {
+            Ok((image, info)) => Ok((image, None, info, false)),
+            Err(e) if e.kind == lightcraft_raw_backend::ErrorKind::Unsupported => {
+                load_embedded_preview(&bytes, max_edge).map(|(image, info)| (image, None, info, false)).ok_or_else(|| e.to_string())
+            }
+            Err(e) => Err(e.to_string()),
+        };
+    }
     if lightcraft_raw::probe(&bytes).is_some() {
         // a thumbnail (`allow_reduced`, never an export) of a DNG that keeps smaller copies of its raw image
         // (Lightroom's merges) develops the smallest that covers it; a denoised photo's twin needs the full mosaic
@@ -559,6 +598,7 @@ fn load_bytes_now(
                 local_tone,
                 // (the catalog knows the original's size: `media::source_info`)
                 native_long: None,
+                raw_backend: None,
             },
             used_reduced,
         ));
@@ -2597,6 +2637,56 @@ pub(crate) mod tests {
         assert_eq!(s.catalog.photo(id).unwrap().preview_only, None);
         drop(s);
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// An E-PL7 imports and develops its sensor data, not its JPEG. Reload also upgrades a photo
+    /// from a pre-decoder catalog without replacing the file or losing the user's edits.
+    #[test]
+    fn corpus_epl7_raw_import_and_reload_keep_sensor_development() {
+        use serde_json::json;
+        let path = std::env::var_os("LIGHTCRAFT_CORPUS")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../corpus"))
+            .join("raw/orf-olympus-epl7.orf");
+        let bytes = match std::fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                lightcraft_testkit::skip!(Corpus, "{} absent", path.display());
+                return;
+            }
+            Err(e) => panic!("{}: {e}", path.display()),
+        };
+        let (image, info) = load_bytes(&bytes, 400).unwrap();
+        assert!(info.raw && info.relative_wb, "must use sensor data, not the rendered JPEG");
+        assert!(info.camera_tone.is_some(), "the colour chart supports the guarded camera look");
+        assert_eq!((image.width, image.height), (400, 300));
+        assert!(image.data.iter().flatten().all(|v| v.is_finite()));
+        let mut s = crate::Session::new().with_fs();
+        let result = s.execute("library.import", &json!({"paths": [path.to_string_lossy()]})).unwrap();
+        let id = lightcraft_catalog::PhotoId(result["imported"][0].as_u64().unwrap());
+        let p = s.catalog.photo(id).unwrap().clone();
+        assert!(p.develops_raw());
+        assert_eq!((p.width, p.height, p.preview_only.clone()), (4608, 3456, None));
+        s.execute("develop.set", &json!({"control": "light.exposure", "value": 0.7})).unwrap();
+        let settings = s.catalog.photo(id).unwrap().develop.clone();
+        // Same content hash and file size: a new decoder, not a changed original, clears the flag.
+        s.catalog
+            .apply(lightcraft_catalog::Op::SetContent {
+                raw_backend: None,
+                id,
+                width: p.width,
+                height: p.height,
+                file_size: p.file_size,
+                content_hash: p.content_hash.clone(),
+                preview_only: Some("Olympus compressed ORF".into()),
+                preview_checked: String::new(),
+            })
+            .unwrap();
+        assert!(!s.catalog.photo(id).unwrap().develops_raw());
+        let result = s.execute("photo.reload", &json!({"ids": [id.0]})).unwrap();
+        assert_eq!(result["reloaded"], json!([id.0]));
+        assert!(s.catalog.photo(id).unwrap().develops_raw());
+        assert_eq!(s.catalog.photo(id).unwrap().develop, settings);
     }
 
     /// A raw whose TIFF shell holds only a small RGB image (IFD0) next to a private block, as Exif

@@ -532,18 +532,24 @@ mod tests {
         h.step();
         h.step();
         let w = widgets(&mut h);
-        assert!(w.contains("\"denoise:setup\""), "a raw photo with no model is offered the setup: {w}");
-        // One click lands in Settings, with local installation available even without a download offer.
-        let r = h.request("ui.clickWidget", json!({"id": "denoise:setup"}), t);
-        assert_eq!(r["ok"], true, "{r}");
-        h.step();
-        h.step();
-        assert_eq!(h.app.ui.dialog, Some(Dialog::Settings { tab: "denoise".into() }));
-        h.settle(SETTLE);
-        let listed = h.app.session.execute("denoise.models.list", &json!({})).unwrap();
-        assert_eq!(listed["models"].as_array().unwrap().len(), lightcraft_denoise::known::all().len(), "{listed}");
-        assert!(widgets(&mut h).contains("\"denoise:installFile\""));
-        h.app.ui.dialog = None;
+        if lightcraft_engine::raw_backend::enabled() {
+            assert!(!w.contains("\"denoise:setup\""), "Core Image cannot offer sensor model setup: {w}");
+            assert!(matches!(h.app.session.denoise_photo_state(id), lightcraft_engine::denoise::PhotoState::Failed { unsupported: true, .. }));
+            assert!(h.app.ui.dialog.is_none());
+        } else {
+            assert!(w.contains("\"denoise:setup\""), "a raw photo with no model is offered the setup: {w}");
+            // One click lands in Settings, with local installation available even without a download offer.
+            let r = h.request("ui.clickWidget", json!({"id": "denoise:setup"}), t);
+            assert_eq!(r["ok"], true, "{r}");
+            h.step();
+            h.step();
+            assert_eq!(h.app.ui.dialog, Some(Dialog::Settings { tab: "denoise".into() }));
+            h.settle(SETTLE);
+            let listed = h.app.session.execute("denoise.models.list", &json!({})).unwrap();
+            assert_eq!(listed["models"].as_array().unwrap().len(), lightcraft_denoise::known::all().len(), "{listed}");
+            assert!(widgets(&mut h).contains("\"denoise:installFile\""));
+            h.app.ui.dialog = None;
+        }
         // a photo that is not raw: no offer
         h.request(
             "engine.execute",
@@ -2720,6 +2726,7 @@ mod tests {
             .session
             .catalog
             .apply(lightcraft_catalog::Op::SetContent {
+                raw_backend: None,
                 id: po,
                 width: ph.width,
                 height: ph.height,

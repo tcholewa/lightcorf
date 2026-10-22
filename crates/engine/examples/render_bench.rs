@@ -229,7 +229,12 @@ fn main() {
         println!("{name:<38} {first}: {}{}", cols[0], cols.get(1).map(|g| format!("  |  gpu: {g}")).unwrap_or_default());
     };
     let preview = Arc::new(fit(&full, 2560, 2560, Filter::Box));
-    let s = typical();
+    let mut s = typical();
+    if let Ok(mode) = std::env::var("LIGHTCRAFT_BENCH_GRAIN") {
+        lightcraft_develop::grain::PRESETS[2].apply(&mut s.grain);
+        s.grain.advanced = mode == "advanced";
+        println!("grain: ISO 1600, advanced={}", s.grain.advanced);
+    }
     let view = RenderRequest::fit(1920, 1280);
     let draft = RenderRequest { quality: Quality::Draft, ..RenderRequest::fit(1152, 768) };
     if gpu {

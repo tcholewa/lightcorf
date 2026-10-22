@@ -78,10 +78,11 @@ const ENC_FIELD: &str = "enc";
 /// settings or stored facts change, so proxies an older build wrote are rebuilt: a missing field
 /// reads as 0, which makes every proxy from before this version stale. Version 2 is the first to
 /// record the field at all (a version 1 proxy is stored at JPEG quality 92, which this build
-/// raises to [`JPEG_QUALITY`]); version 3 is the first to store the decoder facts in the tail. A
-/// stale proxy whose original is offline is kept as it is (see [`is_stale`]).
+/// raises to [`JPEG_QUALITY`]); version 3 is the first to store the decoder facts in the tail.
+/// Version 4 also preserves RAW backend provenance. A stale proxy whose original is
+/// offline is kept as it is (see [`is_stale`]).
 /// Crate-visible so the look-marker test pins the marker format to it instead of to a literal.
-pub(crate) const ENCODE_VERSION: u64 = 3;
+pub(crate) const ENCODE_VERSION: u64 = 4;
 
 /// The decoder facts a render interprets its settings against, stored with the proxy's pixels so
 /// an offline original edits like it did online (the catalog's header facts cannot carry them).
@@ -90,6 +91,8 @@ pub(crate) const ENCODE_VERSION: u64 = 3;
 #[derive(serde::Serialize, serde::Deserialize)]
 struct SmartFacts {
     raw: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    raw_backend: Option<String>,
     as_shot_temp: f64,
     as_shot_tint: f64,
     relative_wb: bool,
@@ -190,6 +193,7 @@ pub fn encode(img: &Rgb32f, info: Option<&SourceInfo>) -> Result<Vec<u8>, String
             .unwrap_or_default();
         let facts = SmartFacts {
             raw: i.raw,
+            raw_backend: i.raw_backend.clone(),
             as_shot_temp: i.as_shot_temp,
             as_shot_tint: i.as_shot_tint,
             relative_wb: i.relative_wb,
@@ -237,6 +241,7 @@ pub fn decode(bytes: &[u8]) -> Result<(Rgb32f, Option<CameraTone>, Option<Source
     img.data.iter_mut().for_each(|c| *c = c.map(|v| v * scale));
     let info = stored_facts(&head, bytes).map(|(f, mattes)| SourceInfo {
         raw: f.raw,
+        raw_backend: f.raw_backend,
         as_shot_temp: f.as_shot_temp,
         as_shot_tint: f.as_shot_tint,
         relative_wb: f.relative_wb,
@@ -652,6 +657,22 @@ mod tests {
         lying.extend_from_slice(head.to_string().as_bytes());
         lying.extend_from_slice(&bytes[nl..]);
         assert!(decode(&lying).map(|(_, _, i)| i.is_none()).unwrap_or(true), "an over-large tail is not trusted");
+    }
+
+    #[test]
+    fn raw_backend_provenance_travels_with_the_proxy_and_old_facts_still_read() {
+        let img = lightcraft_scenes::demo_library()[0].render(32, 20);
+        let info = SourceInfo { raw: true, raw_backend: Some("coreimage-linear-rec2020-v1:8:test-build".into()), ..Default::default() };
+        let bytes = encode(&img, Some(&info)).unwrap();
+        let (_, _, back) = decode(&bytes).unwrap();
+        assert_eq!(back.unwrap(), info);
+        let nl = MAGIC.len() + bytes[MAGIC.len()..].iter().position(|b| *b == b'\n').unwrap();
+        let head: serde_json::Value = serde_json::from_slice(&bytes[MAGIC.len()..nl]).unwrap();
+        let (facts, _) = stored_facts(&head, &bytes).unwrap();
+        let mut old = serde_json::to_value(facts).unwrap();
+        old.as_object_mut().unwrap().remove("raw_backend");
+        let old: SmartFacts = serde_json::from_value(old).unwrap();
+        assert!(old.raw && old.raw_backend.is_none());
     }
 
     #[test]

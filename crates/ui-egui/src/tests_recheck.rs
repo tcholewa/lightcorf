@@ -33,6 +33,7 @@ fn app_with_stale_photo(dir: &Path) -> (LightcraftApp, PhotoId) {
     session
         .catalog
         .apply(Op::SetContent {
+            raw_backend: None,
             id,
             width: p.width,
             height: p.height,
@@ -124,6 +125,7 @@ fn reload_of_a_selection_runs_in_the_background() {
         .catalog
         .apply(lightcraft_catalog::Op::SetContent {
             id,
+            raw_backend: p.raw_backend.clone(),
             width: p.width,
             height: p.height,
             file_size: p.file_size,

@@ -1,6 +1,8 @@
 # Gaps: where LightCraft falls short of Lightroom
 
-> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-21 · **Change:** minor (gap 28: F8 shows / hides the right panel; import review album hierarchy, #2362; gap 20: Minolta MRW decodes; gap 10: 551 models verified; gap 15: Print Page Options — page numbers, page info, crop marks; gap 15: Print Page Options — page numbers, page info, crop marks; gap 28: `\` shows / hides the Filter Bar in the grids; gap 21: Indonesian interface shipped, every message but What's New; gap 27: the Windows x64 installer verified on Windows 11; the Settings → Apps uninstall confirmation remains)
+> **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
+
+> **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-22 · **Change:** minor (SYNC.3: integrate upstream 0.11.0; retain Core Image limitations, sharpening and grain gaps; regenerate combined RAW coverage)
 
 Every known shortfall, one entry each, ranked by user impact (how many Lightroom users hit it, and
 how hard it blocks them), then by effort. **Agents pick work from the top** (the first entry nobody is
@@ -11,20 +13,27 @@ and [ROADMAP.md](../ROADMAP.md) if they move.
 Hours are Opus 5.5 agent wall-clock hours (see [target-app-parity.md](target-app-parity.md#how-hours-are-calibrated)).
 `B` marks a gap that blocks **beta**.
 
+## Core Image branch qualification
+
+The macOS branch still needs an original E-M10 sample and a compatible generated linear-DNG path.
+On build 26A434, Apple rejects LightCraft linear DNG output, so HDR/panorama completion and rendered
+DNG export fail before saving. Sensor denoise, sensor-DNG conversion and camera calibration are
+intentionally unavailable. Seven personal ORF/ORI/RW2 samples decode; that does not establish general
+camera coverage or colour accuracy. See [acceptance and limitations](coreimage-raw.md).
+
 ## Ranked
 
 | # | Gap | Evidence | User impact | Hours | Doc |
 |---:|---|---|---|---:|---|
 | 1 B | **Camera colour is estimated, not measured** (LR-PROF-CAMERACOLOR). Raws start from a per-file fit to the camera JPEG, 5 bundled profiles or 52 spectral matrices (plus same-sensor bodies, e.g. the X-T30 through the X-T3); others use a neutral matrix (a black-and-white camera JPEG gives its tone curve only, #577; dark JPEG tones also guide the toe, #1307) | ΔE vs camera JPEG 2.9–10 after fitting (raw-parity.md); 0 chart-calibrated models vs 1,500 Adobe Standard profiles | every raw shooter sees colour that is close but not Lightroom's; some get neutral-matrix colour | 50–90 | [raw-parity](raw-parity.md#colour) |
 | 2 B | **CR3 variants no public file uses** (LR-IMP-FORMATS): `crx.rs` refuses vertical-tile C-RAW, partial-subband and other plane coding, multi-tile 0x200 and adaptive low-frequency gains, and those files fall back to the preview. All 110 CC0 CR3s on raw.pixls.us (31 folders) decode from sensor data, so none of these variants has a public sample; 26 CR3 bodies are verified (M50 / R100 / R8 exact, R5 Mark II pinned, 22 more pinned on one CC0 file each and checked against the camera JPEG, [cr3.md](cr3.md#further-bodies-one-cc0-file-each)). HEIF stills are `.HIF` files, not CR3; no CR3 sRAW / mRAW sample exists | measured: Canon's share whose camera fully works 73% → 94% (raw-parity.md); 18 of 22 popular Canon bodies write CR3, all 18 now verified | +0.3 points of photographers; the variants surface only as user files that open as a preview | 10–25 | [raw-parity](raw-parity.md#remaining-work-ranked-by-photographers-unlocked-per-hour) |
-| 3 B | **Render fidelity unmeasured** (LR-BEHAV-RENDER-FIDELITY): tone, highlights, texture / clarity / dehaze, NR and sharpening are tuned by eye | no side-by-side suite; a retune needs a new process version (only V1 exists) | edits imported from Lightroom look different; the look "isn't Lightroom's" | 30–60 | [raw-parity](raw-parity.md), [process-versions](process-versions.md) |
+| 3 B | **Render fidelity unmeasured** (LR-BEHAV-RENDER-FIDELITY): tone, highlights, texture / clarity / dehaze, NR, sharpening and grain are tuned by eye; sharpening Radius/Detail are not wired into rendering and high amounts produce halos (LR-EDIT-DETAIL-SHARPEN) | no side-by-side suite; a retune needs a new process version (V1/V2 exist; Advanced grain is opt-in) | edits imported from Lightroom look different; the look "isn't Lightroom's" | 30–60 | [raw-parity](raw-parity.md), [process-versions](process-versions.md) |
 | 4 | ~~Original-pixel detail at 100%~~ (LR-VIEW-ZOOM): closed 2026-10-12, see Closed recently | checklist row ✅ | — | 0 | [ui-parity](ui-parity.md) |
 | 5 B | **AI masks: Subject, Sky, People, Background, Landscape** are heuristics; Object / Describe run SAM 3 but its download has no mirror configured | `crates/segment`; ai-masks.md; MASK rows 67% | masking is how most Lightroom users edit today | 40–70 + model decision | [target-app-parity](target-app-parity.md#ai) |
-| 6 B | **Compressed ORF** (every Olympus / OM body since ~2008) | measured: 66 of 78 Olympus / OM models preview-only; `orf.rs` refuses; OM bucket 3% of photographers, 3% of them fully work | +2.6 points; best gain per hour of any raw gap (~0.2) | 8–15 | [raw-parity](raw-parity.md#compressed-orf-a-clean-room-starting-point) (the two Olympus patents that describe the method) |
 | 7 | **Nikon High Efficiency NEF** (HE / HE★ on Z 8, Z 9, Z 6III, Z f, Z50II, Z5II when set to HE) | named and preview only (#193); needs a pure-Rust JPEG XS decoder | +1.1 points (only shots taken in HE; lossless works on the same bodies); low gain per hour (~0.04), so not a beta blocker | 20–40 | [raw-parity](raw-parity.md) |
 | 8 B | **No lens profile database** (LR-EDIT-OPTICS-PROFILE): only DNG opcodes, RW2 in-file distortion, Sony ILCE-7RM4A, full-frame ILCE-7CR distortion (Auto only) and ILCE-7RM6 distortion (`docs/sony-ilce7rm6-lens-corrections.md`) and Nikon Z 6II / Z 8 / Z f distortion (`docs/nikon-lens-corrections.md`) | Adobe ships 3,635 lens profiles; we never use them | distortion / vignetting correction is a default step for many | 40–80 + calibration shots | [raw-parity](raw-parity.md#lens-profiles) |
 | 9 B | **Tests don't run in CI on macOS, Windows or Linux x64**: only FreeBSD runs `cargo test`; the others build packages | `.github/workflows/` (freebsd, packaging-lint, release, windows-arm64); the linux-riscv64 release job added in 0.6.0 (#844) runs only `lightcraft-cli --version` under QEMU | regressions reach users on the main platforms; `cargo xtask ci` runs only locally | 6–12 | [target-app-parity](target-app-parity.md#by-dimension) |
-| 10 B | **Per-model verification thin, plus cheap per-body decode fixes**: 551 of 1,446 Adobe models verified (38%), ~85% of photographers on a verified body; Nikon 5 bodies verified, Canon 34, Leica 14 (the Q3 by a recorded check of 38 private DNGs). Cheap fixes: Z 6II packed 14-bit NEF (#769, PR #671), Sony A100 regression (#702); F828 SRF now discovered and imported as preview-only, sensor decoding still missing, DSLR-A200…A390 / A850 12-bit ARW (#535) | measured: [raw/coverage.tsv](raw/coverage.tsv) | per-body bugs (levels, crops, WB) surface only from users | 25–45 | [raw-parity](raw-parity.md#by-maker-measured) |
+| 10 B | **Per-model verification thin, plus cheap per-body decode fixes**: 571 of 1,446 Adobe models verified (39%), ~88% of photographers on a verified body; Nikon 77 bodies verified, Canon 95, Leica 27 (the Q3 by a recorded check of 38 private DNGs). Cheap fixes: Z 6II packed 14-bit NEF (#769, PR #671), Sony A100 regression (#702); F828 SRF now discovered and imported as preview-only, sensor decoding still missing, DSLR-A200…A390 / A850 12-bit ARW (#535) | measured: [raw/coverage.tsv](raw/coverage.tsv) | per-body bugs (levels, crops, WB) surface only from users | 25–45 | [raw-parity](raw-parity.md#by-maker-measured) |
 | 11 | **Enhance: Raw Details, Super Resolution; AI denoise without shippable weights or X-Trans** | ENH rows 0%; denoise Bayer only, RawNIND weights GPL and opt-in | Fujifilm users get no AI denoise; nobody gets it out of the box | 30–60 + model decision | [raw-parity](raw-parity.md#demosaic-levels-crops-and-lens-metadata) |
 | 12 | **Content-aware / generative remove, detect distractions, reflections removal** | REM rows 75%; patch synthesis missing | cleanup work goes back to Photoshop | 25–45 (+ generative model) | [target-app-parity](target-app-parity.md#ai) |
 | 13 | **Lightroom catalog migration is one-way and approximate**: unsupported Adobe profiles / AI settings archived, history kept as data; main-file pages read on demand up to 16 GiB, with dense-table and WAL bounds retained (#798); offline record counts and destination are now shown in a lasting import result | lightroom-catalog-import.md | switching users lose some looks | 8–12 | [file-format-parity](file-format-parity.md) |
@@ -45,21 +54,31 @@ Hours are Opus 5.5 agent wall-clock hours (see [target-app-parity.md](target-app
 | 29 | **HDR merge leftovers** (LR-MERGE-HDR): AI Denoise doesn't run on merged (linear) DNGs; JPEG brackets are treated as linear (no camera response curve); every frame is held as 32-bit float, ~0.86 GB per 67 MP frame (half-float frames would halve it) | tested on Sony A7R VI brackets 2026-10-14 ([merge.md](merge.md)); Lightroom's Denoise supports HDR DNGs | HDR shooters who denoise their merges, merge JPEGs, or merge 7+ frames of high-resolution raws on 16 GB machines | 10–20 (+ denoise linear-RGB contract, gap 11) | [merge](merge.md) |
 | 28 | **Small Classic shortcuts and keys**: ⌘L (Enable Filters), Tab / ⇧Tab (hide the side panels / all panels; Tab moves the keyboard focus here) and F5. Rating `[` `]`, flag cycling (`` ` ``), `\` (Filter Bar), F1 help, F6 / F7 / F8 (filmstrip, left panel, right panel) are bound | [ui-parity](ui-parity.md#shortcuts) | Classic muscle memory | 2–4 | [ui-parity](ui-parity.md) |
 
-Beta-blocking gaps (B) total **~230–430 h**; with the stability and platform work they need around them,
-**~340–600 h** to beta (incl. 40–80 h for the ~92 open core-path user issues) (see [target-app-parity.md](target-app-parity.md#stage)).
+Beta-blocking gaps (B) total **~220–415 h**; with the stability and platform work they need around them,
+**~330–590 h** to beta (incl. 40–80 h for the ~92 open core-path user issues) (see [target-app-parity.md](target-app-parity.md#stage)).
 
 ## Gaps by kind
 
 - **Feature:** 5, 8, 11, 12, 13, 15, 16, 18, 19, 29
 - **UI / UX:** 4, 23, 24, 28
-- **File format:** 2, 6, 7, 10, 13, 20, 25 (raw ones in [raw-parity.md](raw-parity.md))
+- **File format:** 2, 7, 10, 13, 20, 25 (raw ones in [raw-parity.md](raw-parity.md))
 - **Hardware:** 14, 17, 22, 27
 - **Localization:** 21
 - **Quality / fidelity:** 1, 3
 - **Stability and platforms:** 9, 26, 27
 
+## Grain fidelity progress
+
+GRAIN.1 adds original 400/800/1600 profiles and opt-in CPU/GPU grain ([model](analog-grain.md)).
+The Grain row is partial: controls and synthesis exist, but measured film-stock and Lightroom
+fidelity remain unverified. FILM.1 adds an original Tri-X-inspired Push +2 B&W preset using
+this renderer, with no measured stock-matching claim. Gap 3 stays open; no readiness increase is claimed.
+
 ## Closed recently (kept for calibration)
 
+- 2026-10-12: Compressed ORF (gap 6): independent pure-Rust sensor decoding, 23 exact Olympus / OM
+  body references including PEN E-PL7 and compressed 80 MP E-M5 III captures ([orf.md](orf.md)).
+  Per-model colour calibration remains gap 1; unknown stream headers are refused.
 - 2026-10-20: the import review album picker follows the sidebar folder hierarchy and searches album paths (#2362, LR-IMP-ADD-DIALOG), retaining None/New album and existing destination IDs. This closes a usability subgap; no ranked gap or headline feature count closes.
 
 - 2026-10-12: original-pixel detail at 100% (gap 4, LR-VIEW-ZOOM, #323): soft proofing gets zoom windows like
@@ -79,6 +98,14 @@ Beta-blocking gaps (B) total **~230–430 h**; with the stability and platform w
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | SYNC.3: integrate upstream main `31ee2643` (0.11.0) with Core Image, ORF, advanced grain, Tri-X and sharpening 15; combined Rust coverage 571 verified, 694 unverified, 144 preview-only, 37 unsupported; native Apple qualification remains separate |
+| 2026-10-21 | minor | CI.3: new Core Image imports sharpen at 15; Radius/Detail renderer gaps downgrade Sharpening to partial, breadth 82.7%, P0 98.0%; readiness unchanged |
+| 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
+| 2026-10-21 | minor | SYNC.2: merge upstream 0.10.0 with local compressed ORF, advanced grain and Tri-X; retain both sets of fixes and evidence |
+| 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
+| 2026-10-12 | minor | FILM.1: Tri-X-inspired Push +2 preset using existing Advanced grain; measured fidelity remains open |
+| 2026-10-12 | minor | GRAIN.1: grain profiles and advanced synthesis; fidelity remains partial, gap 3 open |
+| 2026-10-12 | minor | Gap 6 (compressed ORF) closed with 23 exact sensor references including PEN E-PL7; verification now 258 models (18%), ~44% use-weighted verified; eight beta blockers remain |
 | 2026-10-21 | minor | Gap 28 shrinks: F8 shows / hides the right panel (`view.rightPanel`); rating `[` `]`, flag cycling and F1 help were already bound, so the entry lists only filter-bar keys, Tab / ⇧Tab and F5; 2–4 h (was 4–8) |
 | 2026-10-20 | minor | #2362: import destination albums use the shared hierarchy/search picker instead of a flat name list; existing import workflows retained; ranked gaps/readiness counts unchanged |
 | 2026-10-19 | minor | Gap 21: Indonesian (`id`) shipped with every catalog message but What's New; four new languages left (Hindi, Arabic, Korean, Vietnamese), 135–239 h |

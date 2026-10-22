@@ -1506,6 +1506,41 @@ fn hdr_edits_render_with_their_hdr_histogram() {
     assert!(r.deep.is_none(), "the preview itself stays the 8-bit SDR rendition");
 }
 
+#[test]
+fn grain_profiles_mode_undo_and_auto_sync() {
+    use lightcraft_catalog::PhotoId;
+    let mut s = demo();
+    let ids: Vec<u64> = s.catalog.photos().take(2).map(|p| p.id.0).collect();
+    s.execute("library.select", &json!({"ids": ids})).unwrap();
+    s.selection.active = Some(PhotoId(ids[0]));
+    s.execute("develop.autoSync", &json!({"on": true})).unwrap();
+    for advanced in [true, false, true] {
+        s.execute("develop.merge", &json!({"settings":{"grain":{"advanced":advanced}}})).unwrap();
+        for id in &ids {
+            assert_eq!(s.develop_of(PhotoId(*id)).unwrap().grain.advanced, advanced);
+        }
+    }
+    let before = active_dev(&s).clone();
+    s.execute("develop.grainPreset", &json!({"iso":800})).unwrap();
+    for id in &ids {
+        let d = s.develop_of(PhotoId(*id)).unwrap();
+        assert!(d.grain.advanced);
+        assert_eq!((d.grain.amount, d.grain.size, d.grain.roughness), (35.0, 35.0, 55.0));
+        assert_eq!(d.grain.seed, before.grain.seed);
+    }
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(active_dev(&s).grain, before.grain);
+    s.execute("edit.redo", &json!({})).unwrap();
+    assert_eq!(active_dev(&s).grain.amount, 35.0);
+    for bad in [json!({}), json!({"iso":-1}), json!({"iso":900}), json!({"iso":"800"}), json!({"iso":800.5})] {
+        assert!(s.execute("develop.grainPreset", &bad).is_err());
+    }
+    s.execute("develop.resetSection", &json!({"section":"grain"})).unwrap();
+    for id in ids {
+        assert!(!s.develop_of(PhotoId(id)).unwrap().grain.advanced);
+    }
+}
+
 /// Found by fuzzing catalog snapshots: an album filed under one id but naming its own folder's
 /// listed itself inside itself, and `albums.list` recursed until the stack overflowed (an abort:
 /// no guard catches it). Loading repairs such a catalog (`Catalog::repair`); one that skipped

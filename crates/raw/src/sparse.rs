@@ -537,6 +537,26 @@ mod tests {
     }
 
     #[test]
+    fn arw6_streams_are_not_claimed_ready_after_skipping_samples() {
+        use lightcraft_tiff::{IfdBuilder, ImageData, TiffWriter, Value};
+
+        let mut image = IfdBuilder::new();
+        image.set(t::MAKE, Value::Ascii("SONY".into()));
+        image.set(t::IMAGE_WIDTH, Value::Long(vec![512]));
+        image.set(t::IMAGE_LENGTH, Value::Long(vec![512]));
+        image.set(t::COMPRESSION, Value::Short(vec![32766]));
+        image.set(t::PHOTOMETRIC, Value::Short(vec![t::photometric::CFA]));
+        image.set(t::BITS_PER_SAMPLE, Value::Short(vec![16]));
+        image.set(t::SAMPLES_PER_PIXEL, Value::Short(vec![1]));
+        image.set_image(ImageData::Strips { rows_per_strip: 512, strips: vec![vec![0x5a; 512 * 1024]] });
+        let file = TiffWriter::default().write(&[image]).unwrap();
+        for fill in [0, 0xff] {
+            let (plan, _, _) = run(&file, 512, fill);
+            assert_eq!(plan, HeaderPlan::Whole("an ARW6 header probe reads its tiles"));
+        }
+    }
+
+    #[test]
     fn hostile_input_never_panics_and_ends() {
         let mut loaded = Ranges::new();
         for len in [0usize, 1, 8, 15, 16, 200] {

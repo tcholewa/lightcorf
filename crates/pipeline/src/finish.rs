@@ -183,6 +183,7 @@ pub struct FinishParams {
     pub ev: f32,
     /// Grain: amount, cell size (px), roughness, seed.
     pub grain: Option<(f32, f32, f32, u32)>,
+    pub analog_grain: Option<crate::grain::AnalogGrain>,
     /// Output px → normalized oriented coordinates.
     pub out_to_norm: lightcraft_geom::Affine,
     pub ow: f64,
@@ -218,7 +219,7 @@ impl FinishParams {
         };
         let ev = s.light.exposure as f32;
         let gain = 2f32.powf(ev);
-        let grain = (s.grain.amount > 0.0 && effects).then(|| {
+        let grain = (s.grain.amount > 0.0 && effects && !s.grain.advanced).then(|| {
             let cell = (0.0006 + (s.grain.size / 100.0) as f32 * 0.0024) * px_per_long as f32;
             ((s.grain.amount / 100.0) as f32 * 0.13, cell.max(0.6), (s.grain.roughness / 100.0) as f32, s.grain.seed)
         });
@@ -250,6 +251,7 @@ impl FinishParams {
             gain,
             ev,
             grain,
+            analog_grain: crate::grain::AnalogGrain::new(s, px_per_long),
             out_to_norm: frame.out_to_norm(w, h),
             ow: frame.ow,
             oh: frame.oh,
@@ -520,6 +522,13 @@ pub(crate) fn finish_with<T: Copy + Default + Send>(
                 let det = l_pre - b.data[i];
                 delta -= l_noise.clamp(-1.0, 1.0) * 0.9 * det * (1.0 - smooth(0.1, 0.5, det.abs()));
             }
+            if let Some(g) = fp.analog_grain
+                && let Some(b) = &p.grain_blur
+                && let Some(blur) = b.data.get(i)
+            {
+                let det = l_pre - blur;
+                delta -= g.softness * det * (1.0 - smooth(0.5, 2.0, det.abs())) * (1.0 - 0.35 * smooth(-2.0, 2.0, l0));
+            }
             if delta != 0.0 {
                 let g = delta.exp2();
                 c = c.map(|v| v * g);
@@ -544,6 +553,10 @@ pub(crate) fn finish_with<T: Copy + Default + Send>(
                 d = d.map(|v| v + (o - v) * t);
             }
 
+            if let Some(g) = fp.analog_grain {
+                let n = out_to_norm.apply(Point::new(x as f64 + 0.5, y as f64 + 0.5));
+                d = g.apply(d, (n.x * fp.ow / long) as f32, (n.y * fp.oh / long) as f32);
+            }
             // --- colour
             d = ops.apply(d, l_sat, l_hue);
             if let Some((dir, amt)) = tint_col {

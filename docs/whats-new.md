@@ -610,6 +610,13 @@
   alone, so the photo's preview and thumbnail sources and its neighbours' were decoded from the raw again on every
   edit at 1:1, every zoom out and every step to the next photo.
 
+## 2026-10-12
+
+### ISO-inspired grain
+- Effects → Grain now offers 400, 800 and 1600 starting points. The independent Advanced grain
+  checkbox adds organic texture, automatic colour/B&W adaptation and subtle fine-detail softening.
+  Existing edits keep their original rendering.
+
 ## 2026-10-11
 
 ### Keywords panel

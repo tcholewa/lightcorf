@@ -80,6 +80,19 @@ impl Frame {
         }
     }
 
+    /// Already-developed RAW in linear Rec.2020. Camera white balance/colour are baked into RGB,
+    /// but highlight values can exceed 1. Sensor saturation is unavailable: use a conservative
+    /// observed ceiling rather than marking every value above display white as clipped.
+    pub fn from_developed_raw(image: Rgb32f, metadata: Metadata) -> Frame {
+        let exposure = exif_exposure(&metadata);
+        let ceiling = image.data.iter().flatten().copied().filter(|v| v.is_finite()).fold(1.0f32, f32::max);
+        let mut frame = Self::from_linear_rec2020(image, exposure);
+        frame.raw = true;
+        frame.clip = ceiling;
+        frame.metadata = metadata;
+        frame
+    }
+
     pub fn width(&self) -> usize {
         self.image.width
     }
@@ -407,5 +420,22 @@ mod tests {
         let before = linear.clone();
         linear.set_as_shot_multipliers([2.0, 1.0, 1.6]);
         assert_eq!(linear, before);
+    }
+}
+
+#[cfg(test)]
+mod developed_raw_tests {
+    use super::*;
+    #[test]
+    fn developed_raw_keeps_highlight_headroom_and_exif_without_second_wb() {
+        let image = Rgb32f { width: 2, height: 1, data: vec![[0.5, 0.8, 0.1], [2.0, 4.0, 1.5]] };
+        let metadata = Metadata { exposure_time: Some(0.01), iso: Some(200), f_number: Some(4.0), ..Default::default() };
+        let frame = Frame::from_developed_raw(image.clone(), metadata);
+        assert_eq!(frame.image, image);
+        assert_eq!(frame.clip, 4.0);
+        assert!(frame.raw && frame.exposure.is_some());
+        assert!(matches!(frame.color, FrameColor::Linear { .. }));
+        assert!(frame.wb_multipliers.is_none() && frame.lens.is_empty());
+        assert_eq!(frame.orientation, Orientation::Normal);
     }
 }

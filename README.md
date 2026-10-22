@@ -1,3 +1,5 @@
+> **Experimental macOS branch:** [Lightcraft BW Core Image](docs/coreimage-raw.md) uses Apple RAW development in an isolated helper, with a separate app/library. Other platforms keep the Rust backend.
+
 <p align="center">
   <a href="https://getartcraft.com/">
     <picture>
@@ -100,7 +102,8 @@ OkLCh, a modern perceptual colour space.
 ### ✨ Effects
 **Texture** for fine detail, **Clarity** for mid-tone punch, **Dehaze** (dark-channel prior with guided refinement;
 push it negative to add atmosphere), post-crop **Vignette** with highlight priority, roundness and feather, and
-resolution-independent film **Grain** with size and roughness.
+resolution-independent film **Grain** with size and roughness, **400/800/1600** starting points,
+and optional [Advanced grain](docs/analog-grain.md) with organic colour-aware texture and subtle detail softening.
 
 ### 📈 Tone Curve
 Parametric region curve with movable splits **plus** point curves for RGB, Red, Green and Blue. Curves are monotone by
@@ -338,14 +341,14 @@ lightcraft --control 7980 ~/Pictures/trip
 LightCraft is young and moving fast: **alpha**. **Where we honestly stand** (details in the [roadmap](ROADMAP.md) and
 [docs/target-app-parity.md](docs/target-app-parity.md)):
 
-- **By feature count we're at ~82%** (core features 98%), tracked row by row in
+- **By feature count we're at ~83%** (core features 98%), tracked row by row in
   [docs/parity-checklist.md](docs/parity-checklist.md).
-- **As a day-to-day tool we're nearer 61% for the whole product, ~51% for a typical working photographer and ~65% for
+- **As a day-to-day tool we're nearer 62% for the whole product, ~51% for a typical working photographer and ~65% for
   casual use.** It's great for JPEG/DNG and most Sony / Panasonic /
-  Fujifilm / Nikon / older-Canon raws on one machine; see [docs/raw-parity.md](docs/raw-parity.md) for your camera.
+  Fujifilm / Nikon / Olympus / OM System / older-Canon raws on one machine; see [docs/raw-parity.md](docs/raw-parity.md) for your camera.
 - **The biggest gaps:**
   - **camera colour calibration:** Sony, Nikon, Panasonic, Fujifilm and Canon CR3 raws have guarded estimates from their camera JPEGs, with built-in ILCA-99M2, ILCE-7CR, ILCE-7M4, X-H2S, X-T4, Nikon Z 6II, Z 8 and D5300 profiles; measured calibration is missing, and other raws or rejected fits retain a neutral matrix;
-  - **compressed Olympus raws and unsupported CR3 variants:** these use embedded JPEG previews when present. Fujifilm lossless/lossy compressed RAF now decodes sensor data; [verification and existing-library reload instructions](docs/raf-compression.md);
+  - **unsupported CR3 variants, Nikon HE NEF and compressed Samsung SRW:** these use embedded JPEG previews when present. Olympus / OM System compressed ORF decodes sensor data, including PEN E-PL7; [verification and existing-library reload instructions](docs/orf.md);
   - **AI quality and model setup:** Subject and Sky selection are classical heuristics; Object/Describe use an
     optional SAM 3 model. AI Denoise supports Bayer RAW with separately installed weights, while X-Trans and
     linear-RGB denoise and Super Resolution remain missing; see [AI masks](docs/ai-masks.md) and [AI Denoise](docs/denoise.md);
@@ -365,7 +368,7 @@ LightCraft is young and moving fast: **alpha**. **Where we honestly stand** (det
 | Profiles (Color, Neutral, Vivid, Landscape, Portrait, Monochrome: our own looks), presets, versions, history, copy/paste/sync settings | ✅ |
 | Camera colour: DNG matrices, guarded camera-JPEG look fits and built-in profiles for selected cameras | 🚧 measured calibration and per-model coverage remain incomplete ([raw parity](docs/raw-parity.md)) |
 | Native macOS menu bar (generated from the command registry), control channel + every widget addressable, headless UI snapshots | ✅ |
-| RAW: DNG, CR2, CR3 (lossless CRX Bayer and version 0x100/0x200 C-RAW), ARW, NEF (uncompressed + lossless/lossy compressed, incl. lossy after split), Fujifilm RAF (uncompressed + lossless/lossy compressed, Bayer + X-Trans), Panasonic RW2 / Leica RWL / Panasonic RAW (every raw format, DMC-LX1 to DC-S1RM2), Pentax PEF, Olympus ORF (uncompressed, 12.8 bpp), Samsung SRW (uncompressed); embedded previews for every format incl. CR3 | 🚧 · other CR3 variants, compressed ORF / SRW and Nikon HE NEF decode ⬜ ([raw parity](docs/raw-parity.md)) |
+| RAW: DNG, CR2, CR3 (lossless CRX Bayer and version 0x100/0x200 C-RAW), ARW, NEF (uncompressed + lossless/lossy compressed, incl. lossy after split), Fujifilm RAF (uncompressed + lossless/lossy compressed, Bayer + X-Trans), Panasonic RW2 / Leica RWL / Panasonic RAW (every raw format, DMC-LX1 to DC-S1RM2), Pentax PEF, Olympus / OM System ORF (uncompressed, 12.8 bpp, lossless compressed; PEN E-PL7 included), Samsung SRW (uncompressed); embedded previews for every format incl. CR3 | 🚧 · other CR3 variants, compressed SRW and Nikon HE NEF decode ⬜ ([raw parity](docs/raw-parity.md)) |
 | Detail: sharpening, luminance + colour noise reduction | ✅ · AI Denoise 🚧 (Bayer, user-installed weights; [setup](docs/denoise.md)), Super Resolution ⬜ |
 | Remove / Heal / Clone spots (auto source), non-generative Fill, editable spot pins, Visualize Spots, Red Eye and Pet Eye | ✅ · Fill uses PatchMatch; no generative fill |
 | Export: JPEG / PNG / TIFF / flat PSD / WebP / AVIF / JPEG XL / raw or rendered DNG / original, sizing, file-size limit, output sharpening, naming templates, batch, metadata policy, text or image watermark | ✅ |
@@ -402,6 +405,9 @@ cargo xtask web --serve                                 # the same app in the br
 cargo run --release -p lightcraft-cli -- render photo.jpg -o out.jpg --set light.exposure=0.5
 cargo xtask ci                                          # fmt, clippy, HEIF, tests, parity, layers, assets, WASM
 ```
+
+For the local **Lightcraft BW** macOS build (PR #1162, advanced grain and Tri-X),
+with its retained library and preferences, see [the local deployment instructions](docs/local-deployment.md).
 
 CI defaults to line-table debug information and one build job per 1.5 GB of RAM
 available when it starts (at most one per CPU; 4 if memory can't be read), so an

@@ -2143,5 +2143,9 @@
   "Checking the GPU…": "正在檢查 GPU…",
   "CPU": "CPU",
   "A face model uses the GPU only when a check shows it gives the same results faster.": "只有在檢查顯示 GPU 能更快得出相同結果時，臉孔模型才會使用 GPU。",
-  "Checking the GPU for faces": "正在檢查用於臉孔的 GPU"
+  "Checking the GPU for faces": "正在檢查用於臉孔的 GPU",
+  "Advanced grain": "進階顆粒",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "35毫米底片風格顆粒：400細膩、800明顯、1600強烈。保留進階顆粒選項。",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "自然且隨色彩變化的顆粒，自動調整色調反應並輕微柔化精細細節。隨色彩分級變化。",
+  "Tri-X 400 — Push +2 (Inspired)": "Tri-X 400 — 增感 +2 級（靈感風格）"
 }

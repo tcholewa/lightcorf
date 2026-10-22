@@ -223,6 +223,9 @@ pub struct HistoryStep {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Photo {
+    /// RAW backend/recipe/decoder/OS provenance. Absent in older catalogs and Rust-decoded photos.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub raw_backend: Option<String>,
     pub id: PhotoId,
     pub source: Source,
     pub file_name: String,
@@ -329,7 +332,9 @@ pub struct Analysis {
 /// file's white balance is edited relative to its as-shot look or in Kelvin depends on the camera:
 /// [`relative_wb_camera`].
 pub fn relative_wb_format(format: &str) -> bool {
-    ["ARW", "NEF", "NRW", "RW2", "RWL", "RAW", "RAF", "CR3", "CR2", "PEF", "SRW", "ORF", "ERF", "MRW"].iter().any(|f| format.eq_ignore_ascii_case(f))
+    ["ARW", "NEF", "NRW", "RW2", "RWL", "RAW", "RAF", "CR3", "CR2", "PEF", "SRW", "ORF", "ORI", "ERF", "MRW"]
+        .iter()
+        .any(|f| format.eq_ignore_ascii_case(f))
 }
 
 /// Whether a raw of `format` shot on `camera` (Exif make and model, as [`Meta::camera`] keeps them) is developed
@@ -394,6 +399,7 @@ impl Photo {
             preview_only: None,
             preview_checked: String::new(),
             local_baseline: None,
+            raw_backend: None,
         }
     }
     /// Sets [`Photo::preview_only`] as this build decided it, with its stamp.
@@ -415,13 +421,13 @@ impl Photo {
     /// WB multipliers, no colour matrices in the file; RWL and RAW are Leica's and the oldest Panasonic bodies'
     /// names for RW2 files). The engine's `camera_preview::file_local_look` covers the same formats.
     pub fn fitted_look(&self) -> bool {
-        self.develops_raw() && relative_wb_format(&self.format)
+        self.raw_backend.is_none() && self.develops_raw() && relative_wb_format(&self.format)
     }
     /// White balance relative to the camera's as-shot look, as for rendered photographs: a
     /// [`Photo::fitted_look`] raw whose camera has no colour matrices measured either
     /// ([`relative_wb_camera`]). Other raws edit white balance in Kelvin.
     pub fn relative_wb(&self) -> bool {
-        self.develops_raw() && relative_wb_camera(&self.format, &self.meta.camera)
+        self.raw_backend.is_none() && self.develops_raw() && relative_wb_camera(&self.format, &self.meta.camera)
     }
     /// The develop settings import gave this photo: [`Photo::camera_defaults`], or the user's
     /// default preset applied on top of them ([`Photo::import_look`]). Like the camera defaults,

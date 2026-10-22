@@ -45,7 +45,11 @@ impl Stale {
 /// were copied from). No file-system calls.
 pub fn stale(cat: &Catalog, all: bool) -> Vec<Stale> {
     cat.photos()
-        .filter(|p| p.copy_of.is_none() && p.preview_only.is_some() && (all || p.preview_only_stale()))
+        .filter(|p| {
+            p.copy_of.is_none()
+                && ((p.preview_only.is_some() && (all || p.preview_only_stale()))
+                    || (p.kind == lightcraft_catalog::MediaKind::Raw && crate::raw_backend::stale(p.raw_backend.as_deref())))
+        })
         .filter_map(|p| crate::cmd::missing::checked_path(p).map(|path| Stale::of(p, path)))
         .collect()
 }

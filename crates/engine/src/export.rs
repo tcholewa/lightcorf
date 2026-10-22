@@ -1535,7 +1535,10 @@ pub fn encode_deep(img: &DeepImage, o: &ExportOptions, meta: Option<&Metadata>) 
         (ExportFormat::Psd, _) => encode::encode_psd(&e, &meta),
         (ExportFormat::RenderedDng, DeepSamples::F32(v)) => {
             let m = meta_src.cloned().unwrap_or_default();
-            return lightcraft_raw::write_rendered_dng(img.width, img.height, v, &img.space.rgb_space(), &m, xmp.clone()).map_err(|e| e.to_string());
+            let bytes =
+                lightcraft_raw::write_rendered_dng(img.width, img.height, v, &img.space.rgb_space(), &m, xmp.clone()).map_err(|e| e.to_string())?;
+            crate::raw_backend::validate_generated_dng(&bytes)?;
+            return Ok(bytes);
         }
         (ExportFormat::Avif, DeepSamples::F32(v)) if img.space == OutputSpace::Rec2020 => {
             lightcraft_codecs::encode_avif_hdr(w, h, v, o.quality, 8, &meta, o.hdr_transfer.codec())
@@ -1844,6 +1847,7 @@ impl PreparedExport {
                 if lightcraft_raw::probe(&bytes).is_none() {
                     return Err(format!("{label}: DNG export needs a raw photo"));
                 }
+                crate::raw_backend::require_sensor()?;
                 let mut raw = lightcraft_raw::decode(&bytes).map_err(|e| format!("{label}: {e}"))?;
                 crate::camera_preview::with_starting_colour(&mut raw, &bytes);
                 drop(bytes);

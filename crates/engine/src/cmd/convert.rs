@@ -31,6 +31,7 @@ pub(crate) fn write_dng_for(s: &Session, path: &str, packet: String) -> std::res
 
 /// [`write_dng_for`] without the session (imports convert on a worker thread).
 pub(crate) fn write_dng_with(file_bytes: Option<&crate::merge::ByteReader>, path: &str, packet: String) -> std::result::Result<String, String> {
+    crate::raw_backend::require_sensor()?;
     let bytes = match file_bytes {
         Some(r) => r(path)?,
         None => std::fs::read(path).map_err(|e| format!("{path}: {e}"))?,
@@ -108,6 +109,11 @@ fn convert(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(json!({"converted": converted, "skipped": skipped}))
 }
 
+fn sensor_selection(s: &Session) -> std::result::Result<(), String> {
+    crate::raw_backend::require_sensor()?;
+    has_selection(s)
+}
+
 pub fn specs() -> Vec<CommandSpec> {
     vec![cmd!(
         "photo.convertToDng",
@@ -115,7 +121,7 @@ pub fn specs() -> Vec<CommandSpec> {
         ["Photo"],
         None,
         "{ids?} — write each raw photo as a lossless DNG next to it (settings embedded) and relink the photo to it; originals are kept → {converted: [{id, path, original}], skipped}",
-        has_selection,
+        sensor_selection,
         convert
     )]
 }
@@ -207,12 +213,14 @@ fn edit_copy(s: &mut Session, p: &Value, id: lightcraft_catalog::PhotoId, opts: 
 /// again (see [`lightcraft_catalog::Photo::preview_checked`]).
 pub(crate) fn content_op(id: lightcraft_catalog::PhotoId, ph: &lightcraft_catalog::Photo, info: crate::media::ProbeInfo) -> Option<Op> {
     let preview_checked = lightcraft_catalog::preview_stamp(&info.preview_only);
-    let same = info.content_hash == ph.content_hash
+    let same = info.raw_backend == ph.raw_backend
+        && info.content_hash == ph.content_hash
         && info.file_size == ph.file_size
         && (info.width, info.height) == (ph.width, ph.height)
         && info.preview_only == ph.preview_only
         && preview_checked == ph.preview_checked;
     (!same).then_some(Op::SetContent {
+        raw_backend: info.raw_backend,
         id,
         width: info.width,
         height: info.height,

@@ -340,6 +340,29 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui, id: PhotoId) {
             control(app, ui, d, c, enabled);
         }
         sub_title(ui, crate::i18n::tr("Grain"));
+        egui::Frame::NONE.inner_margin(egui::Margin { left: 24, right: 22, top: 2, bottom: 4 }).show(ui, |ui| {
+            ui.columns(3, |columns| {
+                for (column, preset) in columns.iter_mut().zip(lightcraft_develop::grain::PRESETS) {
+                    let r = column
+                        .add_sized([column.available_width(), 24.0], egui::Button::new(preset.iso.to_string()).selected(preset.matches(&d.grain)))
+                        .on_hover_text(crate::i18n::tr(
+                            "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.",
+                        ));
+                    register(column.ctx(), format!("button:grainPreset-{}", preset.iso), r.rect);
+                    if r.clicked() {
+                        let _ = app.run("develop.grainPreset", json!({"iso": preset.iso}));
+                    }
+                }
+            });
+            let mut advanced = d.grain.advanced;
+            let r = ui.checkbox(&mut advanced, crate::i18n::tr("Advanced grain")).on_hover_text(crate::i18n::tr(
+                "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.",
+            ));
+            register(ui.ctx(), "checkbox:grainAdvanced", r.rect);
+            if r.changed() {
+                let _ = app.run("develop.merge", json!({"settings": {"grain": {"advanced": advanced}}, "label": "Advanced grain"}));
+            }
+        });
         for c in ["grain.amount", "grain.size", "grain.roughness"] {
             control(app, ui, d, c, c == "grain.amount" || d.grain.amount != 0.0);
         }
@@ -352,7 +375,8 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui, id: PhotoId) {
         // AI Denoise is its own tool, apart from the manual noise reduction sliders below it
         sub_title(ui, crate::i18n::tr("AI Denoise"));
         // AI Denoise: how much of the photo's cleaned picture to mix in (raw files only), and what that picture is doing
-        let applicable = !matches!(app.session.denoise_photo_state(id), lightcraft_engine::denoise::PhotoState::NotApplicable);
+        let applicable = !lightcraft_engine::raw_backend::enabled()
+            && !matches!(app.session.denoise_photo_state(id), lightcraft_engine::denoise::PhotoState::NotApplicable);
         let on = d.enhance.denoise_enabled();
         super::denoise::detail_toggle(app, ui, id, on, applicable);
         control(app, ui, d, "enhance.denoise", applicable && on);

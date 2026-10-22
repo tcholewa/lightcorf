@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/lightcraft-<version>-macos-<arch>.dmg          LightCraft.app on a drag-to-Applications DMG
+#   $DIST/lightcraft-<version>-macos-<arch>.dmg          Lightcraft BW Core Image.app on a drag-to-Applications DMG
 #   $DIST/lightcraft-cli-<version>-macos-<arch>.zip      the headless CLI
 #
 # Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
@@ -36,11 +36,11 @@ case "$ARCH" in
 esac
 
 # Keep in sync with LSMinimumSystemVersion in Info.plist.in.
-export MACOSX_DEPLOYMENT_TARGET=11.0
+export MACOSX_DEPLOYMENT_TARGET=12.0
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 SHORT_VERSION="${VERSION%%-*}"
 WORK="$CARGO_TARGET_DIR/macos-package"
-APP="$WORK/LightCraft.app"
+APP="$WORK/Lightcraft BW Core Image.app"
 DMG="$DIST/lightcraft-$VERSION-macos-$ARCH.dmg"
 CLI_ZIP="$DIST/lightcraft-cli-$VERSION-macos-$ARCH.zip"
 
@@ -62,12 +62,12 @@ if [ "$SKIP_BUILD" = 0 ]; then
   prepare_fonts
   args=()
   for t in "${TARGETS[@]}"; do args+=(--target "$t"); done
-  (cd "$ROOT" && cargo build --release --locked -p lightcraft -p lightcraft-cli --features lightcraft/heif,lightcraft-cli/heif "${args[@]}")
+  (cd "$ROOT" && cargo build --release --locked -p lightcraft -p lightcraft-cli -p lightcraft-raw-worker --features lightcraft/heif,lightcraft-cli/heif "${args[@]}")
 fi
 
 rm -rf "$WORK"
 mkdir -p "$WORK/bin"
-for bin in lightcraft lightcraft-cli; do
+for bin in lightcraft lightcraft-cli lightcraft-raw-worker; do
   inputs=()
   for t in "${TARGETS[@]}"; do inputs+=("$CARGO_TARGET_DIR/$t/release/$bin"); done
   lipo -create -output "$WORK/bin/$bin" "${inputs[@]}"
@@ -101,11 +101,12 @@ notarize() {
   fi
 }
 
-# ---- LightCraft.app ----------------------------------------------------------------------------
+# ---- Lightcraft BW Core Image.app ----------------------------------------------------------------------------
 echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Executable and icon carry the display name (CFBundleExecutable / CFBundleIconFile).
 cp "$WORK/bin/lightcraft" "$APP/Contents/MacOS/LightCraft"
+cp "$WORK/bin/lightcraft-raw-worker" "$APP/Contents/MacOS/lightcraft-raw-worker"
 cp "$ROOT/assets/app-icon/lightcraft.icns" "$APP/Contents/Resources/LightCraft.icns"
 sed -e "s/@VERSION@/$VERSION/g" -e "s/@SHORT_VERSION@/$SHORT_VERSION/g" \
   -e "s/@BUILD_SHA@/${LIGHTCRAFT_BUILD_SHA:-unknown}/g" \
@@ -115,13 +116,15 @@ printf 'APPL????' >"$APP/Contents/PkgInfo"
 # Licences (and the craft-fonts font licences when built with CRAFT_FONTS_DIR) inside the bundle.
 mkdir -p "$APP/Contents/Resources/Licenses"
 copy_docs "$APP/Contents/Resources/Licenses"
+cp "$ROOT/assets/fonts/OFL-Inter.txt" "$APP/Contents/Resources/Licenses/OFL-Inter.txt"
 
 # Remove inherited build-time extended attributes BEFORE code signing.
 # Never repair, re-sign or strip metadata from the published release after signing.
 xattr -cr "$APP"
 
 # Sign inside-out: nested code first, then the bundle itself (no --deep on the final signature).
-# Today the only nested code is the main executable; frameworks/helpers would be signed here too.
+# Sign the isolated RAW helper before the main executable and bundle.
+sign --options runtime "$APP/Contents/MacOS/lightcraft-raw-worker"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/LightCraft"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"
@@ -138,7 +141,7 @@ fi
 echo "==> building $DMG"
 STAGE="$WORK/dmg"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/LightCraft.app"
+ditto "$APP" "$STAGE/Lightcraft BW Core Image.app"
 ln -s /Applications "$STAGE/Applications"
 # Finder window layout: background, icon size and positions (packaging/macos/dmg/README.md).
 mkdir -p "$STAGE/.background"
@@ -177,21 +180,21 @@ verify_dmg_app() {
     hdiutil detach "$mount" >/dev/null 2>&1 || true
     return 1
   fi
-  echo "==> strict codesign of LightCraft.app in finished DMG"
-  codesign --verify --deep --strict --verbose=2 "$mount/LightCraft.app" || rc=1
+  echo "==> strict codesign of Lightcraft BW Core Image.app in finished DMG"
+  codesign --verify --deep --strict --verbose=2 "$mount/Lightcraft BW Core Image.app" || rc=1
   if [ "$rc" = 0 ]; then
-    ditto "$mount/LightCraft.app" "$copy/LightCraft.app" || rc=1
+    ditto "$mount/Lightcraft BW Core Image.app" "$copy/Lightcraft BW Core Image.app" || rc=1
   fi
   if [ "$rc" = 0 ]; then
-    echo "==> strict codesign of LightCraft.app after ditto install-copy"
-    codesign --verify --deep --strict --verbose=2 "$copy/LightCraft.app" || rc=1
+    echo "==> strict codesign of Lightcraft BW Core Image.app after ditto install-copy"
+    codesign --verify --deep --strict --verbose=2 "$copy/Lightcraft BW Core Image.app" || rc=1
   fi
   if [ "$rc" = 0 ] && [ "$NOTARIZE" = 1 ]; then
-    spctl --assess --type execute -vvv "$copy/LightCraft.app" || rc=1
+    spctl --assess --type execute -vvv "$copy/Lightcraft BW Core Image.app" || rc=1
   fi
   if [ "$rc" != 0 ]; then
     echo "error: published-image app verification failed; reject $DMG" >&2
-    xattr -lr "$mount/LightCraft.app" >&2 || true
+    xattr -lr "$mount/Lightcraft BW Core Image.app" >&2 || true
   fi
   if ! hdiutil_retry detach "$mount" >/dev/null; then
     echo "error: could not detach verification mount" >&2
@@ -213,7 +216,11 @@ echo "==> building $CLI_ZIP"
 CLI_DIR="$WORK/lightcraft-cli-$VERSION-macos-$ARCH"
 mkdir -p "$CLI_DIR"
 cp "$WORK/bin/lightcraft-cli" "$CLI_DIR/"
+cp "$WORK/bin/lightcraft-raw-worker" "$CLI_DIR/"
+sign --options runtime "$CLI_DIR/lightcraft-raw-worker"
+codesign --verify --strict --verbose=2 "$CLI_DIR/lightcraft-raw-worker"
 copy_docs "$CLI_DIR"
+cp "$ROOT/assets/fonts/OFL-Inter.txt" "$CLI_DIR/OFL-Inter.txt"
 # Same entitlements as the app: `--opt addToPhotos=true` / `app.export {addToPhotos}` send Apple
 # Events to Photos through osascript too (macOS asks about the app that started the CLI, usually
 # the terminal).

@@ -62,7 +62,7 @@ impl SettingsHashes {
 }
 
 /// Bump when the pipeline's output changes, to invalidate cached thumbnails.
-pub const RENDER_CACHE_VERSION: u64 = 69;
+pub const RENDER_CACHE_VERSION: u64 = 70;
 
 /// Thumbnails render at one of these long edges (so window/cell size changes reuse the cache).
 pub const THUMB_SIZES: [usize; 4] = [128, 256, 384, 512];
@@ -1210,10 +1210,15 @@ impl QuickJob {
 
 /// What identifies a photo's pixels for caching: its content hash, else its source.
 pub fn content_key(p: &Photo) -> String {
-    match (&p.content_hash, &p.source) {
+    let base = match (&p.content_hash, &p.source) {
         (Some(h), _) => h.clone(),
         (None, Source::Demo { scene }) => format!("demo:{scene}"),
         (None, Source::File { path }) => format!("file:{path}:{}", p.file_size),
+    };
+    if p.kind == lightcraft_catalog::MediaKind::Raw && (crate::raw_backend::enabled() || p.raw_backend.is_some()) {
+        format!("{base}:{}:{}", crate::raw_backend::runtime_stamp(), p.raw_backend.as_deref().unwrap_or("unprobed"))
+    } else {
+        base
     }
 }
 
@@ -1239,6 +1244,7 @@ fn header_info(p: &Photo) -> SourceInfo {
             as_shot_temp: temp,
             as_shot_tint: tint,
             lens: p.embedded_lens,
+            raw_backend: p.raw_backend.clone(),
             relative_wb: relative,
             // (a fitted-look raw edited in Kelvin: its camera's matrices give the scale, see `files::WbScaleOf`)
             legacy_relative_wb: p.fitted_look() && !relative,
@@ -1724,6 +1730,7 @@ impl crate::Session {
 /// What an import learns from a file header (set by the app from `lightcraft-codecs`/`-raw`).
 #[derive(Clone, Debug, Default)]
 pub struct ProbeInfo {
+    pub raw_backend: Option<String>,
     pub width: u32,
     pub height: u32,
     pub format: String,
@@ -1831,6 +1838,7 @@ mod thumbnail_hash_tests {
         assert!(old.loaded.is_some());
         s.catalog
             .apply(Op::SetContent {
+                raw_backend: None,
                 id: PhotoId(1),
                 width: 6000,
                 height: 4000,

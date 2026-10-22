@@ -43,6 +43,8 @@ pub const TABLE: &[(&str, Class)] = &[
     ("denoise", Class::Layer(1)),
     ("heif", Class::Layer(0)),
     ("raw", Class::Layer(1)),
+    ("raw-backend", Class::Layer(1)),
+    ("raw-coreimage", Class::Layer(1)),
     ("codecs", Class::Layer(1)),
     ("meta", Class::Layer(1)),
     ("develop", Class::Layer(1)),
@@ -66,6 +68,7 @@ pub const TABLE: &[(&str, Class)] = &[
     // L6 apps and tooling
     ("lightcraft", Class::Exempt),
     ("cli", Class::Exempt),
+    ("raw-worker", Class::Exempt),
     ("web", Class::Exempt),
     ("xtask", Class::Exempt),
 ];
@@ -78,6 +81,7 @@ pub const INTRA_LAYER_ORDER: &[&[&str]] = &[
     &["tiff", "raster"],
     &["denoise-core", "denoise"],
     &["meta", "raw"],
+    &["raw-backend", "raw-coreimage"],
     &["meta", "codecs"],
     &["meta", "develop"],
     &["develop", "scenes"],

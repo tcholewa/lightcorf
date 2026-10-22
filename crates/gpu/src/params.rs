@@ -65,6 +65,15 @@ const FIELDS: &[(&str, usize)] = &[
     ("GRAIN_ROUGH", 1),
     ("GRAIN_SEED", 1),
     ("GRAIN_AFF", 6),
+    ("ANALOG", 1),
+    ("ANALOG_AMT", 1),
+    ("ANALOG_SC", 1),
+    ("ANALOG_ROUGH", 1),
+    ("ANALOG_SEED", 1),
+    ("ANALOG_COLOUR", 1),
+    ("ANALOG_FOOT", 1),
+    ("ANALOG_SOFT", 1),
+    ("ANALOG_BLUR", 1),
     ("REFINE_SAT", 1),
     ("CALIB", 1),
     ("CALIB_M", 9),
@@ -233,6 +242,21 @@ pub fn finish_block(fp: &FinishParams, masks: &[[f32; MASK_TERMS]], present: &Pr
     let (trc, gamma) = fp.out_trc.code();
     p.u("OUT_TRC", trc);
     p.f("OUT_GAMMA", gamma);
+    if let Some(g) = fp.analog_grain {
+        p.b("ANALOG", true);
+        p.f("ANALOG_AMT", g.amount);
+        p.f("ANALOG_SC", g.scale);
+        p.f("ANALOG_ROUGH", g.roughness);
+        p.u("ANALOG_SEED", g.seed);
+        p.f("ANALOG_COLOUR", g.colour);
+        p.f("ANALOG_FOOT", g.footprint);
+        p.f("ANALOG_SOFT", g.softness);
+        p.u("ANALOG_BLUR", (fp.w * fp.h * (masks.len() + if present.chroma { 3 } else { 0 })) as u32);
+        let long = fp.ow.max(fp.oh);
+        let [a, b, c, d, e, f] = fp.out_to_norm.0;
+        let (kx, ky) = (fp.ow / long, fp.oh / long);
+        p.fs("GRAIN_AFF", &[(a * kx) as f32, (b * ky) as f32, (c * kx) as f32, (d * ky) as f32, (e * kx) as f32, (f * ky) as f32]);
+    }
     if let Some((amt, cell, rough, seed)) = fp.grain {
         p.b("GRAIN", true);
         p.f("GRAIN_AMT", amt);

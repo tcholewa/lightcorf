@@ -7,13 +7,13 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>LightCraft</string>
+  <string>Lightcraft BW Core Image</string>
   <key>CFBundleName</key>
-  <string>LightCraft</string>
+  <string>Lightcraft BW Core Image</string>
   <key>CFBundleExecutable</key>
   <string>LightCraft</string>
   <key>CFBundleIdentifier</key>
-  <string>ai.storyteller.lightcraft</string>
+  <string>com.diffico.lightcraft.bw.coreimage</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundlePackageType</key>
@@ -32,10 +32,9 @@
   <string>LightCraft</string>
   <key>LSApplicationCategoryType</key>
   <string>public.app-category.graphics-design</string>
-  <!-- Must match MACOSX_DEPLOYMENT_TARGET in package.sh. Big Sur is the first release on
-       Apple silicon and has the Metal feature set wgpu targets. -->
+  <!-- CIRAWFilter requires macOS 12. Match MACOSX_DEPLOYMENT_TARGET in package.sh. -->
   <key>LSMinimumSystemVersion</key>
-  <string>11.0</string>
+  <string>12.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
   <key>NSSupportsAutomaticGraphicsSwitching</key>

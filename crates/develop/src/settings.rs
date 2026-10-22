@@ -597,6 +597,9 @@ impl Default for Vignette {
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Grain {
+    /// Opt-in film-inspired renderer. Missing in older edits: preserve their rendering and cache keys.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub advanced: bool,
     pub amount: f64,
     pub size: f64,
     pub roughness: f64,
@@ -606,7 +609,7 @@ pub struct Grain {
 
 impl Default for Grain {
     fn default() -> Self {
-        Self { amount: 0.0, size: 25.0, roughness: 50.0, seed: 0 }
+        Self { advanced: false, amount: 0.0, size: 25.0, roughness: 50.0, seed: 0 }
     }
 }
 

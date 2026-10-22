@@ -68,6 +68,7 @@ pub mod print_color;
 pub mod print_pdf;
 pub mod profile_refs;
 pub mod proof;
+pub mod raw_backend;
 pub mod rename;
 pub mod segment;
 pub mod sidecar;
@@ -950,16 +951,22 @@ impl Session {
             return Vec::new();
         }
         let Some(old) = self.develop_of(id) else { return Vec::new() };
-        let mut old_json = old.to_json();
-        let mut new_json = new.to_json();
-        // False is omitted from stored profile JSON. Keep it explicit for this comparison so
-        // switching camera local tone mapping off is a change without copying untouched values.
-        old_json["profile"]["camera_local_tone"] = Value::Bool(old.profile.camera_local_tone);
-        new_json["profile"]["camera_local_tone"] = Value::Bool(new.profile.camera_local_tone);
-        // Compare actual HDR leaves even when persisted defaults omit the whole HDR object.
-        old_json["hdr"] = serde_json::json!(old.hdr);
-        new_json["hdr"] = serde_json::json!(new.hdr);
-        let Some(mut delta) = json_delta(&old_json, &new_json) else { return Vec::new() };
+        // Persistence omits default-off fields. Compare them explicitly so Auto Sync
+        // also carries turning them off, without copying unchanged settings.
+        let sync_json = |s: &DevelopSettings| {
+            let mut v = s.to_json();
+            if let Some(g) = v.get_mut("grain").and_then(Value::as_object_mut) {
+                g.insert("advanced".into(), Value::Bool(s.grain.advanced));
+            }
+            if let Some(p) = v.get_mut("profile").and_then(Value::as_object_mut) {
+                p.insert("camera_local_tone".into(), Value::Bool(s.profile.camera_local_tone));
+            }
+            if let Some(o) = v.as_object_mut() {
+                o.insert("hdr".into(), serde_json::json!(s.hdr));
+            }
+            v
+        };
+        let Some(mut delta) = json_delta(&sync_json(&old), &sync_json(new)) else { return Vec::new() };
         if let Some(o) = delta.as_object_mut() {
             for k in ["spots", "red_eye", "version", "process"] {
                 o.remove(k);

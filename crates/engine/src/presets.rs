@@ -10,6 +10,10 @@ use serde_json::{Value, json};
 
 use crate::Session;
 
+#[cfg(test)]
+#[path = "presets_tri_x_tests.rs"]
+mod tri_x_tests;
+
 /// File extension of LightCraft preset files.
 pub const LCPRESET_EXT: &str = "lcpreset";
 /// The `format` tag of a `.lcpreset` file.
@@ -261,6 +265,30 @@ pub fn builtin() -> Vec<Preset> {
             "muted-film",
             "Muted Film",
             json!({"color": {"saturation": -25.0, "vibrance": 5.0}, "light": {"contrast": 10.0}, "curve": {"shadows": 18.0}, "grain": {"amount": 15.0}}),
+        ),
+        p(
+            "B&W",
+            "bw-trix400-push2",
+            "Tri-X 400 — Push +2 (Inspired)",
+            // Original creative interpretation, not a measured stock/developer emulation.
+            // Only creative settings belong here: retain exposure, camera corrections and seed.
+            json!({
+                "profile": {"id": "lc.color", "amount": 100.0},
+                "treatment": "bw",
+                "light": {"contrast": 45.0, "highlights": -20.0, "shadows": -25.0, "whites": 10.0, "blacks": -50.0},
+                "curve": lightcraft_develop::ToneCurve {
+                    shadows: -60.0, darks: -25.0, lights: 10.0, highlights: -10.0,
+                    ..Default::default()
+                },
+                "color": lightcraft_develop::ColorAdj::default(),
+                "mixer": lightcraft_develop::Mixer::default(),
+                "point_colors": [],
+                "grading": lightcraft_develop::ColorGrading::default(),
+                "bw_mix": {"red": 10.0, "orange": 8.0, "yellow": 0.0, "green": -5.0,
+                    "aqua": -10.0, "blue": -15.0, "purple": -5.0, "magenta": 0.0},
+                "effects": {"texture": 5.0, "clarity": 15.0, "dehaze": 0.0},
+                "grain": {"advanced": true, "amount": 50.0, "size": 50.0, "roughness": 70.0}
+            }),
         ),
         p(
             "B&W",

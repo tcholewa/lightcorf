@@ -1116,6 +1116,7 @@ mod thumbnail_tests {
         assert!(!r.thumb_current(catalog.photo(PhotoId(1)).unwrap(), 384, 10));
         catalog
             .apply(Op::SetContent {
+                raw_backend: None,
                 id: PhotoId(1),
                 width: 6000,
                 height: 4000,

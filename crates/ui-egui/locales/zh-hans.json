@@ -2186,5 +2186,9 @@
   "Suggests who is in a photo from the faces you have named. Everything stays on your computer.": "根据你已命名的人脸，推测照片中的人物。所有数据仅保存在本机。",
   "This build cannot run recognition models: they can be added and chosen, not used.": "此版本无法运行识别模型：可以添加和选择，但无法使用。",
   "Detect Faces (Photo menu) needs it: a small one-time download.": "“检测人脸”（照片菜单）依赖它：一次性小文件下载。",
-  "This build has nowhere to keep face models, so the model list is not available. (The desktop app has.)": "此版本无法存放人脸模型，因此模型列表不可用。（桌面版可以存放。）"
+  "This build has nowhere to keep face models, so the model list is not available. (The desktop app has.)": "此版本无法存放人脸模型，因此模型列表不可用。（桌面版可以存放。）",
+  "Advanced grain": "高级颗粒",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "35毫米胶片风格颗粒：400细腻、800明显、1600强烈。保留高级颗粒选项。",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "自然且随色彩变化的颗粒，自动调整色调响应并轻微柔化精细细节。随色彩分级变化。",
+  "Tri-X 400 — Push +2 (Inspired)": "Tri-X 400 — 增感 +2 档（灵感风格）"
 }

@@ -35,8 +35,8 @@ use crate::media::ProbeInfo;
 /// File extensions offered by import discovery and file pickers (lower case).
 /// This includes preview-only raws; the file probe decides whether sensor decoding is available.
 pub const EXTENSIONS: &[&str] = &[
-    "jpg", "jpeg", "png", "tif", "tiff", "webp", "dng", "cr2", "cr3", "nef", "nrw", "arw", "sr2", "srf", "raf", "orf", "rw2", "rwl", "raw", "pef",
-    "srw", "psd", "jxl", "gif", "bmp",
+    "jpg", "jpeg", "png", "tif", "tiff", "webp", "dng", "cr2", "cr3", "nef", "nrw", "arw", "sr2", "srf", "raf", "orf", "ori", "rw2", "rwl", "raw",
+    "pef", "srw", "psd", "jxl", "gif", "bmp",
     // Decoded when built with the codecs' `heif` feature; otherwise the import reports them as
     // failed with the reason ("HEIC/HEIF support isn't included in this build").
     "heic", "heif", "avif", // no AV1 decoder yet: reported as failed, like a HEIC without the feature
@@ -353,21 +353,25 @@ pub fn apply_import_defaults(s: &Session, p: &mut Photo) {
     if let Some(mp) = d.metadata_preset.as_ref().and_then(|n| s.metadata_presets.iter().find(|m| m.name.eq_ignore_ascii_case(n))) {
         crate::cmd::metadata::apply_to(&mut p.meta, &mp.fields);
     }
-    let base = p.camera_defaults();
+    let camera = p.camera_defaults();
+    let base = fresh_camera_defaults(p);
     // a raw shown from its embedded JPEG gets the rendered-file default, not the raw one
     let raw = p.develops_raw();
     let preset = s.import_defaults.preset_for(raw, &p.meta.camera).and_then(|id| s.presets.iter().find(|x| x.id == id));
-    match preset {
-        Some(pr) => {
-            let look = std::sync::Arc::new(pr.apply(&base, 1.0));
-            p.develop = look.clone();
-            p.import_look = (*look != base).then_some(look);
-        }
-        None => {
-            p.develop = std::sync::Arc::new(base);
-            p.import_look = None;
-        }
+    let look = std::sync::Arc::new(preset.map_or(base.clone(), |pr| pr.apply(&base, 1.0)));
+    p.develop = look.clone();
+    // Record the gentler built-in look too: Reset and the edited badge must agree, while
+    // older catalogs retain their original camera defaults and saved edits.
+    p.import_look = (*look != camera).then_some(look);
+}
+
+/// Initial look only; never applied when reopening or reloading an existing catalog photo.
+fn fresh_camera_defaults(p: &Photo) -> lightcraft_develop::DevelopSettings {
+    let mut settings = p.camera_defaults();
+    if p.develops_raw() && p.raw_backend.as_deref().is_some_and(|stamp| stamp.starts_with("coreimage-")) {
+        settings.detail.sharpen_amount = 15.0;
     }
+    settings
 }
 
 pub fn is_supported(path: &Path) -> bool {
@@ -1433,6 +1437,7 @@ pub fn commit_prepared(s: &mut Session, opts: &ImportOptions, now: &str, prepare
                 p.captured = info.captured;
                 p.meta = info.meta;
                 p.as_shot_wb = info.as_shot_wb;
+                p.raw_backend = info.raw_backend.clone();
                 p.content_hash = info.content_hash;
                 p.embedded_lens = info.embedded_lens;
                 p.set_preview_only(info.preview_only.clone());
@@ -1557,10 +1562,11 @@ impl Session {
         p.kind = c.kind;
         if let Some(info) = self.import_probes.get(&c.path) {
             p.as_shot_wb = info.as_shot_wb;
+            p.raw_backend = info.raw_backend.clone();
             p.embedded_lens = info.embedded_lens;
             p.preview_only = info.preview_only.clone();
         }
-        p.develop = std::sync::Arc::new(p.import_defaults());
+        p.develop = std::sync::Arc::new(fresh_camera_defaults(&p));
         let edge = edge.clamp(64, crate::media::SourceLevel::Thumb.max_edge());
         let level = crate::media::SourceLevel::Thumb;
         let source = self.media.origin_ref(&p.source, level.max_edge());

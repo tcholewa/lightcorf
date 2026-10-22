@@ -2340,5 +2340,9 @@
   "Checking the GPU…": "Перевірка ГП…",
   "CPU": "ЦП",
   "A face model uses the GPU only when a check shows it gives the same results faster.": "Модель облич використовує ГП, лише якщо перевірка показала, що він дає ті самі результати швидше.",
-  "Checking the GPU for faces": "Перевірка ГП для облич"
+  "Checking the GPU for faces": "Перевірка ГП для облич",
+  "Advanced grain": "Удосконалене зерно",
+  "35mm-inspired grain: 400 subtle, 800 textured, 1600 pronounced. Preserves the Advanced grain choice.": "Зерно в стилі 35-мм плівки: 400 — легке, 800 — помітне, 1600 — виразне. Зберігає вибір удосконаленого зерна.",
+  "Organic colour-aware grain with automatic tonal response and subtle fine-detail softening. Follows colour grading.": "Природне зерно з урахуванням кольору, автоматичною тональною адаптацією та легким пом’якшенням дрібних деталей. Враховує кольорокорекцію.",
+  "Tri-X 400 — Push +2 (Inspired)": "Tri-X 400 — Пуш +2 (стилізація)"
 }

@@ -39,8 +39,10 @@ of it. Full standard: `../craftrules/standards/never-crash.md`
   fallback (`unwrap_or…`) only where it can't silently corrupt a document. An unfinished feature returns an
   "unsupported" error or is disabled. Sole exception: a provably infallible literal, as `#[allow(clippy::expect_used)]`
   + `.expect("why it can't fail")`.
-- **`unsafe` lives only in `crates/sysmem`** (one FFI call, `malloc_zone_pressure_relief`, that returns freed
-  allocator pages to macOS after raw decodes). Every other production crate root has `#![forbid(unsafe_code)]`. A new
+- **`unsafe` lives only in `crates/sysmem` and `crates/raw-coreimage`**. `sysmem` contains one FFI call,
+  `malloc_zone_pressure_relief`, which returns freed allocator pages to macOS after raw decodes.
+  `raw-coreimage` contains Core Image FFI behind a safe API and is linked only into the supervised RAW helper.
+  Every other production crate root has `#![forbid(unsafe_code)]`. A new
   unsafe need goes in an isolated, well-tested helper crate like it: `// SAFETY:` on every block, a safe API, a safe
   fallback where possible, and a line here naming it.
 - **Input-derived numbers are hostile:** `get()` instead of `[i]`/`[a..b]` for offsets from files, users, agents or
@@ -58,7 +60,7 @@ of it. Full standard: `../craftrules/standards/never-crash.md`
 
 ## Non-negotiables
 - **Clean-room.** Never read/disassemble anything inside Adobe app bundles (names/listings only). Never copy Adobe icons, presets, profiles (DCP), lens profiles (LCP), camera matrices, fonts. Observation of the installed Lightroom is read-only (it syncs the user's personal library: never import/edit/rate/delete there). Never copy GPL/LGPL/AGPL code (darktable, RawTherapee, ART, LibRaw, rawspeed, rawloader, rawler, lensfun, dcraw-derived GPL code…).
-- **Pure Rust** in the product. No C/C++ dependencies.
+- **Pure Rust** source in the product. No bundled C/C++ dependencies. On the experimental macOS Core Image branch, Apple system frameworks implement RAW development in the isolated `lightcraft-raw-worker`; other platforms retain the Rust decoder.
 - **Layering** (`plan/architecture.md` §3, enforced by `cargo xtask layers`): nothing below L5 depends on egui/eframe/winit/rfd.
 - **Everything is a command** (`crates/engine`): id, label, menu path, shortcut, params, enabled(), run(). UI, CLI, control channel and MCP all dispatch by id. Every slider is a `develop` control spec.
 - **Resolution independence:** settings use normalized image coordinates and relative radii; previews and exports must match.
