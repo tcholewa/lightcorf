@@ -289,6 +289,27 @@ pub(crate) fn as_shot_wb_op(id: lightcraft_catalog::PhotoId, ph: &lightcraft_cat
     (ph.develops_raw() && !ph.relative_wb() && ph.as_shot_wb != Some(read)).then_some(Op::SetAsShotWb { id, wb: Some(read) })
 }
 
+/// Decoder refresh changes source facts only. In particular it must not enable lens
+/// corrections as an ordinary Reload can, or change an older photo's implicit Reset baseline.
+fn source_refresh_ops(id: lightcraft_catalog::PhotoId, ph: &lightcraft_catalog::Photo, info: &crate::media::ProbeInfo) -> Vec<Op> {
+    if ph.kind != MediaKind::Raw || ph.raw_backend == info.raw_backend {
+        return content_op(id, ph, info.clone()).into_iter().chain(lens_ops(id, ph, info)).chain(as_shot_wb_op(id, ph, info)).collect();
+    }
+    let mut ops = Vec::new();
+    if ph.import_look.is_none() {
+        ops.push(Op::SetImportLook { id, settings: Some(std::sync::Arc::new(ph.camera_defaults())) });
+    }
+    ops.extend(content_op(id, ph, info.clone()));
+    if ph.embedded_lens != info.embedded_lens {
+        ops.push(Op::SetEmbeddedLens { id, lens: info.embedded_lens.map(Box::new) });
+    }
+    let wb = info.as_shot_wb.filter(|(t, tint)| t.is_finite() && tint.is_finite());
+    if ph.as_shot_wb != wb {
+        ops.push(Op::SetAsShotWb { id, wb });
+    }
+    ops
+}
+
 /// The ops that bring photo `id` and its virtual copies up to date with what their file is now
 /// (`info`, a fresh probe), appended to `ops`; the photos they change are appended to `changed`.
 /// Reload and the preview-only recheck (`library.recheckPreviewOnly`) share it.
@@ -303,16 +324,14 @@ pub(crate) fn reload_ops(
     // camera fields the catalog lacks (e.g. a raw imported before its format was read) are filled in;
     // nothing already set is overwritten
     let meta_ops = fill_missing_meta(id, ph, info);
-    let mut mine: Vec<Op> =
-        content_op(id, ph, info.clone()).into_iter().chain(meta_ops).chain(lens_ops(id, ph, info)).chain(as_shot_wb_op(id, ph, info)).collect();
+    let mut mine: Vec<Op> = source_refresh_ops(id, ph, info).into_iter().chain(meta_ops).collect();
     if !mine.is_empty() {
         ops.append(&mut mine);
         changed.push(id);
     }
     // virtual copies share the file
     for c in cat.photos().filter(|c| c.copy_of == Some(id)) {
-        let theirs: Vec<Op> =
-            content_op(c.id, c, info.clone()).into_iter().chain(lens_ops(c.id, c, info)).chain(as_shot_wb_op(c.id, c, info)).collect();
+        let theirs: Vec<Op> = source_refresh_ops(c.id, c, info);
         if !theirs.is_empty() {
             ops.extend(theirs);
             changed.push(c.id);

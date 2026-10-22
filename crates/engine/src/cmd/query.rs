@@ -228,6 +228,16 @@ pub fn specs() -> Vec<CommandSpec> {
                 "versions": ph.versions.iter().map(|v| json!({"name": v.name, "created": v.created})).collect::<Vec<_>>(),
             }))
         }),
+        cmd!(query "app.rawProcessing", "RAW Processing", [], None, "{backend?: coreimage|native} — save the processor for the next launch; returns {active, selected, restartRequired, persistent, available, capabilities, error}", always, |s, p| {
+            if let Some(value) = p.get("backend") {
+                if !s.raw_preferences_writable { return Err(bad("app.rawProcessing", "this host does not save machine preferences")); }
+                let backend = serde_json::from_value(value.clone()).map_err(|_| bad("app.rawProcessing", "backend must be coreimage or native"))?;
+                crate::raw_backend::set_preference(backend).map_err(|e| bad("app.rawProcessing", e))?;
+            }
+            let mut state = crate::raw_backend::preferences();
+            if !s.raw_preferences_writable { state["persistent"] = json!(false); }
+            Ok(state)
+        }),
         cmd!(query "app.gpu", "GPU Rendering", [], None, "{enabled?: bool} — allow/forbid GPU rendering (CPU fallback; LIGHTCRAFT_GPU=0 forbids it for the process); returns {enabled, available, adapter, reason (why the GPU is off), lastFallback (latest render redone on the CPU, and why)}", always, |_, p| {
             if let Some(on) = p.get("enabled").and_then(Value::as_bool) {
                 lightcraft_gpu::set_enabled(on);

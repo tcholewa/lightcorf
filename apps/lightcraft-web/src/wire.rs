@@ -25,6 +25,9 @@ use crate::store::hash_of_path;
 /// One render request for a worker.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WireJob {
+    /// Preserve a source failure across the worker boundary, before reading caches.
+    #[serde(default)]
+    pub unavailable: Option<String>,
     #[serde(default)]
     pub cache_generation: u64,
     #[serde(default)]
@@ -70,8 +73,13 @@ impl WireJob {
             SourceRef::Demo { max_edge, .. } | SourceRef::File { max_edge, .. } | SourceRef::Fit { max_edge, .. } => *max_edge,
             SourceRef::Loaded(img) => img.image.width.max(img.image.height),
             SourceRef::Smart { .. } => 2560,
+            SourceRef::Unavailable(_) => 0,
         };
         WireJob {
+            unavailable: match &job.source {
+                SourceRef::Unavailable(why) => Some(why.clone()),
+                _ => None,
+            },
             cache_generation: job.cache_generation,
             source_identity: job.source_key.map(|key| key.to_string()),
             level: job.level,
@@ -164,6 +172,9 @@ impl WorkerCore {
     /// The content hash of the original to read from storage before [`WorkerCore::render`], if
     /// the job needs one that isn't decoded yet.
     pub fn needs_original(&mut self, job: &WireJob) -> Option<String> {
+        if job.unavailable.is_some() {
+            return None;
+        }
         if self.sources.get(&job.source_key()).is_some() {
             return None;
         }
@@ -175,6 +186,9 @@ impl WorkerCore {
 
     /// Render `job`; `original` holds the file's bytes when [`WorkerCore::needs_original`] asked.
     pub fn render(&mut self, job: &WireJob, original: Option<&[u8]>) -> Result<Rendered, String> {
+        if let Some(why) = &job.unavailable {
+            return Err(why.clone());
+        }
         let key = job.source_key();
         let src = match self.sources.get(&key).cloned() {
             Some(s) => s,
@@ -427,6 +441,19 @@ mod tests {
 
     // a job from before windows existed has none
     #[test]
+    fn blocked_raw_source_stays_blocked_across_worker_serialization() {
+        let mut session = lightcraft_engine::Session::with_demo();
+        let id = session.catalog.photos().next().unwrap().id;
+        let mut job = session.thumb_job(id, 128).unwrap();
+        job.source = SourceRef::Unavailable("RAW processor metadata needs refresh".into());
+        let wire = WireJob::from_job(&job, true, "Thumb");
+        let wire: WireJob = serde_json::from_slice(&serde_json::to_vec(&wire).unwrap()).unwrap();
+        let mut worker = WorkerCore::default();
+        assert!(worker.needs_original(&wire).is_none());
+        assert_eq!(worker.render(&wire, None).err().unwrap(), "RAW processor metadata needs refresh");
+    }
+
+    #[test]
     fn a_job_without_a_window_field_has_no_window() {
         let mut s = Session::with_demo();
         let id = s.visible_cloned()[0];
@@ -463,6 +490,7 @@ mod tests {
         let hash = crate::store::content_hash(&bytes);
         let origin = Source::File { path: crate::store::original_path(&hash, "a.png") };
         let job = WireJob {
+            unavailable: None,
             cache_generation: 0,
             source_identity: None,
             level: SourceLevel::Thumb,

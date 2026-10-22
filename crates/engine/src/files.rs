@@ -137,6 +137,9 @@ pub fn probe_bytes(name: &str, bytes: &[u8]) -> Result<ProbeInfo, String> {
     let content_hash = Some(lightcraft_preview::hash_bytes(bytes).to_string());
     let m = lightcraft_meta::extract(bytes);
     let (meta, captured) = meta_of(&m);
+    if lightcraft_raw::probe(bytes).is_some() {
+        crate::raw_backend::ensure_ready()?;
+    }
     if crate::raw_backend::enabled() && lightcraft_raw::probe(bytes).is_some() {
         let (width, height, as_shot_wb, raw_backend, preview_only) = match crate::raw_backend::probe(bytes) {
             Ok(info) => (info.width as u32, info.height as u32, Some(crate::raw_backend::white_balance(&info)), Some(info.stamp()), None),
@@ -444,6 +447,9 @@ fn load_bytes_now(
     denoise: Option<&DenoiseSpec>,
     allow_reduced: bool,
 ) -> Result<(Rgb32f, Option<Rgb32f>, SourceInfo, bool), String> {
+    if lightcraft_raw::probe(&bytes).is_some() {
+        crate::raw_backend::ensure_ready()?;
+    }
     if crate::raw_backend::enabled() && lightcraft_raw::probe(&bytes).is_some() {
         if denoise.is_some() {
             return Err(crate::raw_backend::SENSOR_UNAVAILABLE.into());
@@ -1174,6 +1180,8 @@ impl crate::Session {
     /// Install the filesystem file hooks (desktop, CLI, MCP headless), and on macOS the Apple Photos
     /// runner ([`crate::apple_photos::osascript`]; installed, not run).
     pub fn with_fs(mut self) -> Self {
+        let _ = crate::raw_backend::active();
+        self.raw_preferences_writable = true;
         let (l, p) = fs_hooks();
         self.media.file_loader = Some(l);
         self.media.reduced_loader = Some(fs_reduced_loader());

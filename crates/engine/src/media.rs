@@ -62,7 +62,7 @@ impl SettingsHashes {
 }
 
 /// Bump when the pipeline's output changes, to invalidate cached thumbnails.
-pub const RENDER_CACHE_VERSION: u64 = 70;
+pub const RENDER_CACHE_VERSION: u64 = 71;
 
 /// Thumbnails render at one of these long edges (so window/cell size changes reuse the cache).
 pub const THUMB_SIZES: [usize; 4] = [128, 256, 384, 512];
@@ -248,6 +248,8 @@ impl DecodedSource {
 
 #[derive(Clone)]
 pub enum SourceRef {
+    /// A stale RAW must be reprobed before cached or newly decoded pixels can be used.
+    Unavailable(String),
     Loaded(Box<DecodedSource>),
     /// A larger decoded source of the photo, fitted to `max_edge` by the worker: the thumbnail of
     /// the photo open in the loupe is cut from its preview-level source instead of decoding the
@@ -285,6 +287,7 @@ impl SourceRef {
 
     pub fn load_source(&self) -> Result<DecodedSource, String> {
         let image = match self {
+            SourceRef::Unavailable(why) => return Err(why.clone()),
             SourceRef::Loaded(a) => return Ok((**a).clone()),
             SourceRef::Fit { from, max_edge } => {
                 if from.image.width.max(from.image.height) <= *max_edge {
@@ -338,18 +341,27 @@ impl SourceRef {
                 return match (r, fallback) {
                     #[cfg(not(target_arch = "wasm32"))]
                     (Err(e), Some(sp)) if denoise.as_ref().is_none_or(|(spec, _)| spec.make.is_none()) && crate::smart::is_valid(sp) => {
-                        crate::smart::load(sp).map_err(|e2| format!("{e}; smart preview: {e2}"))
+                        load_matching_proxy(sp).map_err(|e2| format!("{e}; smart preview: {e2}"))
                     }
                     (r, _) => r,
                 };
             }
             #[cfg(not(target_arch = "wasm32"))]
-            SourceRef::Smart { path } => return crate::smart::load(path),
+            SourceRef::Smart { path } => return load_matching_proxy(path),
             #[cfg(target_arch = "wasm32")]
             SourceRef::Smart { .. } => return Err("smart previews are not available here".into()),
         };
         Ok(DecodedSource::new(image, None))
     }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn load_matching_proxy(path: &std::path::Path) -> Result<DecodedSource, String> {
+    let source = crate::smart::load(path)?;
+    if source.info.as_ref().is_some_and(|i| i.raw && crate::raw_backend::stale(i.raw_backend.as_deref())) {
+        return Err("This smart preview was made with another RAW processor. Reconnect the original to rebuild it.".into());
+    }
+    Ok(source)
 }
 
 pub struct MediaCache {
@@ -692,6 +704,13 @@ impl MediaCache {
     }
 
     fn source_ref_plain(&mut self, p: &Photo, level: SourceLevel, cached: bool) -> SourceRef {
+        if crate::raw_backend::photo_stale(p) {
+            return SourceRef::Unavailable(
+                crate::raw_backend::startup_error()
+                    .unwrap_or("Refreshing RAW processor metadata. If the original is offline, reconnect it and use Reload from Disk.")
+                    .into(),
+            );
+        }
         if cached && let Some(a) = self.get_source(p.id, level) {
             return SourceRef::Loaded(Box::new(a));
         }
@@ -963,6 +982,9 @@ impl RenderJob {
 
     /// The photo's render (without slide composition).
     fn run_photo(self) -> RenderResult {
+        if let SourceRef::Unavailable(why) = &self.source {
+            return self.failed(why.clone());
+        }
         if let Some((cache, key)) = &self.cache
             && let Some(img) = cache.get_at(self.cache_generation, *key)
         {
@@ -1215,7 +1237,7 @@ pub fn content_key(p: &Photo) -> String {
         (None, Source::Demo { scene }) => format!("demo:{scene}"),
         (None, Source::File { path }) => format!("file:{path}:{}", p.file_size),
     };
-    if p.kind == lightcraft_catalog::MediaKind::Raw && (crate::raw_backend::enabled() || p.raw_backend.is_some()) {
+    if p.kind == lightcraft_catalog::MediaKind::Raw {
         format!("{base}:{}:{}", crate::raw_backend::runtime_stamp(), p.raw_backend.as_deref().unwrap_or("unprobed"))
     } else {
         base
@@ -1425,7 +1447,7 @@ impl crate::Session {
         let level = SourceLevel::for_size(needed as usize);
         let source = self.media.source_ref(&p, level);
         let ck = Self::variant_key(&p, &settings, edge);
-        let preview_cut = self.face_preview_cut(&p, rect, edge, needed as usize);
+        let preview_cut = if crate::raw_backend::photo_stale(&p) { None } else { self.face_preview_cut(&p, rect, edge, needed as usize) };
         Some(RenderJob {
             request_id: 0,
             cache_generation: self.media.rendered.generation(),
@@ -1550,6 +1572,9 @@ impl crate::Session {
 
     /// The embedded preview of an unedited raw (path, loader), when the app installed a loader.
     fn embedded_of(&self, p: &Photo) -> Option<(String, PreviewLoader)> {
+        if crate::raw_backend::photo_stale(p) {
+            return None;
+        }
         match (&p.source, &self.media.preview_loader) {
             (Source::File { path }, Some(l)) if p.kind == MediaKind::Raw && crate::import::has_import_look(p) => Some((path.clone(), l.clone())),
             _ => None,
@@ -1588,6 +1613,9 @@ impl crate::Session {
     /// render, else the embedded preview of an unedited raw, else a cached or fresh thumbnail.
     pub fn quick_view_job(&mut self, id: PhotoId, max_edge: usize, apply_crop: bool) -> Option<QuickJob> {
         let p = self.catalog.photo(id)?.clone();
+        if crate::raw_backend::photo_stale(&p) {
+            return None;
+        }
         let small = self.thumb_job(id, THUMB_SIZES[THUMB_SIZES.len() - 1])?;
         // (the thumbnail job itself starts with the cached thumbnail, after the sharper embedded preview)
         let cached = vec![(self.media.rendered.clone(), Self::view_key(&p, apply_crop))];
@@ -1651,6 +1679,7 @@ impl crate::Session {
 
     /// Synchronous render (CLI, MCP, tests).
     pub fn render_now(&mut self, id: PhotoId, max_w: usize, max_h: usize) -> Result<Rendered, String> {
+        self.ensure_raw_metadata(id)?;
         let job = self.render_job(id, max_w, max_h, false, true).ok_or("no such photo")?;
         let r = job.run();
         self.accept(&r);
@@ -1681,6 +1710,7 @@ impl crate::Session {
         space: lightcraft_pipeline::OutputSpace,
         depth: lightcraft_pipeline::OutputDepth,
     ) -> Result<RenderJob, String> {
+        self.ensure_raw_metadata(id)?;
         let mut job = self.render_job(id, max_w, max_h, false, true).ok_or("no such photo")?;
         // An export renders the full image: never a thumbnail's source developed from a smaller copy of the raw
         // image that the file keeps (Lightroom's merged DNGs)
@@ -1716,6 +1746,7 @@ impl crate::Session {
 
     /// The source proxy for pixel-statistics commands (auto tone/WB), loading synchronously.
     pub fn source_now(&mut self, id: PhotoId, level: SourceLevel) -> Result<Arc<Rgb32f>, String> {
+        self.ensure_raw_metadata(id)?;
         let p = self.catalog.photo(id).ok_or("no such photo")?.clone();
         let r = self.media.source_ref(&p, level).load_source()?;
         let image = r.image.clone();
@@ -2402,5 +2433,42 @@ mod tests {
         let pv = s.preview_job(id, 800, 600, true, &a).unwrap();
         assert_ne!(pv.key, s.render_job(id, 800, 600, false, true).unwrap().key);
         assert_eq!(*pv.settings, a);
+    }
+}
+
+#[cfg(test)]
+mod processor_cache_tests {
+    use crate::Session;
+    use lightcraft_catalog::{Op, PhotoId};
+    #[test]
+    fn smart_previews_from_another_processor_cannot_substitute_for_offline_raws() {
+        let path = std::env::temp_dir().join(format!("lc-raw-proxy-{}.lcsp", std::process::id()));
+        let image = lightcraft_raster::Rgb32f::new(16, 16);
+        let apple =
+            lightcraft_pipeline::SourceInfo { raw: true, raw_backend: Some("coreimage-linear-rec2020-v1:8:test".into()), ..Default::default() };
+        std::fs::write(&path, crate::smart::encode(&image, Some(&apple)).unwrap()).unwrap();
+        let source = super::SourceRef::Smart { path: path.clone() };
+        assert!(source.load_source().err().unwrap().contains("another RAW processor"));
+        let native = lightcraft_pipeline::SourceInfo { raw: true, ..Default::default() };
+        std::fs::write(&path, crate::smart::encode(&image, Some(&native)).unwrap()).unwrap();
+        assert!(source.load_source().is_ok());
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn stale_processor_blocks_cached_sources_until_refresh() {
+        use lightcraft_catalog::{MediaKind, Photo, Source};
+        let mut s = Session::new();
+        let id = PhotoId(1);
+        let mut p = Photo::new(id, Source::File { path: "offline.ORF".into() }, "offline.ORF", "ORF", 40, 30, "2026-10-22");
+        p.kind = MediaKind::Raw;
+        p.raw_backend = Some("coreimage-linear-rec2020-v1:8:test".into());
+        s.catalog.apply(Op::AddPhoto { photo: Box::new(p.clone()) }).unwrap();
+        let pixels = std::sync::Arc::new(lightcraft_raster::Rgb32f::new(40, 30));
+        s.media.insert_source(id, crate::media::SourceLevel::Preview, crate::media::DecodedSource::new(pixels, None));
+        assert!(s.media.source_ref(&p, crate::media::SourceLevel::Preview).load().is_err());
+        assert!(s.quick_view_job(id, 64, true).is_none());
+        assert!(s.render_now(id, 64, 64).is_err());
+        assert_eq!(s.catalog.photo(id).unwrap().raw_backend, p.raw_backend);
     }
 }

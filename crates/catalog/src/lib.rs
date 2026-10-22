@@ -100,6 +100,11 @@ pub enum Op {
         label: String,
         edited: Option<String>,
     },
+    /// Preserve the import/reset baseline when decoder metadata changes.
+    SetImportLook {
+        id: PhotoId,
+        settings: Option<Arc<DevelopSettings>>,
+    },
     SetMeta {
         id: PhotoId,
         meta: Box<Meta>,
@@ -639,9 +644,12 @@ impl Catalog {
                 self.changes.now = Aspects::ALL;
                 self.touch(*id);
             }
-            Op::SetDeleted { .. } | Op::SetLocal { .. } | Op::SetContent { .. } | Op::SetEmbeddedLens { .. } | Op::SetAsShotWb { .. } => {
-                self.changes.now = Aspects::ALL
-            }
+            Op::SetImportLook { .. }
+            | Op::SetDeleted { .. }
+            | Op::SetLocal { .. }
+            | Op::SetContent { .. }
+            | Op::SetEmbeddedLens { .. }
+            | Op::SetAsShotWb { .. } => self.changes.now = Aspects::ALL,
             Op::SetRating { .. } => self.changes.now = Aspects::RATING,
             Op::SetFlag { .. } => self.changes.now = Aspects::FLAG,
             Op::SetLabel { .. } => self.changes.now = Aspects::LABEL,
@@ -706,6 +714,10 @@ impl Catalog {
                 let old = std::mem::replace(&mut p.develop, settings);
                 let old_edit = std::mem::replace(&mut p.edited, edited);
                 Op::SetDevelop { id, settings: old, label, edited: old_edit }
+            }
+            Op::SetImportLook { id, settings } => {
+                let p = self.photo_mut(id)?;
+                Op::SetImportLook { id, settings: std::mem::replace(&mut p.import_look, settings) }
             }
             Op::SetMeta { id, meta } => {
                 let p = self.photo_mut(id)?;

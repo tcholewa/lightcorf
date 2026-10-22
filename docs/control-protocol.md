@@ -327,3 +327,12 @@ A center `move` can include `before` (panel ID or null to append) for tab order.
 The equivalent `{"action": ...}` form accepts a serialized shared docking action;
 this is also the form emitted by the renderer. Protected-canvas and app-specific panel
 rules apply equally to both forms.
+
+## RAW processor preference (macOS BW app)
+
+`app.rawProcessing {}` reports the active and selected processors, `restartRequired`, storage
+availability and active capabilities. `app.rawProcessing {"backend":"native"}` or
+`{"backend":"coreimage"}` saves the next-launch choice in the machine configuration directory.
+Quit and relaunch to apply it to all RAW photos; a running control connection continues with its
+original processor. Changing it preserves saved edits but can change appearance. See
+[RAW processor selection](coreimage-raw.md#choosing-the-processor) for cache refresh and catalog compatibility.

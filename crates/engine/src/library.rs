@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use crate::{EngineError, LibrarySource, Result, Selection, Session};
 
 /// Library directory name inside the user's Pictures folder.
-pub const DEFAULT_NAME: &str = if crate::raw_backend::enabled() { "LightCraft BW Core Image Library" } else { "LightCraft Library" };
+pub const DEFAULT_NAME: &str = if crate::raw_backend::coreimage_edition() { "LightCraft BW Core Image Library" } else { "LightCraft Library" };
 
 /// The library folder `path` names. A library is a folder; naming one of its own files
 /// (`catalog.snap`, `catalog.log`, `catalog.lock`) means the folder that holds it. Any other

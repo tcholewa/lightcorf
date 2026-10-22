@@ -1,12 +1,57 @@
 # Lightcraft BW Core Image (experimental macOS branch)
 
-Last updated: 2026-10-22. Task: SYNC.3. Branch: `feature/macos-coreimage-upstream-20261022`.
+Last updated: 2026-10-22. Task: CI.5. Branch: `feature/raw-processor-setting`.
 
-This branch replaces the macOS RAW development path with Apple's CIRAWFilter (macOS 12+).
+This branch defaults to Apple's CIRAWFilter (macOS 12+) and offers LightCraft Native (Rust) in
+Settings → Performance → RAW processing.
 Windows, Linux and WASM retain the independent Rust decoder. This is a deliberate system-framework
 exception to the project's pure-Rust implementation policy; the bindings and worker are Rust source.
-There is no runtime Rust sensor fallback on macOS. Camera support and rendering depend on the installed
+The selected processor is fixed for the entire process. Neither processor silently falls back to the other. Camera support and rendering depend on the installed
 Apple RAW decoder and OS build; old and new backends are not expected to produce identical images.
+
+## Choosing the processor
+
+In **Settings → Performance → RAW processing**, choose **Apple Core Image** or
+**LightCraft Native (Rust)**, then quit and reopen the app. The active processor is shown separately;
+selecting the active choice again cancels a pending change. The choice applies to all RAW photos,
+including existing library entries and virtual copies. Colour, detail and framing can differ.
+
+The atomic machine preference is `<config>/raw-processing.json` (`{"backend":"coreimage"}` or
+`{"backend":"native"}`). Desktop, CLI and headless MCP read it once per process; an already-running
+control/MCP connection continues using that process's active choice. No setting means Core Image on
+macOS and native elsewhere. Invalid/unreadable settings are preserved and RAW processing pauses with
+an actionable error until a valid choice is saved and the process restarted. Memory-only desktop
+sessions cannot save the preference. Non-macOS hosts do not offer Apple processing.
+
+`app.rawProcessing {}` reports `active`, `selected`, `restartRequired`, `persistent`, `available`,
+`capabilities` and `error`; `{"backend":"native"}` saves the next-launch choice. Saving failure leaves
+the previous choice intact. App identity, bundle identifier, configuration and library defaults do not
+change when selecting Native. The helper is unused in Native mode. Native mode restores the existing
+sensor features subject to their usual camera/model availability; Core Image restrictions below apply
+only while Apple processing is active.
+
+Library opening rechecks mismatched provenance in the background. Rendering/export requires current
+source metadata; synchronous hosts refresh it before rendering. Refresh changes source facts, not
+saved edits/history, masks/crops, or Reset baselines, and never reapplies import presets or enables lens
+correction automatically. Original files are not changed. An offline original remains stale until
+reconnected and reloaded. Cache identities include the active backend and source provenance, and a
+smart preview from the other backend is rejected. Older native cache names are invalidated; reconnect
+originals to regenerate proxies before taking them offline.
+
+Catalog format **10** adds a journal operation to preserve an older photo's implicit import/Reset look
+before replacing decoder facts. Older libraries upgrade on opening; older app builds refuse the upgraded
+library. Keep a library backup when testing alongside an earlier build.
+
+New RAW imports in this macOS app default to sharpening **15** with either processor. Presets and
+sidecars can override it; switching does not change existing sharpening or Reset values.
+
+Regression coverage includes atomic preference writes and errors, immutable runtime selection,
+Core Image → Native → Core Image in separate processes, seven supplied files, preserved edits/history
+and Reset baselines, virtual copies, offline sources and cache isolation. Native UI acceptance evidence
+is kept in `target/raw-processor-setting/`. Native control-channel acceptance passed all three
+launches, selector clicks/cancellation, preserved history/virtual copies/Reset, and all seven camera
+JPEG exports. The Core Image PNG before/after switching is byte-identical; sample hashes match.
+Settings screenshots were inspected in both active modes, with Metal and no headless fallback.
 
 ## Isolation and interfaces
 
@@ -36,10 +81,10 @@ LightCraft's Kelvin/tint scale. The old camera fit, matrices, profile tone and s
 reconstruction are bypassed. Embedded sensor lens opcodes/mattes are not transferred across Apple's
 crop geometry in this first version; ordinary manual geometry/optics and RGB masks remain available.
 
-New Core Image RAW imports start at sharpening **15** (previously 40), recorded as their import
+New RAW imports in the macOS BW app start at sharpening **15** (previously 40), recorded as their import
 look so Reset returns to 15 and the photo starts unedited. Import presets and sidecars can override
 it. Existing photos retain their saved settings and original reset defaults; rendered files and the
-Rust decoder's defaults are unchanged. Tri-X presets preserve this sharpening amount. This lowers
+other platforms' defaults are unchanged. Tri-X presets preserve this sharpening amount. This lowers
 the initial strength only: Radius and Detail are not yet connected to the sharpening renderer, and
 higher amounts can still produce halos.
 
@@ -112,7 +157,7 @@ cargo xtask ci
 ```
 
 The existing engine unit fixtures intentionally exercise the Rust reference implementation on every
-host. The new macOS integration tests link the normal production engine (strict Apple policy), exercise
+host. The macOS integration tests link the production engine in isolated configurations (explicit Apple policy), exercise
 the personal samples when present, and verify full/preview equivalence, orientation/dimensions,
 provenance, HDR range and sensor capability rejection. Worker protocol tests cover malformed/truncated
 packets, missing/crashed/hung helpers, restart, cancellation, allocation limits and float preservation.
@@ -161,5 +206,6 @@ The verified installation, independent defaults and preserved BW files are recor
 
 | Date | Task | Change |
 |---|---|---|
+| 2026-10-22 | CI.5 | Restart-only processor preference, metadata/cache isolation, preserved edits/reset defaults and native sharpening 15 |
 | 2026-10-21 | CI.2 | Installed release acceptance, separate defaults, preserved BW and measured performance |
 | 2026-10-21 | CI.1 | Strict isolated Apple RAW backend, local camera corpus and separate macOS identity |

@@ -414,6 +414,44 @@ fn import_tab(app: &mut LightcraftApp, ui: &mut egui::Ui, t: &Tokens) {
 // --------------------------------------------------------------------------------- Performance
 
 fn performance_tab(app: &mut LightcraftApp, ui: &mut egui::Ui, t: &Tokens) {
+    if cfg!(target_os = "macos") || lightcraft_engine::raw_backend::startup_error().is_some() {
+        use lightcraft_engine::raw_backend::{self, RawBackend};
+        heading(ui, t, crate::i18n::tr("RAW processing"));
+        let state = raw_backend::preferences();
+        let selected = state["selected"].as_str().unwrap_or("coreimage");
+        ui.add_enabled_ui(app.session.raw_preferences_writable && state["persistent"].as_bool().unwrap_or(false), |ui| {
+            row(ui, t, crate::i18n::tr("Processor"), |ui| {
+                for (id, backend, label) in
+                    [("coreimage", RawBackend::CoreImage, "Apple Core Image"), ("native", RawBackend::Native, "LightCraft Native (Rust)")]
+                {
+                    if !backend.available() {
+                        continue;
+                    }
+                    let r = ui.selectable_label(selected == id, crate::i18n::tr(label));
+                    register(ui.ctx(), format!("button:settingsRawProcessor-{id}"), r.rect);
+                    if r.clicked() {
+                        let _ = app.run("app.rawProcessing", json!({"backend": backend}));
+                    }
+                }
+            });
+        });
+        let active = if raw_backend::enabled() { "Active processor: Apple Core Image" } else { "Active processor: LightCraft Native (Rust)" };
+        hint(ui, t, crate::i18n::tr(active));
+        if state["restartRequired"].as_bool().unwrap_or(false) {
+            hint(ui, t, crate::i18n::tr("Restart required: quit and reopen the app to apply this choice."));
+        }
+        if let Some(error) = state["error"].as_str() {
+            hint(ui, t, error);
+        }
+        hint(
+            ui,
+            t,
+            crate::i18n::tr(
+                "Applies to all RAW photos. Saved edits are kept, but colour, detail and framing may change. Previews refresh after restarting.",
+            ),
+        );
+    }
+
     use lightcraft_engine::gpu;
     heading(ui, t, crate::i18n::tr("Rendering"));
     check(ui, "settings.gpu", &mut app.ui.settings.gpu, "Use the GPU for rendering");

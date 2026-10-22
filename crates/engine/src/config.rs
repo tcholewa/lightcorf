@@ -57,7 +57,7 @@ fn config_dir_with(platform: Platform, env: impl Fn(&str) -> Option<OsString>, p
     }
     match platform {
         Platform::Mac => env("HOME").map(|h| {
-            PathBuf::from(h).join(if crate::raw_backend::enabled() {
+            PathBuf::from(h).join(if crate::raw_backend::coreimage_edition() {
                 "Library/Application Support/LightCraft BW Core Image"
             } else {
                 "Library/Application Support/LightCraft"

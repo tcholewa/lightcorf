@@ -5,7 +5,10 @@ use serde_json::json;
 
 #[test]
 fn coreimage_sensor_tools_fail_without_opening_setup_or_changing_settings() {
-    assert!(lightcraft_engine::raw_backend::enabled());
+    if !lightcraft_engine::raw_backend::enabled() {
+        assert!(lightcraft_engine::raw_backend::require_sensor().is_ok());
+        return;
+    }
     let mut session = lightcraft_engine::Session::new();
     let id = PhotoId(1);
     let mut photo = Photo::new(id, Source::File { path: "not-read.ORF".into() }, "test.ORF", "ORF", 5184, 3888, "2026-10-21");

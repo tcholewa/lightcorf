@@ -368,7 +368,8 @@ pub fn apply_import_defaults(s: &Session, p: &mut Photo) {
 /// Initial look only; never applied when reopening or reloading an existing catalog photo.
 fn fresh_camera_defaults(p: &Photo) -> lightcraft_develop::DevelopSettings {
     let mut settings = p.camera_defaults();
-    if p.develops_raw() && p.raw_backend.as_deref().is_some_and(|stamp| stamp.starts_with("coreimage-")) {
+    if p.develops_raw() && (crate::raw_backend::coreimage_edition() || p.raw_backend.as_deref().is_some_and(|stamp| stamp.starts_with("coreimage-")))
+    {
         settings.detail.sharpen_amount = 15.0;
     }
     settings

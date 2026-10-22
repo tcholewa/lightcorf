@@ -1,6 +1,6 @@
 # Gaps: where LightCraft falls short of Lightroom
 
-> **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
+> **Core Image branch (2026-10-22):** macOS offers Apple Core Image (default) or LightCraft Native in Settings → Performance after restart. Existing Rust camera-coverage figures describe Native processing; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
 
 > **Last reviewed:** 2026-10-11 · **Last updated:** 2026-10-22 · **Change:** minor (SYNC.3: integrate upstream 0.11.0; retain Core Image limitations, sharpening and grain gaps; regenerate combined RAW coverage)
 
@@ -18,7 +18,7 @@ Hours are Opus 5.5 agent wall-clock hours (see [target-app-parity.md](target-app
 The macOS branch still needs an original E-M10 sample and a compatible generated linear-DNG path.
 On build 26A434, Apple rejects LightCraft linear DNG output, so HDR/panorama completion and rendered
 DNG export fail before saving. Sensor denoise, sensor-DNG conversion and camera calibration are
-intentionally unavailable. Seven personal ORF/ORI/RW2 samples decode; that does not establish general
+intentionally unavailable with Core Image; selecting Native after restart restores the existing sensor paths. Seven personal ORF/ORI/RW2 samples decode; that does not establish general
 camera coverage or colour accuracy. See [acceptance and limitations](coreimage-raw.md).
 
 ## Ranked
@@ -98,6 +98,7 @@ this renderer, with no measured stock-matching claim. Gap 3 stays open; no readi
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | CI.5: macOS RAW processor selection after restart; preserve edits/reset defaults and isolate caches; coverage and readiness counts unchanged |
 | 2026-10-22 | minor | SYNC.3: integrate upstream main `31ee2643` (0.11.0) with Core Image, ORF, advanced grain, Tri-X and sharpening 15; combined Rust coverage 571 verified, 694 unverified, 144 preview-only, 37 unsupported; native Apple qualification remains separate |
 | 2026-10-21 | minor | CI.3: new Core Image imports sharpen at 15; Radius/Detail renderer gaps downgrade Sharpening to partial, breadth 82.7%, P0 98.0%; readiness unchanged |
 | 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |

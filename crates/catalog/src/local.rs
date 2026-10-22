@@ -302,6 +302,7 @@ impl Op {
             | Op::Relink { id, .. }
             | Op::SetContent { id, .. }
             | Op::SetEmbeddedLens { id, .. }
+            | Op::SetImportLook { id, .. }
             | Op::SetAsShotWb { id, .. } => out(*id),
             Op::AddAlbum { album } => {
                 album.photos.iter().for_each(|p| out(*p));

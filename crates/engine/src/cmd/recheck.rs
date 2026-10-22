@@ -25,11 +25,18 @@ pub struct Stale {
     pub path: String,
     preview_only: Option<String>,
     preview_checked: String,
+    raw_backend: Option<String>,
 }
 
 impl Stale {
     fn of(p: &Photo, path: &str) -> Stale {
-        Stale { id: p.id, path: path.to_string(), preview_only: p.preview_only.clone(), preview_checked: p.preview_checked.clone() }
+        Stale {
+            id: p.id,
+            path: path.to_string(),
+            preview_only: p.preview_only.clone(),
+            preview_checked: p.preview_checked.clone(),
+            raw_backend: p.raw_backend.clone(),
+        }
     }
 
     /// The photo is still as it was listed: same file, flag and stamp.
@@ -37,6 +44,7 @@ impl Stale {
         crate::cmd::missing::checked_path(p) == Some(self.path.as_str())
             && p.preview_only == self.preview_only
             && p.preview_checked == self.preview_checked
+            && p.raw_backend == self.raw_backend
     }
 }
 
@@ -95,7 +103,7 @@ pub fn apply(s: &mut Session, results: Vec<(Stale, std::result::Result<ProbeInfo
         }
         let first = out.updated.len();
         crate::cmd::convert::reload_ops(&s.catalog, item.id, &info, &mut ops, &mut out.updated);
-        if info.preview_only.is_none() {
+        if item.preview_only.is_some() && info.preview_only.is_none() {
             out.cleared.extend_from_slice(&out.updated[first..]);
         }
     }
@@ -130,4 +138,24 @@ pub fn specs() -> Vec<CommandSpec> {
         always,
         recheck
     )]
+}
+
+impl Session {
+    /// Synchronous hosts refresh source facts before rendering. The desktop normally completes
+    /// the same work in its background recheck; a missing original remains stale and is retried.
+    pub(crate) fn ensure_raw_metadata(&mut self, id: PhotoId) -> std::result::Result<(), String> {
+        let Some(p) = self.catalog.photo(id) else { return Ok(()) };
+        if !crate::raw_backend::photo_stale(p) {
+            return Ok(());
+        }
+        crate::raw_backend::ensure_ready()?;
+        let root = p.copy_of.unwrap_or(id);
+        let p = self.catalog.photo(root).ok_or("RAW original record is missing")?;
+        let path = crate::cmd::missing::checked_path(p).ok_or("Reconnect the RAW original and use Reload from Disk")?;
+        let item = Stale::of(p, path);
+        let probe = file_probe(self).ok_or("RAW metadata refresh requires access to the original file")?;
+        let info = probe(path)?;
+        apply(self, vec![(item, Ok(info))]).map_err(|e| e.to_string())?;
+        Ok(())
+    }
 }

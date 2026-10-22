@@ -5,6 +5,9 @@ use std::path::PathBuf;
 
 #[test]
 fn supplied_cameras_use_apple_rgb_and_preserve_hdr_and_orientation() {
+    if isolated_coreimage("supplied_cameras_use_apple_rgb_and_preserve_hdr_and_orientation") {
+        return;
+    }
     assert!(raw_backend::enabled(), "integration must link the production backend policy");
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../_orfs");
     if !root.is_dir() {
@@ -49,6 +52,9 @@ fn supplied_cameras_use_apple_rgb_and_preserve_hdr_and_orientation() {
 
 #[test]
 fn sensor_tools_and_bad_input_cannot_fall_back_to_rust() {
+    if isolated_coreimage("sensor_tools_and_bad_input_cannot_fall_back_to_rust") {
+        return;
+    }
     assert!(raw_backend::enabled());
     assert!(raw_backend::require_sensor().is_err());
     assert_eq!(lightcraft_engine::library::DEFAULT_NAME, "LightCraft BW Core Image Library");
@@ -62,6 +68,9 @@ fn sensor_tools_and_bad_input_cannot_fall_back_to_rust() {
 
 #[test]
 fn original_em10_qualification_is_explicitly_pending_without_its_fixture() {
+    if isolated_coreimage("original_em10_qualification_is_explicitly_pending_without_its_fixture") {
+        return;
+    }
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../corpus/raw/orf-olympus-em10.orf");
     if !path.is_file() {
         lightcraft_testkit::skip!(Corpus, "original E-M10 Core Image qualification pending: corpus/raw/orf-olympus-em10.orf is missing");
@@ -74,4 +83,23 @@ fn original_em10_qualification_is_explicitly_pending_without_its_fixture() {
     let (image, source) = files::load_bytes(&bytes, usize::MAX).unwrap();
     assert!(source.raw && source.raw_backend.is_some());
     assert_eq!(image.width * image.height, 4608 * 3456);
+}
+
+// Production selection is persisted per user. These tests must never read that profile.
+fn isolated_coreimage(name: &str) -> bool {
+    if std::env::var("LIGHTCRAFT_COREIMAGE_TEST_CHILD").as_deref() == Ok(name) {
+        return false;
+    }
+    let dir = std::env::temp_dir().join(format!("lc-apple-{name}-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(dir.join("raw-processing.json"), br#"{"backend":"coreimage"}"#).unwrap();
+    let result = std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["--exact", name, "--nocapture"])
+        .env("LIGHTCRAFT_COREIMAGE_TEST_CHILD", name)
+        .env("LIGHTCRAFT_CONFIG_DIR", &dir)
+        .status()
+        .unwrap();
+    std::fs::remove_dir_all(dir).unwrap();
+    assert!(result.success(), "isolated Core Image test failed");
+    true
 }

@@ -1161,6 +1161,8 @@ mod thumbnail_tests {
         let mut raw = (*photo()).clone();
         raw.id = id;
         raw.kind = lightcraft_catalog::MediaKind::Raw;
+        // This fixture represents already-probed RAW metadata for the active processor.
+        raw.raw_backend = lightcraft_engine::raw_backend::enabled().then(|| lightcraft_engine::raw_backend::runtime_stamp().to_string());
         raw.develop = Arc::new(raw.camera_defaults());
         session.catalog.apply(Op::AddPhoto { photo: Box::new(raw) }).unwrap();
         let p = session.catalog.photo(id).unwrap().clone();
@@ -1361,6 +1363,8 @@ mod thumbnail_tests {
         s.media.preview_loader = Some(Arc::new(|_, _| Some(lightcraft_raster::Rgba8 { width: 4, height: 4, data: vec![[200, 100, 50, 255]; 16] })));
         let mut raw = (*photo()).clone();
         raw.kind = lightcraft_catalog::MediaKind::Raw;
+        // This fixture represents already-probed RAW metadata for the active processor.
+        raw.raw_backend = lightcraft_engine::raw_backend::enabled().then(|| lightcraft_engine::raw_backend::runtime_stamp().to_string());
         raw.develop = Arc::new(raw.camera_defaults());
         let (mut app, work, ctx) = fixture_with(s, raw);
         app.renderer.pool = JobPool::new(0); // deterministic: no quick job starts until run_inline
@@ -1526,6 +1530,8 @@ mod thumbnail_tests {
         }));
         let mut raw = (*photo()).clone();
         raw.kind = lightcraft_catalog::MediaKind::Raw;
+        // This fixture represents already-probed RAW metadata for the active processor.
+        raw.raw_backend = lightcraft_engine::raw_backend::enabled().then(|| lightcraft_engine::raw_backend::runtime_stamp().to_string());
         raw.develop = Arc::new(raw.camera_defaults());
         let (mut app, _, ctx) = fixture_with(s, raw);
         app.renderer.set_offload(Box::new(Blocked));
@@ -1771,6 +1777,8 @@ mod thumbnail_tests {
         s.media.preview_loader = Some(Arc::new(|_, _| Some(lightcraft_raster::Rgba8 { width: 4, height: 4, data: vec![[200, 100, 50, 255]; 16] })));
         let mut raw = (*photo()).clone();
         raw.kind = lightcraft_catalog::MediaKind::Raw;
+        // This fixture represents already-probed RAW metadata for the active processor.
+        raw.raw_backend = lightcraft_engine::raw_backend::enabled().then(|| lightcraft_engine::raw_backend::runtime_stamp().to_string());
         raw.develop = Arc::new(raw.camera_defaults());
         let (mut app, work, ctx) = fixture_with(s, raw);
         app.renderer.pool = JobPool::new(0);

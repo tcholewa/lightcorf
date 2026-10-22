@@ -987,3 +987,18 @@ fn the_catalog_remembers_which_photos_its_latest_ops_changed_and_what_of_them() 
     assert_eq!(c.touched_since(long_ago), None);
     assert_eq!(c.touched_since(c.revision - 10), Some(vec![a]));
 }
+
+#[test]
+fn preserving_import_look_is_reversible_and_serializable() {
+    let mut catalog = Catalog::default();
+    let id = PhotoId(1);
+    let photo = Photo::new(id, Source::File { path: "image.ORF".into() }, "image.ORF", "ORF", 40, 30, "2026-10-22");
+    catalog.apply(Op::AddPhoto { photo: Box::new(photo) }).unwrap();
+    let settings = std::sync::Arc::new(lightcraft_develop::DevelopSettings::default());
+    let op = Op::SetImportLook { id, settings: Some(settings.clone()) };
+    let op: Op = serde_json::from_slice(&serde_json::to_vec(&op).unwrap()).unwrap();
+    let inverse = catalog.apply(op).unwrap();
+    assert_eq!(catalog.photo(id).unwrap().import_look.as_ref(), Some(&settings));
+    catalog.apply(inverse).unwrap();
+    assert!(catalog.photo(id).unwrap().import_look.is_none());
+}

@@ -896,6 +896,7 @@ fn main() -> eframe::Result {
     // root, and a whole drive or home folder is not walked (issue #374)
     let (files, launch_notices) = launch_imports(&files);
     let (prefs, prefs_warning, keep_prefs_file) = load_prefs(in_memory);
+    let _ = lightcraft_engine::raw_backend::active();
     // the saved language from the start, so a failed start is reported in it too
     if let Some(ui) = &prefs {
         lightcraft_ui_egui::i18n::set_language(ui.language);
@@ -928,7 +929,7 @@ fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         renderer,
         viewport: as_remembered(
-            egui::ViewportBuilder::default().with_title(if lightcraft_engine::raw_backend::enabled() {
+            egui::ViewportBuilder::default().with_title(if lightcraft_engine::raw_backend::coreimage_edition() {
                 "Lightcraft BW Core Image"
             } else {
                 "LightCraft"
@@ -969,6 +970,7 @@ fn main() -> eframe::Result {
                 win_files_app.started(window_renderer);
                 came_up_app.store(true, std::sync::atomic::Ordering::Relaxed);
                 let (mut session, problem) = open_session(in_memory, library_dir, seed_demo && files.is_empty());
+                session.raw_preferences_writable = !in_memory;
                 // AI masks: the SAM 3 checkpoint (facebook/sam3) in <config>/models/sam3, or LIGHTCRAFT_SAM3_DIR
                 // (never required: without it, AI masks offer to download it; see docs/ai-masks.md)
                 // and the user's own download locations, one base URL per line (LIGHTCRAFT_SAM3_MIRRORS too)
@@ -982,6 +984,7 @@ fn main() -> eframe::Result {
                 lightcraft_ui_egui::i18n::set_language(app.ui.language);
                 app.integrated_titlebar = cfg!(target_os = "macos");
                 app.notices.extend(prefs_warning);
+                app.notices.extend(lightcraft_engine::raw_backend::startup_error().map(str::to_string));
                 app.notices.extend(launch_notices);
                 app.notices.extend(window_notice);
                 app.gpu_notice = true;

@@ -112,6 +112,9 @@ impl MergeJob {
         let n = self.sources.len();
         let one = |(_, path): &(PhotoId, String)| {
             let bytes = (self.read)(path)?;
+            if lightcraft_raw::probe(&bytes).is_some() {
+                crate::raw_backend::ensure_ready()?;
+            }
             // a raw without colour matrices of its own starts from the colour it has when opened alone (#965)
             let f = if crate::raw_backend::enabled() && lightcraft_raw::probe(&bytes).is_some() {
                 crate::raw_backend::decode(&bytes, self.preview.unwrap_or(usize::MAX))

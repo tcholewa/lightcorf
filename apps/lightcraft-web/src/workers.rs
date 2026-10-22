@@ -91,7 +91,8 @@ async fn handle(scope: &web_sys::DedicatedWorkerGlobalScope, backend: Option<Bac
         let job = job?;
         let mut cache_miss = false;
         // cached thumbnail?
-        if job.thumb_cached
+        if job.unavailable.is_none()
+            && job.thumb_cached
             && let (Some(b), Some(key)) = (&backend, job.thumb_key())
         {
             match b.read(&key).await.ok().flatten().and_then(|bytes| lightcraft_preview::decode_jpeg(&bytes)) {

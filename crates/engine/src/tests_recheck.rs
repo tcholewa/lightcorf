@@ -154,3 +154,52 @@ fn session_without_file_access_refuses() {
     assert!(e.contains("no file access"), "{e}");
     assert!(x.s.catalog.photo(x.id).unwrap().preview_only.is_some());
 }
+
+/// Both decoder directions keep edits/history/reset defaults, including virtual copies.
+#[test]
+fn processor_refresh_preserves_look_and_clears_old_source_facts() {
+    use lightcraft_catalog::{MediaKind, Photo, Source};
+    let mut s = Session::new();
+    let id = PhotoId(1);
+    let mut p = Photo::new(id, Source::File { path: "camera.ORF".into() }, "camera.ORF", "ORF", 40, 30, "2026-10-22");
+    p.kind = MediaKind::Raw;
+    p.as_shot_wb = Some((5100.0, 4.0));
+    p.embedded_lens = Some(lightcraft_develop::EmbeddedLens::default());
+    p.develop = std::sync::Arc::new(p.camera_defaults());
+    let reset = p.camera_defaults();
+    s.catalog.apply(Op::AddPhoto { photo: Box::new(p) }).unwrap();
+    s.execute("library.select", &json!({"ids":[1],"active":1})).unwrap();
+    s.execute("develop.set", &json!({"control":"light.exposure","value":0.75})).unwrap();
+    s.execute("photo.virtualCopy", &json!({"ids":[1]})).unwrap();
+    let before: Vec<_> = s.catalog.photos().map(|p| (p.id, p.develop.clone(), p.history.clone(), p.history_cursor)).collect();
+    let undo = s.undo.len();
+    for backend in [Some("coreimage-linear-rec2020-v1:8:test".to_string()), None] {
+        let info = crate::media::ProbeInfo {
+            kind: MediaKind::Raw,
+            format: "ORF".into(),
+            width: 38,
+            height: 28,
+            raw_backend: backend.clone(),
+            as_shot_wb: Some((5300.0, -2.0)),
+            ..Default::default()
+        };
+        let mut ops = Vec::new();
+        let mut changed = Vec::new();
+        crate::cmd::convert::reload_ops(&s.catalog, id, &info, &mut ops, &mut changed);
+        s.apply_system(Op::Batch { ops }).unwrap();
+        assert_eq!(changed.len(), 2);
+        for (id, develop, history, cursor) in &before {
+            let p = s.catalog.photo(*id).unwrap();
+            assert_eq!(&p.develop, develop);
+            assert_eq!(&p.history, history);
+            assert_eq!(&p.history_cursor, cursor);
+            assert_eq!(p.import_look.as_deref(), Some(&reset));
+            assert_eq!(p.raw_backend, backend);
+            assert_eq!(p.embedded_lens, None);
+            assert_eq!(p.as_shot_wb, Some((5300.0, -2.0)));
+        }
+        assert_eq!(s.undo.len(), undo);
+    }
+    s.execute("develop.reset", &json!({"ids":[1]})).unwrap();
+    assert_eq!(s.catalog.photo(id).unwrap().develop.as_ref(), &reset);
+}
