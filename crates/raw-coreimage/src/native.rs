@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! All native pointers and framework calls are contained here. No Objective-C object crosses IPC.
 use lightcraft_raw_backend::{BackendError, Decoded, Info, Operation, RECIPE, pixel_count};
 use objc2::{

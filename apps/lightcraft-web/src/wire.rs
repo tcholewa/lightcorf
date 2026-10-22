@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Render jobs across the Web Worker boundary.
 //!
 //! A worker is a second wasm instance with its own memory, so an engine [`RenderJob`] (which holds

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Library preferences: import defaults (raw / other / per camera) applied by import, and their
 //! persistence in prefs.json.
 

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Safe, bounded protocol and supervised client for the crash-isolated RAW worker.
 #![forbid(unsafe_code)]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]

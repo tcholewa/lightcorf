@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Olympus and OM System ORF decoding
 
 > **Last updated:** 2026-10-12 · **Change:** minor (lossless compressed ORF, including PEN E-PL7)

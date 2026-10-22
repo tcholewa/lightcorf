@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Vendor raw formats (TIFF-based) and helpers shared by them.
 
 pub mod arw;

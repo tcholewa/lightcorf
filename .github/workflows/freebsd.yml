@@ -1,9 +1,10 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # FreeBSD build and package check in a QEMU VM.
 name: FreeBSD
 
 on:
   push:
-    branches: [main]
+    branches: [main, lightcorf]
     paths:
       - ".github/workflows/freebsd.yml"
       - "packaging/freebsd/**"
@@ -11,7 +12,7 @@ on:
       - "Cargo.lock"
       - "crates/**"
   pull_request:
-    branches: [main]
+    branches: [main, lightcorf]
     paths:
       - ".github/workflows/freebsd.yml"
       - "packaging/freebsd/**"

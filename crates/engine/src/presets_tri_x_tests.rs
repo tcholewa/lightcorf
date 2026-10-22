@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The film look owns creative settings, never photographic corrections.
 use super::*;
 use lightcraft_develop::{DevelopSettings, Treatment};

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # App-specific installer and package assertions retained alongside shared packaging lint.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -33,10 +34,10 @@ import plistlib
 with open("packaging/macos/Info.plist.in", "rb") as source:
     plist = plistlib.load(source)
 for key, value in {
-    "CFBundleIdentifier": "ai.storyteller.lightcraft",
+    "CFBundleIdentifier": "com.diffico.lightcraft.bw.coreimage",
     "CFBundleExecutable": "LightCraft",
     "CFBundleIconFile": "LightCraft",
-    "LSMinimumSystemVersion": "11.0",
+    "LSMinimumSystemVersion": "12.0",
 }.items():
     assert plist.get(key) == value, f"Info.plist {key}: {plist.get(key)!r}, expected {value!r}"
 for key in ("CFBundleShortVersionString", "CFBundleVersion", "LightCraftVersion", "LightCraftBuildCommit"):

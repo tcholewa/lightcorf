@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Describing a raw file without reading its pixel data.
 //!
 //! [`probe_info`](crate::probe_info) and `lightcraft_meta::extract` read only a raw file's

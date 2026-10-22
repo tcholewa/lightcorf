@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The per-pixel stage: everything after the spatial planes are ready, in one parallel pass.
 
 use lightcraft_color::luminance_2020;

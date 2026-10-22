@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # ISO-inspired grain
 
 > **Last updated:** 2026-10-12 · **Change:** major (FILM.1: Tri-X-inspired preset)

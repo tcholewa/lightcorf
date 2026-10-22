@@ -1,3 +1,4 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # Windows ARM64 build and smoke test.
 #
 # Release packages on arm64-windows are produced on x64 runners via cross-compilation
@@ -7,7 +8,7 @@ name: Windows ARM64
 
 on:
   push:
-    branches: [main]
+    branches: [main, lightcorf]
     paths:
       - ".github/workflows/windows-arm64.yml"
       - "packaging/windows/**"
@@ -15,7 +16,7 @@ on:
       - "Cargo.lock"
       - "crates/**"
   pull_request:
-    branches: [main]
+    branches: [main, lightcorf]
     paths:
       - ".github/workflows/windows-arm64.yml"
       - "packaging/windows/**"

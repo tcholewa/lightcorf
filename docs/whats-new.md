@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # What's new in LightCraft
 
 ## 2026-10-21

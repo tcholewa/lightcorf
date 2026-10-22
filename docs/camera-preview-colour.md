@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Sony ARW, Nikon NEF, Panasonic RW2, Fujifilm RAF, Canon CR3/CR2, Pentax PEF, Samsung SRW, Olympus ORF, Epson ERF and Minolta MRW starting look
 
 ARW, NEF, RW2, RAF, CR3, CR2, PEF, SRW, ORF, ERF and MRW decoding supply sensor data and camera white-balance multipliers, but currently no measured camera colour matrix. Treating camera RGB as linear sRGB produces a dark, muted default rendering. The loader now estimates a file-local starting look from that file's embedded camera JPEG, only when a usable camera matrix is absent. All output pixels still come from the RAW sensor data; there is no JPEG replacement or uniform saturation boost.

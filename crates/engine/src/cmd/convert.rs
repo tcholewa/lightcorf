@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Convert to DNG: a raw photo's original is re-encoded as a lossless DNG (its develop settings
 //! embedded as XMP) next to it, and the photo is relinked to the DNG. The original stays on
 //! disk; undo relinks the photo to it.

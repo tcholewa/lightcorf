@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! AI denoise in the interface: the line under the Detail panel's Denoise slider (what the picture is doing), the
 //! Settings ▸ Denoise tab (the model and the cache) and the per-frame pump that keeps the engine's background work going.
 //!

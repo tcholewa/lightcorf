@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Export presets: built-in ones ([`crate::export::builtin_presets`]) and the user's, saved with the
 //! library. `app.export {preset}` (desktop app, MCP, `lightcraft-cli run`) starts from a preset's
 //! params; the call's own params override them (see [`Session::export_params`]).

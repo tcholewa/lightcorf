@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The top bar: sidebar toggle, back/forward, search, filter, and the right-hand icons.
 
 use egui::{Align2, Rect, Sense, Stroke, StrokeKind, pos2, vec2};
@@ -184,7 +185,7 @@ pub fn show(app: &mut LightcraftApp, ui: &mut egui::Ui) {
                 None => crate::i18n::tr("Import Photos…").to_string(),
             };
             for (id, icon, tip, cmd) in [
-                ("discord", Icon::Chat, "Join the ArtCraft community on Discord", "app.discord"),
+                ("discord", Icon::Chat, "Lightcorf support and issues", "app.discord"),
                 ("cloud", Icon::Cloud, cloud_tip, ""),
                 ("help", Icon::Help, "Keyboard shortcuts", "app.shortcuts"),
                 ("share", Icon::Share, "Export", "dialog.export"),

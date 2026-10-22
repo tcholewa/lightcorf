@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! CPU ↔ GPU equivalence: the same settings rendered by the CPU pipeline (the reference) and by
 //! `lightcraft_gpu::render`, compared in 8-bit sRGB.
 //!

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Background rendering: engine [`RenderJob`]s run on a [`JobPool`]; results become textures.
 //!
 //! Each visible thing that needs pixels is a *slot* (a grid thumbnail, the loupe, the "before"

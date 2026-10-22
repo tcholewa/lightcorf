@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Built-in presets and profiles (all values are our own; no third-party preset content), and
 //! preset files: our `.lcpreset` JSON (import + export, groups preserved) and XMP presets
 //! (`crs:` fields, read only — see [`crate::crs`]).

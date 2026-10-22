@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Preview-only raws rechecked after an update (issue #662): a raw imported while its format or
 //! variant couldn't be decoded keeps [`Photo::preview_only`] until something re-reads its file.
 //! Each flag is stamped with the app version that set it ([`Photo::preview_checked`]); when a

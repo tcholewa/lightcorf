@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Original ISO-inspired starting points, shared by commands and the edit panel.
 use crate::Grain;
 

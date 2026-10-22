@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! XMP packets (ISO 16684-1 / Adobe XMP Specification Part 1–2): read and write.
 //!
 //! Reading builds a small namespace-resolved tree with `quick-xml`, then collects every property of every

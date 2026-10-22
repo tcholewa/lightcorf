@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Generate local grain comparison evidence; images stay outside tracked source.
 //! cargo run --release -p lightcraft-engine --example grain_compare -- target/analog-grain [photo]
 #![forbid(unsafe_code)]

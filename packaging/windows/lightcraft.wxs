@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 <!--
   LightCraft MSI (WiX Toolset v5: `dotnet tool install -g wix`, plus the UI and Util extensions:
   `wix extension add -g WixToolset.UI.wixext/5.0.2 WixToolset.Util.wixext/5.0.2`). Built by package.ps1:
@@ -14,13 +15,13 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
       Name="LightCraft"
-      Manufacturer="Learning Machines LLC"
+      Manufacturer="Lightcorf contributors"
       Version="$(var.Version)"
       UpgradeCode="229BB552-5EFD-479A-BA86-8CB6D926390C"
       Scope="perMachine"
       Compressed="yes"
       Language="1033">
-    <SummaryInformation Description="LightCraft photo library and raw developer" Manufacturer="Learning Machines LLC" />
+    <SummaryInformation Description="LightCraft photo library and raw developer" Manufacturer="Lightcorf contributors" />
     <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
          (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
     <MajorUpgrade AllowSameVersionUpgrades="yes"
@@ -29,9 +30,9 @@
 
     <Icon Id="LightcraftIcon.ico" SourceFile="$(var.IconPath)" />
     <Property Id="ARPPRODUCTICON" Value="LightcraftIcon.ico" />
-    <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps/lightcraft" />
-    <Property Id="ARPURLUPDATEINFO" Value="https://getartcraft.com/apps/lightcraft" />
-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/tcholewa/lightcorf" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://github.com/tcholewa/lightcorf" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/tcholewa/lightcorf/issues" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="LightCraft" />

@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Lightroom parity checklist
 
 > **Experimental Core Image mode:** macOS defaults to Apple RAW development and offers Native processing after restart. In Apple mode, sensor-DNG conversion and AI RAW denoise are unavailable; camera calibration comes from Apple. Rendered DNG/merge output is checked for Apple compatibility before saving. See [branch capabilities and camera qualification](coreimage-raw.md). Other-platform implementations and historical evidence below remain applicable.

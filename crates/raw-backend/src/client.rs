@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! One persistent child, serialized requests, bounded waits, no automatic retry of failed inputs.
 use super::{BackendError, Decoded, Operation, read_response, write_request};
 use std::path::{Path, PathBuf};

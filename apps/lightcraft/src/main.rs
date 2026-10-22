@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! LightCraft desktop app.
 //!
 //! Usage: `lightcraft [--library DIR | --memory] [--no-demo] [--control <port>] [files or folders…]`

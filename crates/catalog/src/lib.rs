@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The LightCraft library (catalog).
 //!
 //! State changes only through [`Op`]s. [`Catalog::apply`] returns the inverse op, which gives:

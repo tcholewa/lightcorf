@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Where LightCraft keeps per-user data on this machine: the config folder (app settings, camera
 //! profiles, face and denoise models).
 //!

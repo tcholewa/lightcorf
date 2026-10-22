@@ -1,10 +1,11 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # Evaluates the Nix flake (no build, about a minute): `nix build` / `nix develop` stop at evaluation
 # when Cargo.lock gains something nix/package.nix can't vendor, and nothing else would notice.
 name: Nix
 
 on:
   push:
-    branches: [main]
+    branches: [main, lightcorf]
     paths: ["flake.nix", "flake.lock", "nix/**", "Cargo.lock", ".github/workflows/nix.yml"]
   pull_request:
     paths: ["flake.nix", "flake.lock", "nix/**", "Cargo.lock", ".github/workflows/nix.yml"]

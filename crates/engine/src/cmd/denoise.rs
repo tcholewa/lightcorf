@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Denoise commands (`denoise.*`): the models (list, install, download, test, remove, choose), the settings, and the
 //! work (queue, cancel, status, pump, clear). The machinery they drive is [`crate::denoise`].
 //!

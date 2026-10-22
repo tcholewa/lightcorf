@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Lightcraft BW Core Image (experimental macOS branch)
 
 Last updated: 2026-10-22. Task: CI.5. Branch: `feature/raw-processor-setting`.

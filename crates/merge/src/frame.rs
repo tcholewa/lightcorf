@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Merge inputs: scene-linear frames decoded from raw files (camera RGB, before white balance) or
 //! standard images (linear light in the file's primaries), with their exposure from EXIF.
 

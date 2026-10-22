@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Crash-safe catalog persistence: an append-only op log plus periodic snapshots.
 //!
 //! Files (in a [`Store`]):

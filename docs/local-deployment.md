@@ -1,6 +1,7 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (CI.6: install RAW processor selection and remove obsolete app builds)
+> **Last updated:** 2026-10-22 · **Change:** minor (PUB.1: source-fork publication; installed application unchanged)
 
 
 ## Lightcraft BW Core Image (current installation)
@@ -290,6 +291,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | PUB.1: public Lightcorf source publication, separate from the existing installed app |
 | 2026-10-22 | minor | CI.6: install 5922963c with restart-only RAW processor selection; remove obsolete app bundles and preserve personal data |
 | 2026-10-22 | minor | CI.4: install Core Image 0.11.0 from 7e33c3ae; preserve previous bundle, BW app and personal data |
 | 2026-10-22 | minor | SYNC.3: upstream 0.11.0 integrated on a new Core Image branch; previous source and installed apps preserved |
@@ -456,3 +458,10 @@ CLI installations and verification records were preserved.
 Evidence: `target/install-current-20261022/` contains the deployment and removal manifests,
 preservation hashes, release build log, installed native acceptance results and screenshots.
 All eight `cargo xtask ci` gates passed before the deployment-record commit. No push was requested.
+
+## PUB.1 public source fork (2026-10-22)
+
+The `lightcorf` publication branch preserves verified source `377095c2` and its local history,
+with publication branding, support-link and attribution changes. See [the fork audit](fork-license-audit.md).
+This task does not install another app or alter personal libraries. The installed source remains
+`5922963c`, with deployment record `377095c2`; the fork's source-only publication is separate.

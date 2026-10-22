@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Restart-only RAW policy: a saved macOS processor choice, native Rust elsewhere. No decoder fallback.
 use lightcraft_pipeline::SourceInfo;
 use lightcraft_raster::{

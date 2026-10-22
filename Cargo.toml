@@ -1,3 +1,4 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 [workspace]
 resolver = "3"
 members = ["crates/*", "apps/*", "xtask"]
@@ -7,7 +8,7 @@ version = "0.11.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.90"
-repository = "https://github.com/storytold/lightcraft"
+repository = "https://github.com/tcholewa/lightcorf"
 
 [workspace.dependencies]
 craft-ui = { git = "https://github.com/storytold/craft-libs", rev = "5c874d51eeb3de70e735c8ce87a59a7dedd47675", features = ["serde"] }

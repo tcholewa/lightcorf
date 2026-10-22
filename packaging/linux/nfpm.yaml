@@ -1,3 +1,4 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # .deb and .rpm packages (nfpm: https://nfpm.goreleaser.com). Run by package.sh, which stages
 # the file tree, substitutes its path for ${STAGE} (nfpm doesn't expand env vars in `src`) and
 # exports VERSION and NFPM_ARCH.
@@ -13,8 +14,8 @@ release: 1
 section: graphics
 priority: optional
 maintainer: ${LIGHTCRAFT_MAINTAINER}
-vendor: Learning Machines LLC
-homepage: https://getartcraft.com/apps/lightcraft
+vendor: Lightcorf contributors
+homepage: https://github.com/tcholewa/lightcorf
 license: MIT OR Apache-2.0
 description: |-
   Open-source, native photo library and raw developer that works the way

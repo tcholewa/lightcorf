@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Olympus's lossless ORF stream, independently derived from CC0 raw.pixls.us files.
 //!
 //! The predictor, signed Rice codes, flatness runs and residual correction are described in Olympus

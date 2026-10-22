@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The develop settings schema. Every field has a neutral default; serde uses `#[serde(default)]` so
 //! older/newer files load (unknown fields are ignored, missing fields take defaults). The one
 //! exception is `process`: missing (or unreadable), it is V1, the rendering those older files were

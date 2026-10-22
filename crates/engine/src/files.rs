@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Real files: probing (dimensions + metadata for import) and loading (decode → linear Rec.2020,
 //! oriented, downscaled to the requested level). Standard formats go through `lightcraft-codecs`,
 //! camera raws through `lightcraft-raw` (demosaic + DNG colour model).

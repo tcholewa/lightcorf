@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # RAW parity: cameras, formats, demosaic, colour and lens profiles
 
 > **Core Image branch (2026-10-21):** macOS RAW development uses Apple in a supervised helper. Existing Rust camera-coverage figures describe the other platforms; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.

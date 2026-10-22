@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The LightCraft develop pipeline (CPU reference implementation).
 //!
 //! Input: a scene-referred, linear Rec.2020 source image (already EXIF-oriented) at any resolution

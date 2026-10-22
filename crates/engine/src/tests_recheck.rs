@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Issue #662: preview-only raws are rechecked when a library opens in another app version.
 
 use std::path::PathBuf;

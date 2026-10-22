@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Import: files and folders (recursive) → photos.
 //!
 //! 1. Expand folders recursively into supported files (hidden entries and the library's own

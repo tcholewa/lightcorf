@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Synthetic setup flows for platforms with sensor denoise; macOS capability rejection is tested in tests_coreimage.
 #![cfg(not(target_os = "macos"))]
 use std::path::{Path, PathBuf};

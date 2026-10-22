@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The GPU renderer: the CPU pipeline's stages, evaluated on the device where a kernel exists and
 //! on the CPU otherwise (per-stage hybrid). Stage results stay on the device and are cached per
 //! view exactly like [`lightcraft_pipeline::StageCache`] (same keys, see [`lightcraft_pipeline::Plan`]).

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! End-to-end render benchmark (min of N runs, robust to a loaded machine):
 //! `cargo run --release -p lightcraft-engine --example render_bench -- corpus/raw/arw-sony-a7m3-compressed.arw`
 //! (`N=9` runs per scenario, `RAYON_NUM_THREADS=1` for algorithmic comparisons,

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Original, bounded sparse-convolution grain. No scanned textures or external implementation.
 //!
 //! Two populations of soft clumps live in oriented image coordinates. Pixel footprints widen

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The Settings dialog (⌘,): General, Import, Performance, Display, Interface, Slideshow, Faces,
 //! AI Denoise.
 //!

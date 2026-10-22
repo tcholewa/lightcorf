@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Issue #891: Open Library given a Lightroom Classic catalog (its folder, `.lrdata` /
 //! `.lrcat-data` folders, the `.lrcat` or its companion files) refuses it, creating nothing, and
 //! names the catalog to import; a LightCraft library still opens, whatever else its folder holds.

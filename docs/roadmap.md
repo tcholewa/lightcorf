@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Roadmap: milestones, current focus and what's next
 
 > **Last updated:** 2026-10-16 · **Change:** minor (SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6

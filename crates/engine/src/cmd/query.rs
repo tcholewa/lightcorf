@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Read-only queries (not journaled): catalog, photos, develop state, controls, presets, albums.
 
 use lightcraft_catalog::{Album, Photo, PhotoId};

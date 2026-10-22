@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! macOS has RGB from Core Image; sensor tools must not offer model setup or mutate edits.
 use crate::{LightcraftApp, Services};
 use lightcraft_catalog::{MediaKind, Op, Photo, PhotoId, Source};

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Render workers: dedicated Web Workers, each running a second instance of this wasm module
 //! (`worker.js` → [`worker_main`]). The main thread compiles the module once and posts the
 //! compiled `WebAssembly.Module` to every worker, so a worker starts in a few milliseconds.

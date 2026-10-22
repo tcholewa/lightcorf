@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 """Measure LightCraft's raw camera coverage against Adobe's supported-camera list.
 
     python3 docs/raw/coverage.py            # print the summary, rewrite docs/raw/coverage.tsv

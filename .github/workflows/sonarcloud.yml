@@ -1,3 +1,4 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 name: SonarCloud
 
 on:
@@ -15,6 +16,7 @@ concurrency:
 
 jobs:
   sonarcloud:
+    if: github.repository == 'storytold/lightcraft'
     # Tracked at @main so org-wide CI improvements propagate without PR churn.
     uses: storytold/craft-common-actions/.github/workflows/sonarcloud.yml@main
     secrets: inherit

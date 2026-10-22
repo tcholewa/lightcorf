@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The LightCraft engine façade.
 //!
 //! Every user-visible action is a command with a stable id (`photo.rate`, `develop.set`,

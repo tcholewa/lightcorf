@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Presets and copy/paste subsets.
 //!
 //! A preset is a *partial* settings object (JSON) — only the groups it includes. Applying merges it

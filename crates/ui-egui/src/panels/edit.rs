@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The Edit panel: histogram, Auto/B&W, profile, and the Light / Color / Effects / Detail / Optics
 //! sections, built from the engine's control specs.
 

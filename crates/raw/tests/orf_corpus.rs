@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Exact Olympus / OM System sensor-pixel regressions on CC0 raw.pixls.us files.
 //! The reference is LibRaw 0.22.2's unprocessed_raw executable, run as a black box;
 //! no source or camera matrices were read. SHA256 covers the entire row-major u16

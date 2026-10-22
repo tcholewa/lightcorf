@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Issue #102: catalog format versions. Older formats load and are upgraded; a newer format is
 //! refused with a clear error and left untouched (never read in part, truncated or set aside).
 

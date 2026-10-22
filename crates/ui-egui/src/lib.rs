@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! LightCraft's egui frontend: a Lightroom-style UI over `lightcraft-engine`.
 //!
 //! The UI is thin: every action goes through [`LightcraftApp::run`], which handles UI commands

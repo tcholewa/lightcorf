@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Production macOS backend integration. Existing engine unit fixtures retain the Rust reference path.
 #![cfg(target_os = "macos")]
 use lightcraft_engine::{files, raw_backend};

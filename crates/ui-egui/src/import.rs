@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The import review dialog (File → Import Photos… / Import from Folder… / Import from Device):
 //! the source it scanned (a scanned folder is *not* added to Local), the files found under it as
 //! a grid of thumbnails with checkboxes (duplicates marked and unchecked; Shift-click sets a

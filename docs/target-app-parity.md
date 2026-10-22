@@ -1,3 +1,4 @@
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Target-app parity: LightCraft vs Adobe Lightroom
 
 > **Core Image branch (2026-10-22):** macOS offers Apple Core Image (default) or LightCraft Native in Settings → Performance after restart. Existing Rust camera-coverage figures describe Native processing; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.

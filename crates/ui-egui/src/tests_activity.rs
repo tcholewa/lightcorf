@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Issue #345: the activity stack — one place, top-left, for every long-running task, with ✕ to cancel.
 
 use std::time::Duration;

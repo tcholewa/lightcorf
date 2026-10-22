@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Malformed vendor raw files (NEF, ARW, PEF, ORF, RW2 of every raw format, CR2, RAF) must decode to an error, never panic.
 
 use lightcraft_tiff::tags as t;

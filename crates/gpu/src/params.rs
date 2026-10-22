@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Parameter blocks: the per-pixel stage's [`FinishParams`] packed into the 32-bit words the
 //! `finish` kernel reads (`F_*` constants, generated from [`FIELDS`]), plus its auxiliary tables.
 

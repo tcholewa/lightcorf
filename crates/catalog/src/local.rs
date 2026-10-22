@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Forgetting untouched Local browse records.
 //!
 //! Browsing a folder (Local) catalogues its photos as `local` records so they can be shown,

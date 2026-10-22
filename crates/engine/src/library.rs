@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! A persistent library: a directory holding the catalog (op log + snapshot), user presets, the
 //! last view state and the preview cache.
 //!

@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Photo Merge (HDR, Panorama, HDR Panorama) in the library.
 //!
 //! A merge is planned from the session ([`crate::Session::plan_merge`] → [`MergeJob`], which is

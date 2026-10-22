@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Modal dialogs (new album, rename, create preset, choose settings to copy, export, about, shortcuts).
 
 use lightcraft_develop::{ControlSpec, Section, SettingsGroup, Track};
@@ -1289,14 +1290,16 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
                         1 => crate::credits::contributors_ui(app, ui),
                         2 => crate::credits::models_ui(ui),
                         _ => {
-                            ui.label(egui::RichText::new("LightCraft").font(t.semibold(20.0)).color(t.text));
+                            ui.label(egui::RichText::new("Lightcorf").font(t.semibold(20.0)).color(t.text));
+                            ui.label("Independent BW fork, based on LightCraft by the ArtCraft team and contributors.");
                             ui.label(crate::i18n::tr_format!("Version {} — a clean-room, pure-Rust photo library and raw developer.", env!("CARGO_PKG_VERSION")));
                             ui.label(crate::i18n::tr_format!(
                                 "MIT OR Apache-2.0. Fonts: {} (OFL). Icons: original.",
                                 crate::theme::font_credits(app.chinese_font.is_some())
                             ));
+                            ui.label("Segmentation: Apache-2.0 only. See NOTICE for component exceptions.");
                             ui.add_space(10.0);
-                            let r = crate::button::Button::new("Join the ArtCraft Discord")
+                            let r = crate::button::Button::new("Lightcorf Support")
                                 .primary()
                                 .large()
                                 .min_width(260.0)
@@ -1308,9 +1311,9 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
                             }
                             ui.add_space(6.0);
                             for (label, url) in [
-                                ("LightCraft website", crate::links::APP_PAGE),
+                                ("Lightcorf project", crate::links::APP_PAGE),
                                 ("Source code on GitHub", crate::links::GITHUB),
-                                ("ArtCraft — more creative apps", crate::links::WEBSITE),
+                                ("Upstream LightCraft", crate::links::WEBSITE),
                             ] {
                                 let r = ui.link(crate::i18n::tr(label)).on_hover_text(url);
                                 if r.clicked() {

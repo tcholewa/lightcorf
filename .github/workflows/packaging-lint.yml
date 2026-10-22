@@ -1,10 +1,11 @@
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # Quick static checks for the release pipeline (seconds, no Rust build): workflow syntax,
 # packaging shell/PowerShell scripts, and the Linux desktop/AppStream/Flatpak metadata.
 name: Packaging lint
 
 on:
   push:
-    branches: [main, release]
+    branches: [main, lightcorf, release]
     paths: [".github/workflows/**", "packaging/**", "assets/app-icon/**"]
   pull_request:
     paths: [".github/workflows/**", "packaging/**", "assets/app-icon/**"]

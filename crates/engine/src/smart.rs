@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Smart previews: a compact proxy of each photo (its decoded preview-size source, about 1 MB)
 //! kept in the library, so photos stay editable — and exportable at proxy size — while their
 //! originals are offline (an unplugged drive). The proxy is the scene-linear source scaled into

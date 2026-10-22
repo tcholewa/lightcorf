@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
 #   $DIST/lightcraft-<version>-macos-<arch>.dmg          Lightcraft BW Core Image.app on a drag-to-Applications DMG

@@ -62,3 +62,13 @@ downloads cities15000.zip, admin1CodesASCII.txt and countryInfo.txt from GeoName
 (https://download.geonames.org/export/dump/) into the settings folder. GeoNames data is licensed
 under Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/);
 attribution: "GeoNames, geonames.org". The lookup code (crates/geocode) is our own.
+
+Lightcorf fork additions (2026)
+
+Lightcorf is an independent fork maintained by GitHub user tcholewa, based on LightCraft.
+The ORF integration, BW/grain presets, Core Image helper, RAW processor setting and publication
+changes retain their original authorship in Git history. Original fork code is offered under
+MIT OR Apache-2.0; existing per-component licences and notices continue to apply unchanged.
+See docs/fork-license-audit.md for the baseline and scope of the review. The fork is not an
+ArtCraft product or endorsed by ArtCraft. Restricted ArtCraft marks have been removed from the
+publication working tree; their original terms above remain as historical attribution.

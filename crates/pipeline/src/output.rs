@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Output encoding: the colour space (primaries + transfer curve) and sample format a render is
 //! delivered in. Previews are 8-bit sRGB, or 8-bit in a monitor's own primaries when the frontend
 //! has a display profile ([`DisplaySpace`]); exports may ask for a wide-gamut space and/or 16-bit or

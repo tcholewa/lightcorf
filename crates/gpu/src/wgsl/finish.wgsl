@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 // The per-pixel stage: a straight port of `lightcraft_pipeline::finish` (keep in step with it).
 // Bindings: img (rgb, pre-exposure), log_l, base, clar, tex, dark, masks (NMASK planes, then the
 // blurred chromaticity when HAS_CHROMA), aux

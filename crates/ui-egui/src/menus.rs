@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! UI-level commands (views, panels, zoom, tools, dialogs) and the menu model shared by the native
 //! menu bar, the shortcut handler and the control channel.
 
@@ -258,12 +259,12 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     ("app.openLogFolder", "Open Log Folder", None, "Help"),
     ("app.whatsNew", "What's New", None, "Help"),
     ("dialog.cull", "Assisted Culling…", None, "Photo"),
-    ("app.help", "LightCraft Help", Some("F1"), "Help"),
-    ("app.discord", "Join the ArtCraft Discord…", None, "Help"),
+    ("app.help", "Lightcorf Help", Some("F1"), "Help"),
+    ("app.discord", "Lightcorf Support…", None, "Help"),
     ("app.feedback", "Send Feedback…", None, "Help"),
-    ("app.website", "LightCraft Website", None, "Help"),
-    ("app.github", "LightCraft on GitHub", None, "Help"),
-    ("app.artcraft", "ArtCraft Website", None, "Help"),
+    ("app.website", "Lightcorf Project", None, "Help"),
+    ("app.github", "Lightcorf on GitHub", None, "Help"),
+    ("app.artcraft", "Upstream LightCraft", None, "Help"),
     ("app.shortcuts", "Keyboard Shortcuts", Some("Cmd+/"), "Help"),
     ("app.setShortcut", "Set Keyboard Shortcut", None, ""),
     ("app.resetShortcuts", "Reset All Keyboard Shortcuts", None, ""),

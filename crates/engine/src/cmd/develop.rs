@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Develop commands. All operate on the active photo unless `ids` are given (sync).
 
 use lightcraft_catalog::{Op, PhotoId, Version};

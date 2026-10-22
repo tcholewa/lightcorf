@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Scene-linear preparation: white balance + exposure, and the spatial planes the per-pixel stage
 //! needs (edge-aware base layer for highlights/shadows, clarity/texture bands, dehaze veil).
 

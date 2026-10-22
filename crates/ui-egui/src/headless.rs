@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Headless UI rendering: run the app's UI in an offscreen [`egui::Context`] and rasterize it on
 //! the CPU ([`crate::softpaint`]) — no window, no GPU, no compositor.
 //!

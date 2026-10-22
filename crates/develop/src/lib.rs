@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The non-destructive edit model of LightCraft.
 //!
 //! [`DevelopSettings`] is the complete description of a photo's look: pure, serializable data.

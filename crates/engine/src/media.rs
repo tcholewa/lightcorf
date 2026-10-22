@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Source proxies and render jobs.
 //!
 //! Sources are decoded (or generated) once per level and cached in memory LRUs: `Thumb` (≤ 512 px

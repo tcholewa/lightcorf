@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! AI denoise, the session's side (`docs/denoise.md`): which photos have a denoised picture, making the missing ones
 //! in the background, and keeping the cache within its size.
 //!

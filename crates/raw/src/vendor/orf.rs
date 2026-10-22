@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Olympus / OM System ORF — uncompressed and lossless compressed variants.
 //!
 //! Sources: TIFF 6.0 (the `IIRO`/`MMOR` container is a TIFF with a different magic number), Exif 2.3 (`CFAPattern`,

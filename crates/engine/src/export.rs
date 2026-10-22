@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Export: encode a rendered image to JPEG / PNG / TIFF / WebP / AVIF / JPEG XL (or copy the original / write a
 //! DNG, each with the edits in XMP) in sRGB, Display P3, Adobe RGB
 //! (1998) compatible, ProPhoto RGB or Rec. 2020 with an embedded ICC profile we generate from the

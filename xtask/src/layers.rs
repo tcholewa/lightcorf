@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Dependency layering rules (plan/architecture.md §3).
 //!
 //! The rule engine works on a small, metadata-independent model so it can be

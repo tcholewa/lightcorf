@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Recognition commands: `faces.index` (embed the faces in the library), `faces.suggest` (who might an unnamed
 //! face be?), `faces.person` (one person's faces, and the unnamed faces that look like them), `faces.unnamed` (every
 //! unnamed face, look-alikes together) and `faces.setName` / `faces.nameFaces` (name one face, or many at once, which is

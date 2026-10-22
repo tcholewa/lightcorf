@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! A real process restart freezes a saved choice, refreshes existing photos and isolates caches.
 #![cfg(target_os = "macos")]
 use lightcraft_engine::{Session, raw_backend};
