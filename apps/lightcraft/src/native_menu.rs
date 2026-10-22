@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! The native macOS menu bar (via `muda`, pure Rust over AppKit), generated from the same model as
 //! the in-window menus ([`lightcraft_ui_egui::menubar`]): the registry's menu paths, shortcuts,
 //! enabled and checked state, and live labels ("Undo Exposure").
@@ -229,10 +230,10 @@ impl NativeMenu {
         self.items.clear();
 
         // the application menu
-        let app_menu = Submenu::new("LightCraft", true);
-        let about = MenuItem::with_id("app.about", lightcraft_ui_egui::i18n::tr("About LightCraft"), true, None);
+        let app_menu = Submenu::new("Lightcorf", true);
+        let about = MenuItem::with_id("app.about", lightcraft_ui_egui::i18n::tr("About Lightcorf"), true, None);
         let settings = MenuItem::with_id(SETTINGS, lightcraft_ui_egui::i18n::tr("Settings…"), true, accelerator(SETTINGS_KEY));
-        let quit = MenuItem::with_id(QUIT, lightcraft_ui_egui::i18n::tr("Quit LightCraft"), true, accelerator("Cmd+Q"));
+        let quit = MenuItem::with_id(QUIT, lightcraft_ui_egui::i18n::tr("Quit Lightcorf"), true, accelerator("Cmd+Q"));
         let _ = app_menu.append_items(&[
             &about,
             &PredefinedMenuItem::separator(),
@@ -240,7 +241,7 @@ impl NativeMenu {
             &PredefinedMenuItem::separator(),
             &PredefinedMenuItem::services(Some(lightcraft_ui_egui::i18n::tr("Services"))),
             &PredefinedMenuItem::separator(),
-            &PredefinedMenuItem::hide(Some(lightcraft_ui_egui::i18n::tr("Hide LightCraft"))),
+            &PredefinedMenuItem::hide(Some(lightcraft_ui_egui::i18n::tr("Hide Lightcorf"))),
             &PredefinedMenuItem::hide_others(Some(lightcraft_ui_egui::i18n::tr("Hide Others"))),
             &PredefinedMenuItem::show_all(Some(lightcraft_ui_egui::i18n::tr("Show All"))),
             &PredefinedMenuItem::separator(),
@@ -459,7 +460,7 @@ mod tests {
         set_language(Locale::ZhHant);
         assert_eq!(label_text("File"), "檔案");
         assert_eq!(label_text("Settings…"), "設定…");
-        assert_eq!(label_text("Quit LightCraft"), "結束 LightCraft");
+        assert_eq!(label_text("Quit Lightcorf"), "結束 Lightcorf");
         set_language(Locale::En);
     }
 

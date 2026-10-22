@@ -2,10 +2,10 @@
 # Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/lightcraft-<version>-macos-<arch>.dmg          Lightcraft BW Core Image.app on a drag-to-Applications DMG
+#   $DIST/lightcraft-<version>-macos-<arch>.dmg          Lightcorf.app on a drag-to-Applications DMG
 #   $DIST/lightcraft-cli-<version>-macos-<arch>.zip      the headless CLI
 #
-# Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
+# Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build] [--app-only]
 # Fonts: use CRAFT_FONTS_DIR or ../craft-fonts; download the pinned checkout if absent.
 #
 # Signing (env):
@@ -21,10 +21,12 @@ HERE="$ROOT/packaging/macos"
 
 ARCH=universal
 SKIP_BUILD=0
+APP_ONLY=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --arch) ARCH="$2"; shift 2 ;;
     --skip-build) SKIP_BUILD=1; shift ;;
+    --app-only) APP_ONLY=1; shift ;;
     -h | --help) sed -n '2,16p' "$0"; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -41,7 +43,7 @@ export MACOSX_DEPLOYMENT_TARGET=12.0
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 SHORT_VERSION="${VERSION%%-*}"
 WORK="$CARGO_TARGET_DIR/macos-package"
-APP="$WORK/Lightcraft BW Core Image.app"
+APP="$WORK/Lightcorf.app"
 DMG="$DIST/lightcraft-$VERSION-macos-$ARCH.dmg"
 CLI_ZIP="$DIST/lightcraft-cli-$VERSION-macos-$ARCH.zip"
 
@@ -102,11 +104,11 @@ notarize() {
   fi
 }
 
-# ---- Lightcraft BW Core Image.app ----------------------------------------------------------------------------
+# ---- Lightcorf.app ----------------------------------------------------------------------------
 echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Executable and icon carry the display name (CFBundleExecutable / CFBundleIconFile).
-cp "$WORK/bin/lightcraft" "$APP/Contents/MacOS/LightCraft"
+cp "$WORK/bin/lightcraft" "$APP/Contents/MacOS/Lightcorf"
 cp "$WORK/bin/lightcraft-raw-worker" "$APP/Contents/MacOS/lightcraft-raw-worker"
 cp "$ROOT/assets/app-icon/lightcraft.icns" "$APP/Contents/Resources/LightCraft.icns"
 sed -e "s/@VERSION@/$VERSION/g" -e "s/@SHORT_VERSION@/$SHORT_VERSION/g" \
@@ -126,7 +128,7 @@ xattr -cr "$APP"
 # Sign inside-out: nested code first, then the bundle itself (no --deep on the final signature).
 # Sign the isolated RAW helper before the main executable and bundle.
 sign --options runtime "$APP/Contents/MacOS/lightcraft-raw-worker"
-sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/LightCraft"
+sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/Lightcorf"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"
 
@@ -139,10 +141,15 @@ if [ "$NOTARIZE" = 1 ]; then
 fi
 
 # ---- DMG ---------------------------------------------------------------------------------------
+if [ "$APP_ONLY" = 1 ]; then
+  echo "App ready: $APP"
+  exit 0
+fi
+
 echo "==> building $DMG"
 STAGE="$WORK/dmg"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/Lightcraft BW Core Image.app"
+ditto "$APP" "$STAGE/Lightcorf.app"
 ln -s /Applications "$STAGE/Applications"
 # Finder window layout: background, icon size and positions (packaging/macos/dmg/README.md).
 mkdir -p "$STAGE/.background"
@@ -181,21 +188,21 @@ verify_dmg_app() {
     hdiutil detach "$mount" >/dev/null 2>&1 || true
     return 1
   fi
-  echo "==> strict codesign of Lightcraft BW Core Image.app in finished DMG"
-  codesign --verify --deep --strict --verbose=2 "$mount/Lightcraft BW Core Image.app" || rc=1
+  echo "==> strict codesign of Lightcorf.app in finished DMG"
+  codesign --verify --deep --strict --verbose=2 "$mount/Lightcorf.app" || rc=1
   if [ "$rc" = 0 ]; then
-    ditto "$mount/Lightcraft BW Core Image.app" "$copy/Lightcraft BW Core Image.app" || rc=1
+    ditto "$mount/Lightcorf.app" "$copy/Lightcorf.app" || rc=1
   fi
   if [ "$rc" = 0 ]; then
-    echo "==> strict codesign of Lightcraft BW Core Image.app after ditto install-copy"
-    codesign --verify --deep --strict --verbose=2 "$copy/Lightcraft BW Core Image.app" || rc=1
+    echo "==> strict codesign of Lightcorf.app after ditto install-copy"
+    codesign --verify --deep --strict --verbose=2 "$copy/Lightcorf.app" || rc=1
   fi
   if [ "$rc" = 0 ] && [ "$NOTARIZE" = 1 ]; then
-    spctl --assess --type execute -vvv "$copy/Lightcraft BW Core Image.app" || rc=1
+    spctl --assess --type execute -vvv "$copy/Lightcorf.app" || rc=1
   fi
   if [ "$rc" != 0 ]; then
     echo "error: published-image app verification failed; reject $DMG" >&2
-    xattr -lr "$mount/Lightcraft BW Core Image.app" >&2 || true
+    xattr -lr "$mount/Lightcorf.app" >&2 || true
   fi
   if ! hdiutil_retry detach "$mount" >/dev/null; then
     echo "error: could not detach verification mount" >&2

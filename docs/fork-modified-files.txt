@@ -1,4 +1,4 @@
-Lightcorf modified-file inventory (PUB.1, 2026-10-22)
+Lightcorf modified-file inventory (NAME.1, 2026-10-22)
 Compared with upstream 31ee2643cf208a18cf780b8a63c677e87ab256f7.
 Original per-file licences and authorship remain; listed changes include additions and deletions.
 
@@ -20,6 +20,7 @@ ROADMAP.md
 apps/lightcraft-web/src/wire.rs
 apps/lightcraft-web/src/workers.rs
 apps/lightcraft/src/main.rs
+apps/lightcraft/src/native_menu.rs
 apps/raw-worker/Cargo.toml
 apps/raw-worker/README.md
 apps/raw-worker/src/main.rs
@@ -92,16 +93,25 @@ crates/raw/src/vendor/orfc.rs
 crates/raw/tests/corpus.rs
 crates/raw/tests/orf_corpus.rs
 crates/raw/tests/vendor_robust.rs
+crates/ui-egui/locales/cs.json
 crates/ui-egui/locales/de.json
 crates/ui-egui/locales/es.json
+crates/ui-egui/locales/fi.json
 crates/ui-egui/locales/fr.json
+crates/ui-egui/locales/id.json
+crates/ui-egui/locales/it.json
 crates/ui-egui/locales/ja.json
+crates/ui-egui/locales/ka.json
+crates/ui-egui/locales/pl.json
 crates/ui-egui/locales/pt-br.json
 crates/ui-egui/locales/ru.json
+crates/ui-egui/locales/sv.json
 crates/ui-egui/locales/uk.json
+crates/ui-egui/locales/vi.json
 crates/ui-egui/locales/zh-hans.json
 crates/ui-egui/locales/zh-hant.json
 crates/ui-egui/src/headless.rs
+crates/ui-egui/src/i18n.rs
 crates/ui-egui/src/import.rs
 crates/ui-egui/src/lib.rs
 crates/ui-egui/src/links.rs
@@ -109,6 +119,7 @@ crates/ui-egui/src/menus.rs
 crates/ui-egui/src/panels/denoise.rs
 crates/ui-egui/src/panels/dialogs.rs
 crates/ui-egui/src/panels/edit.rs
+crates/ui-egui/src/panels/second.rs
 crates/ui-egui/src/panels/settings.rs
 crates/ui-egui/src/panels/topbar.rs
 crates/ui-egui/src/render.rs
@@ -116,6 +127,7 @@ crates/ui-egui/src/tests_activity.rs
 crates/ui-egui/src/tests_coreimage.rs
 crates/ui-egui/src/tests_model_setup.rs
 crates/ui-egui/src/tests_recheck.rs
+crates/ui-egui/src/tests_switch_library.rs
 docs/analog-grain.md
 docs/architecture.md
 docs/arw6-compression.md

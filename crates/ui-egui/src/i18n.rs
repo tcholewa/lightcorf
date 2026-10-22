@@ -1,3 +1,4 @@
+// Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md.
 //! Presentation-only localization. Command ids, user names and catalog data remain unchanged.
 //!
 //! A language is one entry in [`language_table!`] below: its BCP-47 code, the endonym shown in the
@@ -1207,7 +1208,7 @@ mod tests {
         app.ui.left_panel = true;
         let text = painted_text(&ctx, &mut app, Locale::Uk);
         assert!(text.contains("Мої фото") && text.contains("Усі фото"), "{text}");
-        for (command, title) in [("app.about", "Про LightCraft"), ("app.shortcuts", "Клавіатурні скорочення"), ("app.settings", "Налаштування")]
+        for (command, title) in [("app.about", "Про Lightcorf"), ("app.shortcuts", "Клавіатурні скорочення"), ("app.settings", "Налаштування")]
         {
             app.ui.dialog = None;
             app.run(command, serde_json::json!({})).unwrap();
@@ -1310,7 +1311,7 @@ mod tests {
         let text = painted_text(&ctx, &mut app, Locale::It);
         assert!(text.contains("Le mie foto") && text.contains("Tutte le foto"), "{text}");
         for (command, title) in
-            [("app.about", "Informazioni su LightCraft"), ("app.shortcuts", "Scorciatoie da tastiera"), ("app.settings", "Impostazioni")]
+            [("app.about", "Informazioni su Lightcorf"), ("app.shortcuts", "Scorciatoie da tastiera"), ("app.settings", "Impostazioni")]
         {
             app.ui.dialog = None;
             app.run(command, serde_json::json!({})).unwrap();
@@ -1415,7 +1416,7 @@ mod tests {
         app.ui.left_panel = true;
         let text = painted_text(&ctx, &mut app, Locale::Fi);
         assert!(text.contains("Omat kuvat") && text.contains("Kaikki kuvat"), "{text}");
-        for (command, title) in [("app.about", "Tietoja LightCraftista"), ("app.shortcuts", "Pikanäppäimet"), ("app.settings", "Asetukset")] {
+        for (command, title) in [("app.about", "Tietoja Lightcorfista"), ("app.shortcuts", "Pikanäppäimet"), ("app.settings", "Asetukset")] {
             app.ui.dialog = None;
             app.run(command, serde_json::json!({})).unwrap();
             let text = painted_text(&ctx, &mut app, Locale::Fi);
@@ -1558,7 +1559,7 @@ mod tests {
         app.ui.view = crate::state::ViewMode::People;
         let text = painted_text(&ctx, &mut app, Locale::De);
         assert!(text.contains("Benannte Personen"), "{text}");
-        for (command, title) in [("app.about", "Über LightCraft"), ("app.shortcuts", "Tastenkürzel"), ("app.settings", "Einstellungen")] {
+        for (command, title) in [("app.about", "Über Lightcorf"), ("app.shortcuts", "Tastenkürzel"), ("app.settings", "Einstellungen")] {
             app.ui.dialog = None;
             app.run(command, serde_json::json!({})).unwrap();
             let text = painted_text(&ctx, &mut app, Locale::De);
@@ -2025,7 +2026,7 @@ mod tests {
         app.ui.left_panel = true;
         let text = painted_text(&ctx, &mut app, Locale::Vi);
         assert!(text.contains("Ảnh của tôi") && text.contains("Tất cả ảnh"), "{text}");
-        for (command, title) in [("app.about", "Giới thiệu LightCraft"), ("app.shortcuts", "Phím tắt"), ("app.settings", "Cài đặt")] {
+        for (command, title) in [("app.about", "Giới thiệu Lightcorf"), ("app.shortcuts", "Phím tắt"), ("app.settings", "Cài đặt")] {
             app.ui.dialog = None;
             app.run(command, serde_json::json!({})).unwrap();
             let text = painted_text(&ctx, &mut app, Locale::Vi);

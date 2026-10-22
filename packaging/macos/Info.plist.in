@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Template: packaging/macos/package.sh substitutes @VERSION@ (full, e.g. 0.2.0-rc.1),
      @SHORT_VERSION@ (numeric X.Y.Z) and @BUILD_SHA@. -->
@@ -7,11 +8,11 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>Lightcraft BW Core Image</string>
+  <string>Lightcorf</string>
   <key>CFBundleName</key>
-  <string>Lightcraft BW Core Image</string>
+  <string>Lightcorf</string>
   <key>CFBundleExecutable</key>
-  <string>LightCraft</string>
+  <string>Lightcorf</string>
   <key>CFBundleIdentifier</key>
   <string>com.diffico.lightcraft.bw.coreimage</string>
   <key>CFBundleInfoDictionaryVersion</key>
@@ -44,7 +45,7 @@
   <!-- Shown by macOS when LightCraft first asks to control Photos (Export > Add to Apple Photos;
        needs the apple-events entitlement in entitlements.plist). -->
   <key>NSAppleEventsUsageDescription</key>
-  <string>LightCraft asks Photos to import the photos you export when you choose Add to Apple Photos in the Export dialog.</string>
+  <string>Lightcorf asks Photos to import the photos you export when you choose Add to Apple Photos in the Export dialog.</string>
   <key>NSHumanReadableCopyright</key>
   <string>Copyright © the LightCraft authors. MIT OR Apache-2.0.</string>
 

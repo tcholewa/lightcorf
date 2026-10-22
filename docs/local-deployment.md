@@ -1,7 +1,7 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (PUB.1: source-fork publication; installed application unchanged)
+> **Last updated:** 2026-10-22 · **Change:** minor (NAME.1: Lightcorf app naming with stable data identity)
 
 
 ## Lightcraft BW Core Image (current installation)
@@ -291,6 +291,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-22 | minor | NAME.1: Lightcorf bundle/executable/window/menu names; stable library and configuration identity |
 | 2026-10-22 | minor | PUB.1: public Lightcorf source publication, separate from the existing installed app |
 | 2026-10-22 | minor | CI.6: install 5922963c with restart-only RAW processor selection; remove obsolete app bundles and preserve personal data |
 | 2026-10-22 | minor | CI.4: install Core Image 0.11.0 from 7e33c3ae; preserve previous bundle, BW app and personal data |
@@ -465,3 +466,20 @@ The `lightcorf` publication branch preserves verified source `377095c2` and its 
 with publication branding, support-link and attribution changes. See [the fork audit](fork-license-audit.md).
 This task does not install another app or alter personal libraries. The installed source remains
 `5922963c`, with deployment record `377095c2`; the fork's source-only publication is separate.
+
+## NAME.1 Lightcorf app naming (2026-10-22)
+
+The macOS package is now `Lightcorf.app`, with executable `Contents/MacOS/Lightcorf`,
+Lightcorf window titles, and matching About/Quit/Hide labels. The bundle identifier remains
+`com.diffico.lightcraft.bw.coreimage`; existing library and settings directories remain unchanged.
+This is a display-name update, not a data migration. Packaging assertions check both names and identity.
+
+Build the signed ARM64 app without creating a DMG or CLI archive:
+
+```sh
+CRAFT_FONTS_DIR="$PWD/craft-fonts" bash packaging/macos/package.sh --arch aarch64 --app-only
+```
+
+The installation target is `~/Applications/Lightcorf.app`. Local installation verification uses
+scratch libraries for both RAW processors and preserves personal data. Older LightCraft/Lightcorf
+app bundles are removed only after the replacement passes native acceptance and signature checks.

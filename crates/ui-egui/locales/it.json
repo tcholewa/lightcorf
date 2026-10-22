@@ -2344,7 +2344,9 @@
   "Loupe Info 1": "Info lente 1",
   "Loupe Info 2": "Info lente 2",
   "Use Defaults": "Usa predefiniti",
-  "Dimensions": "Dimensioni",
   "Camera & Lens": "Fotocamera e obiettivo",
-  "View → View Options chooses the lines Info 1 and Info 2 show.": "Visualizza → Opzioni di visualizzazione sceglie le righe di Info 1 e Info 2."
+  "View → View Options chooses the lines Info 1 and Info 2 show.": "Visualizza → Opzioni di visualizzazione sceglie le righe di Info 1 e Info 2.",
+  "About Lightcorf": "Informazioni su Lightcorf",
+  "Quit Lightcorf": "Esci da Lightcorf",
+  "Hide Lightcorf": "Nascondi Lightcorf"
 }

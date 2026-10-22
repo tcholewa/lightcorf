@@ -52,8 +52,9 @@ Fonts are optional for development; the pinned build input above provides additi
 must accompany any future release with its OFL notices. Platform packaging details remain in
 [the packaging documentation](docs/releasing.md). Automated release publishing is disabled for this fork.
 
-For compatibility, the macOS bundle remains `com.diffico.lightcraft.bw.coreimage`, with the existing
-Lightcraft BW Core Image application and library paths. Internal crate names, CLI names and command
+The local macOS app is named **Lightcorf.app**, with Lightcorf window and menu labels.
+For compatibility, the macOS bundle identifier remains `com.diffico.lightcraft.bw.coreimage`, with the existing
+LightCraft BW Core Image configuration and library paths. Internal crate names, CLI names and command
 IDs remain stable. Catalog format 10 cannot be opened by older builds. Use a separate test library
 when evaluating the app; [local deployment records](docs/local-deployment.md) describe prior testing.
 

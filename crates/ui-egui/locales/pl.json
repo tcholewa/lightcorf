@@ -2269,5 +2269,8 @@
   "SDR Shadows": "Cienie SDR",
   "SDR Whites": "Biele SDR",
   "SDR Clarity": "Przejrzystość SDR",
-  "Face Models on the GPU": "Modele twarzy przetwarzane na GPU"
+  "Face Models on the GPU": "Modele twarzy przetwarzane na GPU",
+  "About Lightcorf": "O Lightcorf",
+  "Quit Lightcorf": "Zamknij Lightcorf",
+  "Hide Lightcorf": "Ukryj Lightcorf"
 }

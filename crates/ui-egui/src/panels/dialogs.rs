@@ -272,7 +272,7 @@ pub fn show(app: &mut LightcraftApp, ctx: &egui::Context) {
         // (nothing to download from in this build: the dialog explains the manual install)
         Dialog::SamModel { .. } if sam_by_hand(&app.session.segmenter) => "Install the SAM 3 Model",
         Dialog::SamModel { .. } => "Download the SAM 3 Model?",
-        Dialog::About => "About LightCraft",
+        Dialog::About => "About Lightcorf",
         Dialog::Shortcuts => "Keyboard Shortcuts",
         Dialog::ViewOptions => "View Options",
     }

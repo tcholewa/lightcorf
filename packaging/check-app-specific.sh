@@ -35,7 +35,9 @@ with open("packaging/macos/Info.plist.in", "rb") as source:
     plist = plistlib.load(source)
 for key, value in {
     "CFBundleIdentifier": "com.diffico.lightcraft.bw.coreimage",
-    "CFBundleExecutable": "LightCraft",
+    "CFBundleExecutable": "Lightcorf",
+    "CFBundleName": "Lightcorf",
+    "CFBundleDisplayName": "Lightcorf",
     "CFBundleIconFile": "LightCraft",
     "LSMinimumSystemVersion": "12.0",
 }.items():

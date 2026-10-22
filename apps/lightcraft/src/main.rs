@@ -929,22 +929,15 @@ fn main() -> eframe::Result {
     let opens_as = prefs.as_ref().and_then(|ui| ui.window).and_then(lightcraft_ui_egui::window_place::WindowPlace::checked);
     let options = eframe::NativeOptions {
         renderer,
-        viewport: as_remembered(
-            egui::ViewportBuilder::default().with_title(if lightcraft_engine::raw_backend::coreimage_edition() {
-                "Lightcraft BW Core Image"
-            } else {
-                "LightCraft"
-            }),
-            opens_as,
-        )
-        .with_min_inner_size(lightcraft_ui_egui::window_place::MIN_SIZE)
-        .with_drag_and_drop(true)
-        .with_fullsize_content_view(true)
-        .with_titlebar_shown(false)
-        .with_title_shown(false)
-        .with_icon(app_icon())
-        // Wayland matches the window to packaging/linux/ai.storyteller.lightcraft.desktop by this id
-        .with_app_id(APP_ID),
+        viewport: as_remembered(egui::ViewportBuilder::default().with_title("Lightcorf"), opens_as)
+            .with_min_inner_size(lightcraft_ui_egui::window_place::MIN_SIZE)
+            .with_drag_and_drop(true)
+            .with_fullsize_content_view(true)
+            .with_titlebar_shown(false)
+            .with_title_shown(false)
+            .with_icon(app_icon())
+            // Wayland matches the window to packaging/linux/ai.storyteller.lightcraft.desktop by this id
+            .with_app_id(APP_ID),
         wgpu_options,
         ..Default::default()
     };
@@ -964,7 +957,7 @@ fn main() -> eframe::Result {
     }
     let started = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         eframe::run_native(
-            "LightCraft",
+            "Lightcorf",
             options,
             Box::new(move |cc| {
                 // the window's renderer is up (eframe calls this after creating it)
