@@ -1,7 +1,7 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-22 · **Change:** minor (NAME.2: renamed app installed and obsolete builds removed)
+> **Last updated:** 2026-10-23 · **Change:** minor (CLEAN.1: remove temporary build output and staged binaries)
 
 
 ## Lightcorf (current installation)
@@ -16,6 +16,10 @@ The records below describe earlier deployments. NAME.2 supersedes their installe
 statements: obsolete installed, staged and backup app bundles were removed at the user's request.
 Their libraries, settings, source branches and verification evidence remain. Catalog format 10 used
 by the current app cannot be opened by older builds.
+
+[CLEAN.1](#clean1-build-artifact-cleanup-2026-10-23) supersedes earlier statements that the current
+staging bundle or compiler output remains available. Rebuild from source when needed; the installed
+app and CLI remain independent of these generated directories.
 
 Initial installation at `~/Applications/Lightcraft BW Core Image.app` used source `0139d009` on
 `feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
@@ -291,6 +295,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-23 | minor | CLEAN.1: remove debug/release/cross-target caches, staged package binaries and temporary caches; retain installed software, data and verification evidence |
 | 2026-10-22 | minor | NAME.2: installed renamed ARM64 app, verified both RAW processors, removed two old bundles and 13 installer archives |
 | 2026-10-22 | minor | NAME.1: Lightcorf bundle/executable/window/menu names; stable library and configuration identity |
 | 2026-10-22 | minor | PUB.1: public Lightcorf source publication, separate from the existing installed app |
@@ -506,3 +511,21 @@ Evidence: `target/install-lightcorf-20261022/` contains source CI/build logs, in
 hashes, native acceptance/screenshots and removal manifests. Full `cargo xtask ci` passed
 for both the source rename and deployment record (22 explicit optional-data/model/font skips).
 No GitHub binary release or push was requested.
+
+## CLEAN.1 build artifact cleanup (2026-10-23)
+
+Removed **159.5 GiB** of allocated build output, reducing the workspace from about 165 GiB to
+5.5 GiB. This includes the repository's Cargo debug, release, ARM64 and WASM output, the macOS staging bundle,
+obsolete package/staging CLI binaries, Python bytecode caches, empty release directories and Finder
+metadata, plus the temporary publication-audit Python environment. Historical acceptance records,
+scripts, screenshots, benchmark history and scratch-library backups remain under `target/`.
+
+The installed `~/Applications/Lightcorf.app`, installed PR1162 CLI, `_orfs`, CC0 corpus, pinned
+craft-fonts and saved AI plan are retained. Cleanup uses an explicit untracked-path list, with
+before/after hashes for these protected inputs and installed binaries: all **200 protected files**
+are byte-identical. Libraries and settings outside the repository were not cleanup targets. The
+remaining `target/` evidence occupies about 1.4 GiB.
+
+All eight gates of `cargo +1.95.0 xtask ci` passed before removing its generated build output,
+with 22 explicit optional-data/model/font skips. The cleanup manifest and CI log are retained in
+`target/cleanup-20261023/`; `target/ci/` retains the gate report.
