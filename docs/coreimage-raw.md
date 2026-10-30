@@ -1,7 +1,7 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Lightcraft BW Core Image (experimental macOS branch)
 
-Last updated: 2026-10-22. Task: CI.5. Branch: `feature/raw-processor-setting`.
+Last updated: 2026-10-30. Task: SYNC.4. Branch: `lightcorf`.
 
 This branch defaults to Apple's CIRAWFilter (macOS 12+) and offers LightCraft Native (Rust) in
 Settings → Performance → RAW processing.
@@ -95,7 +95,20 @@ include recipe, decoder and OS build. On an OS/recipe change RAW records are re-
 previously supported records; settings/history are kept. Reopening an old library in this branch can
 change its RAW appearance: use the isolated library, not the existing BW library.
 
-## Upstream 0.11.0 integration
+## Upstream 0.15.0 integration
+
+SYNC.4 integrates upstream main `77c0a6ad` (2026-10-30). The RAW hooks, sensor capability
+guards, preview provenance and import defaults now live in upstream's smaller engine modules.
+The Settings selector and grain controls use egui 0.37. Render cache version 72 invalidates
+thumbnails from both parents; smart-preview encoding remains 4 and catalog format remains 10.
+The source-only fork cannot install official LightCraft releases through the new upstream updater.
+Builds require Rust 1.95 and use craft-fonts `b076417b`.
+
+The merge-preview UI regression runs its generated DNGs in an isolated Native-processor
+process on macOS, including the zoom and pan assertions. Core Image's rejection of generated
+linear DNGs remains a documented limitation; validation still prevents saving an unreadable result.
+
+### Previous 0.11.0 integration
 
 This branch integrates upstream main `31ee2643` with the existing Core Image recipe, ORF decoder,
 Tri-X/advanced grain controls and import sharpening 15. Upstream background reload keeps backend
@@ -167,11 +180,11 @@ assets and WASM). There were 22 explicit optional-data skips, including the miss
 none of the seven supplied-file or GPU acceptance checks skipped.
 Native graphics tests need a normal macOS graphics session; the build sandbox may deny CIContext creation.
 
-The bundle is `Lightcraft BW Core Image.app`, identifier `com.diffico.lightcraft.bw.coreimage`.
+The bundle is now `Lightcorf.app`, identifier `com.diffico.lightcraft.bw.coreimage`.
 Defaults are `~/Pictures/LightCraft BW Core Image Library` and
 `~/Library/Application Support/LightCraft BW Core Image`. Explicit command-line/environment overrides
-still work. Installation is side by side at `~/Applications/Lightcraft BW Core Image.app`; the existing
-BW app, configuration and library must remain unchanged.
+still work. The current installation is `~/Applications/Lightcorf.app`; the configuration and library
+paths remain stable across the rename. See [local deployment](local-deployment.md) for version and staging details.
 
 API references: Apple documents [baseline exposure zero as linear response](https://developer.apple.com/documentation/coreimage/cirawfilter/baselineexposure) and [EDR amount 1 as its default EDR](https://developer.apple.com/documentation/coreimage/cirawfilter/extendeddynamicrangeamount).
 
@@ -207,6 +220,7 @@ The verified installation, independent defaults and preserved BW files are recor
 
 | Date | Task | Change |
 |---|---|---|
+| 2026-10-30 | SYNC.4 | Upstream 0.15.0/egui 0.37 integration, moved module hooks, cache version 72 and fork-only update guidance |
 | 2026-10-22 | CI.5 | Restart-only processor preference, metadata/cache isolation, preserved edits/reset defaults and native sharpening 15 |
 | 2026-10-21 | CI.2 | Installed release acceptance, separate defaults, preserved BW and measured performance |
 | 2026-10-21 | CI.1 | Strict isolated Apple RAW backend, local camera corpus and separate macOS identity |

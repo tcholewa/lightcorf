@@ -3,7 +3,7 @@
 
 > **Core Image branch (2026-10-22):** macOS offers Apple Core Image (default) or LightCraft Native in Settings → Performance after restart. Existing Rust camera-coverage figures describe Native processing; native camera results and capability limits are tracked in [Core Image RAW](coreimage-raw.md). No new parity claim is made by substituting the backend.
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-22 · **Change:** minor (CI.5: restart-only RAW processor selection) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-30 · **Change:** minor (SYNC.4: integrate upstream 0.15.0; preserve fork behavior and update module references) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 How LightCraft is built today. The longer design document (`plan/architecture.md`) is local-only
 (`plan/` is gitignored); this page is the committed, current summary. Sizes are Rust lines counted
@@ -23,6 +23,11 @@ L5 depends on egui, eframe, winit or rfd, and that each crate only uses lower la
 | L4 | `engine` (53.2k) | Session, command registry (everything is a command), history, render and export jobs, import, Lightroom catalog and preset import, faces index, view-models |
 | L5 | `ui-egui` (46.9k), `mcp` (2.3k) | The Lightroom-style egui interface (swappable); the MCP server |
 | L6 | `apps/lightcraft` (2.8k), `apps/lightcraft-cli` (1.5k), `apps/lightcraft-web` (3.4k), `xtask` (3.4k), `testkit` (0.2k, dev-dependency only) | Desktop app (eframe + wgpu, native menus, control server), CLI (render, commands, calibrate, snapshot, MCP), WASM build, tooling; test helpers (skips the CI report lists) |
+
+The fork adds L1 `raw-backend` (safe worker protocol/client) and `raw-coreimage` (isolated
+Apple FFI), with `apps/raw-worker` as the supervised executable. The engine selects a processor
+once per process and carries its provenance through catalog metadata, smart previews and caches.
+Engine, UI and desktop modules follow the upstream 0.15.0 split; the interface uses egui 0.37.
 
 ## Data model
 
@@ -66,6 +71,16 @@ dispatch by id, and headless snapshots render the UI without a window.
 `assets` (every asset attributed, no Adobe formats) and the WASM build. Other workflows build and
 test FreeBSD and Windows ARM64, lint packaging, and build releases.
 
+The tests run under `cargo test --workspace --lib --bins --tests`, or `cargo nextest run` with the
+same targets when `LIGHTCRAFT_NEXTEST=1` is set and cargo-nextest is installed; doctests run after
+them with `cargo test --workspace --doc`. `cargo test` is the default because the demo library's
+generated scenes are cached per process, and nextest's process per test regenerates them.
+Examples are left out of the test build (clippy `--all-targets` still
+checks them). Each crate links its integration tests into one binary, `tests/it/main.rs` with one
+module per file (`cargo test -p <crate> --test it <module>::`); a test that changes state for its
+whole process (a global allocator, closing the GPU) keeps a binary of its own in `tests/`. The WASM
+build is one `cargo check --target wasm32-unknown-unknown --keep-going` over the wasm-safe crates.
+
 `ci` also probes the machine: OS, CPUs, RAM, the GPU adapters of each backend (from the ignored
 `gpu_probe` test of `lightcraft-gpu`, run after the workspace tests so it reuses their build; xtask
 has no wgpu), the corpus and `CRAFT_FONTS_DIR`. Tests
@@ -80,7 +95,9 @@ the `lightcraft-gpu` tests once per backend with a hardware adapter (`LIGHTCRAFT
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-30 | minor | SYNC.4: upstream `77c0a6ad` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
 | 2026-10-22 | minor | CI.5: macOS RAW processor selection after restart; preserve edits/reset defaults and isolate caches; coverage and readiness counts unchanged |
 | 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
+| 2026-10-23 | minor | Quality gates: one integration-test binary per crate, doctests apart, nextest on request, one WASM check |
 | 2026-10-11 | minor | Quality gates: the CI machine probe, visible skips (`testkit`) and `target/ci/report.json` |
 | 2026-10-10 | major | Created from the code (crate sizes, layers, data model, rendering, control, gates) |

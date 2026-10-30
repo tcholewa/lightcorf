@@ -1,6 +1,6 @@
 # Lightcorf source publication licence audit
 
-**Last updated:** 2026-10-22 · **Task:** PUB.1 · **Scope:** source publication, not a binary release.
+**Last updated:** 2026-10-30 · **Task:** PUB.1 / SYNC.4 · **Scope:** source publication, not a binary release.
 
 ## Conclusion and baseline
 
@@ -14,8 +14,11 @@ provenance, patent clearance, or permission to distribute every optional model o
 - Verified local history: `377095c2e2867f3853c9134bc067886d20997aa5`.
 - Publication branch: `lightcorf`, in `tcholewa/lightcorf`, an independent fork of `storytold/lightcraft`.
 - All existing local ancestry, author emails and deployment records are retained at the owner's request.
-- Newer upstream changes are not merged into this publication branch. The fork's separate `main`
-  is the snapshot GitHub creates from upstream; it is not this fork's supported branch.
+- SYNC.4 integrates upstream `77c0a6ad` (0.15.0) into `lightcorf`, retaining the publication and
+  local installation history. The fork's separate `main` remains GitHub's upstream snapshot.
+- The 2026-10-22 provenance assessment below remains scoped to its stated baseline. The update
+  retains the upstream licence texts and current NOTICE, the fork addendum and component exceptions;
+  no restricted ArtCraft marks are restored. Updated dependencies remain pinned by Cargo.lock.
 
 ## Preserved terms
 
@@ -119,4 +122,5 @@ only. No upstream PR, release tag, binary asset or backup branch is part of this
 
 | Date | Task | Change |
 |---|---|---|
+| 2026-10-30 | SYNC.4 | Preserve current upstream NOTICE/licence texts, fork addendum and branding exclusions during the 0.15.0 merge; original audit scope retained |
 | 2026-10-22 | PUB.1 | Initial source-fork audit, preserved code licensing and attribution, branding cleanup and explicit dependency qualification |

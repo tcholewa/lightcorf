@@ -3,7 +3,7 @@
 
 > **Core Image branch (2026-10-22):** macOS offers Apple Core Image (default) or LightCraft Native in Settings → Performance after restart. Existing Rust camera-coverage figures describe Native processing; native camera results and capability limits are tracked in [Core Image RAW](docs/coreimage-raw.md). No new parity claim is made by substituting the backend.
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-22 · **Change:** minor (CI.5: restart-only RAW processor selection; parity counts unchanged) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-30 · **Change:** minor (SYNC.4: integrate upstream 0.15.0; preserve fork behavior and update module references) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 One-page summary of how close LightCraft is to Adobe Lightroom. Agents: read this, then pick work
 from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are in
@@ -13,7 +13,7 @@ from [docs/gaps.md](docs/gaps.md). The full assessment, method and evidence are 
 
 | | Value | Kind |
 |---|---:|---|
-| **Feature breadth** (checklist) | **83.0%** of 542 rows (P0 98.0%, P1 94.7%, P2 55.1%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
+| **Feature breadth** (checklist) | **83.0%** of 543 rows (P0 98.0%, P1 94.1%, P2 55.6%) | measured: [parity-checklist.md](docs/parity-checklist.md) recount |
 | **Feature breadth** (weighted by use) | **~77%** | estimated |
 | **Ready for real work** (full target) | **~62%** (57–67%) | estimated: weighted sum over the dimensions |
 | **Mainstream practitioner** | **~51%** (46–56%) | estimated |
@@ -32,7 +32,7 @@ Each audience with its own hours (Opus 5.5 agent wall-clock hours to ~95%):
 The gap between breadth and readiness is quality and coverage, not missing buttons: camera colour is
 estimated rather than measured, CR3 decodes on 26 verified Canon bodies (rarer CRX variants still open as previews), Olympus / OM lossless ORF decodes sensor data, while HE NEF
 opens as previews, rendering is tuned by eye, AI masks are heuristics, there is no lens database, and
-tests run in CI on FreeBSD only. **Why alpha:** core workflows run end to end, but readiness is below
+tests run in CI on Linux x64 and FreeBSD. **Why alpha:** core workflows run end to end, but readiness is below
 the ~75% beta bar (it is above the ~40% alpha bar) and Lightroom's main inputs, raw files, still have blocking gaps (HE NEF opens as previews; Canon,
 ~30% of raw users, decodes CR3 on 26 verified bodies). It passes the alpha gate: all six core workflows
 (import, cull, develop, save and reopen, batch looks, export) work end to end on macOS
@@ -124,6 +124,11 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
   258 models verified, 167 preview-only; use-weighted raw coverage ~87%, decoding readiness 78%,
   RAW readiness ~57%, mainstream ~50%. Compressed ORF beta blocker closed.
 
+- 2026-10-22: Print page setup and PDF output gain the Japanese photo and postcard papers — L判
+  (89 × 127 mm), 2L判 (127 × 178), KG判 (102 × 152), はがき (100 × 148), 往復はがき (148 × 200),
+  六切 (203 × 254), 四切 (254 × 305) and 名刺 (55 × 91) — at their exact metric sizes. The Print dialog
+  and `print.set` take their customary names, and names are matched case-, space- and
+  punctuation-insensitively (`L判`, `l`, `L-size` are one paper).
 - 2026-10-14: Camera-coverage sweep verifies 30 more models on 40 CC0 files, with file and sensor
   hashes pinned (`docs/raw/coverage.py`: 515 → 545 verified). Eleven candidates excluded after rechecking
   identity, provenance and camera-image agreement. Phone and drone DNG tone differences remain tracked in #1277.
@@ -131,7 +136,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
   RGGB and GBRG, as-shot WB from `WBG`); DiMAGE 7, 7Hi, A1, A2, A200 and Dynax / Maxxum 7D verified on
   CC0 files. 551 models verified, 201 preview-only; headline numbers unchanged.
 - 2026-10-14: 97 Canon CR2, Pentax and Ricoh models verified, one CC0 raw.pixls.us file each pinned and
-  checked against the camera JPEG (`crates/raw/tests/canon_pentax_corpus.rs`). 334 models verified, ~50% of
+  checked against the camera JPEG (`crates/raw/tests/it/canon_pentax_corpus.rs`). 334 models verified, ~50% of
   photographers on a verified body; headline numbers unchanged.
 - 2026-10-12: Mamiya MEF (ZD) decodes from sensor data and is imported; verified on a CC0 file. 241 models
   verified, 35 unsupported; headline numbers unchanged.
@@ -145,7 +150,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
   decode. The EOS R6 Mark III gets its as-shot white balance (`ColorData` 66). 259 models verified; RAW
   decoding 77% → 83%; mainstream ~49% → ~51%, essentials ~64% → ~65%, full ~61%.
 - 2026-10-12: 117 Nikon and Fujifilm bodies verified, one CC0 raw.pixls.us file each pinned and checked
-  against the camera JPEG (`crates/raw/tests/body_corpus.rs`); the sweep found COOLPIX 5700 / 8400 / 8800
+  against the camera JPEG (`crates/raw/tests/it/body_corpus.rs`); the sweep found COOLPIX 5700 / 8400 / 8800
   decoding wrongly. 354 models verified, ~58% of photographers on a verified body; headline numbers unchanged.
 - 2026-10-11: Canon EOS R5 Mark II C-RAW decodes from sensor data (57% of its files opened as a
   preview): the CRX QP map's first-symbol literal and limited-length escape; four CC0 R5 Mark II files
@@ -196,6 +201,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-30 | minor | SYNC.4: upstream `77c0a6ad` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
 | 2026-10-22 | minor | CI.5: macOS RAW processor selection after restart; preserve edits/reset defaults and isolate caches; coverage and readiness counts unchanged |
 | 2026-10-22 | minor | SYNC.3: integrate upstream main `31ee2643` (0.11.0) with Core Image, ORF, advanced grain, Tri-X and sharpening 15; combined Rust coverage 571 verified, 694 unverified, 144 preview-only, 37 unsupported; native Apple qualification remains separate |
 | 2026-10-21 | minor | CI.3: new Core Image imports sharpen at 15; Radius/Detail renderer gaps downgrade Sharpening to partial, breadth 82.7%, P0 98.0%; readiness unchanged |
@@ -204,6 +210,7 @@ Ranked toward beta; detail in [docs/roadmap.md](docs/roadmap.md), gaps in [docs/
 | 2026-10-16 | minor | SYNC.1: integrate upstream main 0da998f2 while preserving PR1162, advanced grain and Tri-X; combined coverage 565 verified models, 96% use-weighted decoding |
 | 2026-10-12 | minor | GRAIN.1: ISO-inspired profiles and opt-in advanced grain; Grain marked partial because stock/Lightroom fidelity is unmeasured; breadth 81.5%, P1 94.9%, readiness unchanged |
 | 2026-10-12 | minor | Compressed ORF: 23 exact sensor references including PEN E-PL7; 258 models verified, use-weighted coverage 87%, RAW decoding 78%, RAW readiness 57%, mainstream 50%; beta blocker closed |
+| 2026-10-22 | minor | Print: Japanese photo and postcard paper sizes (L判, 2L判, KG判, はがき, 往復はがき, 六切, 四切, 名刺) in the page setup, Print dialog and PDF output; headline numbers unchanged |
 | 2026-10-19 | minor | Indonesian interface (`id`): every plain and formats message, plus 69 command labels, locale, menu command and tests; What's New left in English; Localization ~55% → ~64% (mean of the 12 key languages), 8 of 12 present |
 | 2026-10-12 | minor | Italian interface (`it`, #1192): 2,201 of 2,398 messages, locale, menu command and tests; headline numbers unchanged |
 | 2026-10-13 | minor | Sony ILCA-99M2 camera colour profile in the log; numbers unchanged |

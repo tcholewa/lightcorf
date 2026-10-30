@@ -119,7 +119,7 @@ def main():
     classes = ["verified", "unverified", "preview", "unsupported"]
     by_maker = {}
     for r in rows:
-        by_maker.setdefault(r["maker"], {c: 0 for c in classes})[r["class"]] += 1
+        by_maker.setdefault(r["maker"], dict.fromkeys(classes, 0))[r["class"]] += 1
     print("| Maker | Adobe models | verified | unverified | preview | unsupported |")
     print("|---|---:|---:|---:|---:|---:|")
     for m, c in sorted(by_maker.items(), key=lambda kv: -sum(kv[1].values())):

@@ -1,8 +1,29 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-23 · **Change:** minor (CLEAN.1: remove temporary build output and staged binaries)
+> **Last updated:** 2026-10-30 · **Change:** minor (SYNC.4: integrate upstream 0.15.0 and prepare the next local update)
 
+
+## SYNC.4 source update (2026-10-30)
+
+Upstream main `77c0a6ad` (0.15.0, 632 commits since `31ee2643`) is integrated into
+`lightcorf`, preserving the three previously unpushed local commits and all earlier fork history.
+Recovery branch: `backup/lightcorf-before-update-20261030` at `ec3af76e`.
+
+Core Image/Native selection, ORF/ORI decoding, Tri-X, advanced grain, sharpening 15, saved
+Reset baselines and backend-specific caches survive upstream's module split and egui 0.37
+migration. Render cache version 72 invalidates both parents' cached output; smart-preview
+encoding 4 and catalog format 10 are retained. Help → Check for Updates explains source
+builds and links to Lightcorf; the official LightCraft updater is not included.
+
+Build inputs: Rust 1.95, pinned Cargo.lock, ARM64 macOS, HEIF, and craft-fonts
+`b076417b5880bd4154bd22f00695b1d28c6bea83`. Existing installed software and personal data
+are kept intact; acceptance uses a fresh scratch library and settings directory.
+Evidence and preservation hashes live in `target/upstream-sync-20261030/`.
+All eight source CI gates passed, with 21 explicit optional corpus/model/font skips.
+The seven supplied Core Image samples, ORF checks, processor restart tests and CPU/GPU
+grain checks ran. Packaging identity, workflow YAML, WiX XML and RAW coverage checks passed.
+All 2,814 preservation hashes match. Packaging and staged native acceptance follow the source commit.
 
 ## Lightcorf (current installation)
 
@@ -295,6 +316,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-30 | minor | SYNC.4: upstream 0.15.0 integration, fork feature preservation, current fonts and update preparation; installed app remains 0.11.0 |
 | 2026-10-23 | minor | CLEAN.1: remove debug/release/cross-target caches, staged package binaries and temporary caches; retain installed software, data and verification evidence |
 | 2026-10-22 | minor | NAME.2: installed renamed ARM64 app, verified both RAW processors, removed two old bundles and 13 installer archives |
 | 2026-10-22 | minor | NAME.1: Lightcorf bundle/executable/window/menu names; stable library and configuration identity |
