@@ -304,7 +304,7 @@ P2 items 12–25 h; look tuning, performance, packaging, hardening 25–45 h.
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-30 | minor | SYNC.4: upstream `77c0a6ad` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
+| 2026-10-30 | minor | SYNC.4: upstream `445dd310` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
 | 2026-10-22 | minor | CI.5: macOS RAW processor selection after restart; preserve edits/reset defaults and isolate caches; coverage and readiness counts unchanged |
 | 2026-10-12 | minor | Epson ERF decoded (raw-parity.md): 240 models verified, 229 preview-only; shares and rounded numbers unchanged |
 | 2026-10-12 | minor | Mamiya MEF decoded (raw-parity.md): 241 verified, 35 unsupported; rounded numbers unchanged |

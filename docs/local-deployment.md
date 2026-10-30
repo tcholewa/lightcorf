@@ -6,7 +6,7 @@
 
 ## SYNC.4 source update (2026-10-30)
 
-Upstream main `77c0a6ad` (0.15.0, 632 commits since `31ee2643`) is integrated into
+Upstream main `445dd310` (0.15.0, 635 commits since `31ee2643`) is integrated into
 `lightcorf`, preserving the three previously unpushed local commits and all earlier fork history.
 Recovery branch: `backup/lightcorf-before-update-20261030` at `ec3af76e`.
 
@@ -20,7 +20,10 @@ Build inputs: Rust 1.95, pinned Cargo.lock, ARM64 macOS, HEIF, and craft-fonts
 `b076417b5880bd4154bd22f00695b1d28c6bea83`. Existing installed software and personal data
 are kept intact; acceptance uses a fresh scratch library and settings directory.
 Evidence and preservation hashes live in `target/upstream-sync-20261030/`.
-All eight source CI gates passed, with 21 explicit optional corpus/model/font skips.
+The first integration (`655f1eb4`, upstream `77c0a6ad`) passed all eight source CI gates,
+with 21 explicit optional corpus/model/font skips. Three later upstream commits add
+zip/webpki dependency updates and shared CI policy; Lightcorf retains source-only updates.
+The final source also passed all eight CI gates with the same 21 optional skips before packaging.
 The seven supplied Core Image samples, ORF checks, processor restart tests and CPU/GPU
 grain checks ran. Packaging identity, workflow YAML, WiX XML and RAW coverage checks passed.
 All 2,814 preservation hashes match. Packaging and staged native acceptance follow the source commit.

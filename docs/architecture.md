@@ -95,7 +95,7 @@ the `lightcraft-gpu` tests once per backend with a hardware adapter (`LIGHTCRAFT
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-30 | minor | SYNC.4: upstream `77c0a6ad` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
+| 2026-10-30 | minor | SYNC.4: upstream `445dd310` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
 | 2026-10-22 | minor | CI.5: macOS RAW processor selection after restart; preserve edits/reset defaults and isolate caches; coverage and readiness counts unchanged |
 | 2026-10-21 | minor | CI.1: document experimental macOS Core Image backend and sensor-tool limitations; Rust coverage is scoped to other platforms |
 | 2026-10-23 | minor | Quality gates: one integration-test binary per crate, doctests apart, nextest on request, one WASM check |

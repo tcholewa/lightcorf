@@ -303,7 +303,7 @@ Beyond decoding:
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-30 | minor | SYNC.4: upstream `77c0a6ad` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
+| 2026-10-30 | minor | SYNC.4: upstream `445dd310` (0.15.0), egui 0.37 and reorganized modules; retain Core Image/Native switching, ORF, advanced grain, Tri-X and sharpening 15; source-only fork updates; readiness not reassessed |
 | 2026-10-12 | minor | Epson ERF decoded (`vendor/erf.rs`): R-D1, R-D1s, R-D1x verified; 240 verified, 229 preview (merged after the Leica Q3 and Hasselblad Lunar; duplicated summary rows removed) |
 | 2026-10-12 | minor | Mamiya MEF decoded (`vendor/mef.rs`): ZD verified; 241 verified, 35 unsupported |
 | 2026-10-22 | minor | SYNC.3: integrate upstream main `31ee2643` (0.11.0) with Core Image, ORF, advanced grain, Tri-X and sharpening 15; combined Rust coverage 571 verified, 694 unverified, 144 preview-only, 37 unsupported; native Apple qualification remains separate |

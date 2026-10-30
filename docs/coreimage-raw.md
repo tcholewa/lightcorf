@@ -97,7 +97,7 @@ change its RAW appearance: use the isolated library, not the existing BW library
 
 ## Upstream 0.15.0 integration
 
-SYNC.4 integrates upstream main `77c0a6ad` (2026-10-30). The RAW hooks, sensor capability
+SYNC.4 integrates upstream main `445dd310` (2026-10-30). The RAW hooks, sensor capability
 guards, preview provenance and import defaults now live in upstream's smaller engine modules.
 The Settings selector and grain controls use egui 0.37. Render cache version 72 invalidates
 thumbnails from both parents; smart-preview encoding remains 4 and catalog format remains 10.

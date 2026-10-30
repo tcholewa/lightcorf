@@ -16,7 +16,7 @@ by [@tcholewa](https://github.com/tcholewa); it is not an official ArtCraft buil
   Choose the processor under **Settings → Performance → RAW processing**, then restart.
 - Sharpening **15** for new RAW imports on macOS. Existing edits and Reset baselines are preserved.
 
-The current source integrates upstream **0.15.0**, main `77c0a6ad` (2026-10-30), with the fork changes retained.
+The current source integrates upstream **0.15.0**, main `445dd310` (2026-10-30), with the fork changes retained.
 The original publication baseline was verified source `377095c2`, built on upstream `31ee2643`.
 The default branch is `lightcorf`; the fork's `main` branch is the upstream snapshot created by GitHub.
 Local development history and original authorship are retained. Publication changes cover branding,

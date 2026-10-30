@@ -14,7 +14,7 @@ provenance, patent clearance, or permission to distribute every optional model o
 - Verified local history: `377095c2e2867f3853c9134bc067886d20997aa5`.
 - Publication branch: `lightcorf`, in `tcholewa/lightcorf`, an independent fork of `storytold/lightcraft`.
 - All existing local ancestry, author emails and deployment records are retained at the owner's request.
-- SYNC.4 integrates upstream `77c0a6ad` (0.15.0) into `lightcorf`, retaining the publication and
+- SYNC.4 integrates upstream `445dd310` (0.15.0) into `lightcorf`, retaining the publication and
   local installation history. The fork's separate `main` remains GitHub's upstream snapshot.
 - The 2026-10-22 provenance assessment below remains scoped to its stated baseline. The update
   retains the upstream licence texts and current NOTICE, the fork addendum and component exceptions;
