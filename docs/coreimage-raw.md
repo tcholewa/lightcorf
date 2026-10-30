@@ -108,6 +108,14 @@ The merge-preview UI regression runs its generated DNGs in an isolated Native-pr
 process on macOS, including the zoom and pan assertions. Core Image's rejection of generated
 linear DNGs remains a documented limitation; validation still prevents saving an unreadable result.
 
+The 0.15.0 ARM64 release at `6f303fad` passed all eight CI gates and staged native acceptance
+with all seven supplied samples. Core Image → Native → Core Image preserved saved edits,
+history, versions, virtual copies and Reset 15; JPEG/PNG exports passed, and the Core Image
+PNG round trip is byte-identical. Metal stayed active without fallback and screenshots were
+inspected. The signed app is prepared, while the installed 0.11.0 app and personal data remain
+unchanged. See [the deployment record](local-deployment.md#prepared-0150-update) for artifacts,
+rollback, verification and acceptance timing; original E-M10 qualification remains pending.
+
 ### Previous 0.11.0 integration
 
 This branch integrates upstream main `31ee2643` with the existing Core Image recipe, ORF decoder,
@@ -220,7 +228,7 @@ The verified installation, independent defaults and preserved BW files are recor
 
 | Date | Task | Change |
 |---|---|---|
-| 2026-10-30 | SYNC.4 | Upstream 0.15.0/egui 0.37 integration, moved module hooks, cache version 72 and fork-only update guidance |
+| 2026-10-30 | SYNC.4 | Upstream 0.15.0/egui 0.37 integration, moved module hooks, cache version 72, fork-only update guidance and verified staged release |
 | 2026-10-22 | CI.5 | Restart-only processor preference, metadata/cache isolation, preserved edits/reset defaults and native sharpening 15 |
 | 2026-10-21 | CI.2 | Installed release acceptance, separate defaults, preserved BW and measured performance |
 | 2026-10-21 | CI.1 | Strict isolated Apple RAW backend, local camera corpus and separate macOS identity |

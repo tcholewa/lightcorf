@@ -26,7 +26,41 @@ zip/webpki dependency updates and shared CI policy; Lightcorf retains source-onl
 The final source also passed all eight CI gates with the same 21 optional skips before packaging.
 The seven supplied Core Image samples, ORF checks, processor restart tests and CPU/GPU
 grain checks ran. Packaging identity, workflow YAML, WiX XML and RAW coverage checks passed.
-All 2,814 preservation hashes match. Packaging and staged native acceptance follow the source commit.
+All 2,814 preservation hashes match.
+
+### Prepared 0.15.0 update
+
+The ARM64 release was built from `6f303fadd54aac7c0b0e3317ae2d5dc50b51a13d`, after both
+upstream merges passed CI. The app and isolated RAW helper pass strict ad-hoc signature checks;
+all required font licences are bundled. This is a local Mac build, not a notarized release.
+The CLI reports 0.15.0. Nothing has been installed over 0.11.0.
+
+| Artifact | Location |
+|---|---|
+| Ready app | `target/macos-package/Lightcorf.app` |
+| Verified archive | `target/upstream-sync-20261030/Lightcorf-0.15.0-arm64.zip` |
+| Installed 0.11.0 rollback copy | `target/upstream-sync-20261030/rollback/Lightcorf-0.11.0.app-backup` |
+| Build, signature, file hashes and acceptance evidence | `target/upstream-sync-20261030/` |
+
+The archive's 24 bundle files match the staged app. Its SHA-256 is
+`90fd335a36b980ced60fda5b0de777532fec95ceed971a6917927f3286f0d2b2`.
+The rollback copy matches the installed bundle's files and passes strict signature verification.
+
+Staged native acceptance passed Core Image → Native → Core Image across three launches,
+using all seven supplied camera files in an isolated library. Tri-X, explicit sharpening 45,
+Reset to 15, undo, virtual copies, saved edits/history/versions, processor selection/cancellation,
+and JPEG/PNG exports passed. The two Core Image PNG exports are byte-identical. About, photo,
+processor-settings and update-guidance screenshots were inspected; no headless fallback or panic
+occurred. Metal remained active without a GPU fallback, with no queued or in-flight renders.
+The final recorded Core Image render was 51.4 ms and UI update 2.15 ms; Native was 32.1 ms
+and 3.10 ms. These are acceptance-run samples, not a controlled performance comparison.
+The test app is closed, and all 2,814 installed-app/personal-data/sample/plan hashes remain unchanged.
+
+For the later installation, quit Lightcorf, preserve the current catalog/preferences, verify the
+prepared bundle and rollback signatures, then replace `~/Applications/Lightcorf.app`. Retain bundle
+ID `com.diffico.lightcraft.bw.coreimage` and the existing `LightCraft BW Core Image` data paths.
+Verify the installed copy and repeat acceptance in a scratch library before opening personal data.
+The app replacement and installed-copy acceptance are not part of this preparation record.
 
 ## Lightcorf (current installation)
 
@@ -41,9 +75,10 @@ statements: obsolete installed, staged and backup app bundles were removed at th
 Their libraries, settings, source branches and verification evidence remain. Catalog format 10 used
 by the current app cannot be opened by older builds.
 
-[CLEAN.1](#clean1-build-artifact-cleanup-2026-10-23) supersedes earlier statements that the current
+[CLEAN.1](#clean1-build-artifact-cleanup-2026-10-23) supersedes earlier statements that the 0.11.0
 staging bundle or compiler output remains available. Rebuild from source when needed; the installed
-app and CLI remain independent of these generated directories.
+app and CLI remain independent of these generated directories. SYNC.4 above provides the new
+0.15.0 staged bundle and a fresh rollback copy of the installed app.
 
 Initial installation at `~/Applications/Lightcraft BW Core Image.app` used source `0139d009` on
 `feature/macos-coreimage-raw`. The bundle identifier is `com.diffico.lightcraft.bw.coreimage`;
@@ -319,7 +354,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-30 | minor | SYNC.4: upstream 0.15.0 integration, fork feature preservation, current fonts and update preparation; installed app remains 0.11.0 |
+| 2026-10-30 | minor | SYNC.4: upstream 0.15.0 integration, green source CI, signed ARM64 bundle/archive, native processor-restart acceptance and rollback preparation; installed app remains 0.11.0 |
 | 2026-10-23 | minor | CLEAN.1: remove debug/release/cross-target caches, staged package binaries and temporary caches; retain installed software, data and verification evidence |
 | 2026-10-22 | minor | NAME.2: installed renamed ARM64 app, verified both RAW processors, removed two old bundles and 13 installer archives |
 | 2026-10-22 | minor | NAME.1: Lightcorf bundle/executable/window/menu names; stable library and configuration identity |
