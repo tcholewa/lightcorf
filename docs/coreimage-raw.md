@@ -1,7 +1,7 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Lightcraft BW Core Image (experimental macOS branch)
 
-Last updated: 2026-10-30. Task: SYNC.4. Branch: `lightcorf`.
+Last updated: 2026-10-31. Task: SYNC.4 / INSTALL.1. Branch: `lightcorf`.
 
 This branch defaults to Apple's CIRAWFilter (macOS 12+) and offers LightCraft Native (Rust) in
 Settings → Performance → RAW processing.
@@ -112,9 +112,11 @@ The 0.15.0 ARM64 release at `6f303fad` passed all eight CI gates and staged nati
 with all seven supplied samples. Core Image → Native → Core Image preserved saved edits,
 history, versions, virtual copies and Reset 15; JPEG/PNG exports passed, and the Core Image
 PNG round trip is byte-identical. Metal stayed active without fallback and screenshots were
-inspected. The signed app is prepared, while the installed 0.11.0 app and personal data remain
-unchanged. See [the deployment record](local-deployment.md#prepared-0150-update) for artifacts,
-rollback, verification and acceptance timing; original E-M10 qualification remains pending.
+inspected. INSTALL.1 replaced the installed 0.11.0 app with this verified 0.15.0 build on
+2026-10-31. Installed native acceptance passed, all 24 exports matched the staged results,
+and all 2,798 personal-data/sample/plan file hashes were unchanged. The previous app and fresh
+library/settings backups are retained. See [the deployment record](local-deployment.md#install1--current-lightcorf-installation-2026-10-31)
+for rollback, verification and acceptance timing; original E-M10 qualification remains pending.
 
 ### Previous 0.11.0 integration
 
@@ -228,6 +230,7 @@ The verified installation, independent defaults and preserved BW files are recor
 
 | Date | Task | Change |
 |---|---|---|
+| 2026-10-31 | INSTALL.1 | Install verified 0.15.0 over 0.11.0; installed processor-restart acceptance, stage/export equality, preserved data and rollback copies |
 | 2026-10-30 | SYNC.4 | Upstream 0.15.0/egui 0.37 integration, moved module hooks, cache version 72, fork-only update guidance and verified staged release |
 | 2026-10-22 | CI.5 | Restart-only processor preference, metadata/cache isolation, preserved edits/reset defaults and native sharpening 15 |
 | 2026-10-21 | CI.2 | Installed release acceptance, separate defaults, preserved BW and measured performance |

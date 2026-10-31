@@ -1,10 +1,52 @@
 <!-- Modified for the Lightcorf fork (2026); original licence retained. See docs/fork-license-audit.md. -->
 # Local macOS installations
 
-> **Last updated:** 2026-10-30 · **Change:** minor (SYNC.4: integrate upstream 0.15.0 and prepare the next local update)
+> **Last updated:** 2026-10-31 · **Change:** minor (INSTALL.1: replace installed 0.11.0 with verified 0.15.0)
 
+## INSTALL.1 — current Lightcorf installation (2026-10-31)
+
+**Lightcorf 0.15.0**, source `6f303fadd54aac7c0b0e3317ae2d5dc50b51a13d`, is installed at
+`~/Applications/Lightcorf.app`, replacing 0.11.0. This is the ARM64 HEIF/fonts build prepared
+by SYNC.4 below. Its 24 files match the verified staged bundle; the app and RAW helper pass
+strict ad-hoc signature verification. macOS application registration was refreshed.
+
+Bundle ID remains `com.diffico.lightcraft.bw.coreimage`. The existing library at
+`~/Pictures/LightCraft BW Core Image Library` and settings at
+`~/Library/Application Support/LightCraft BW Core Image` retain their paths and contents.
+All **2,798** freshly recorded personal library/settings/sample/plan file hashes match after
+installation and testing, including the macOS preference file. Personal libraries were not
+opened during acceptance. Existing CLI installations are unchanged.
+
+The original 0.11.0 bundle is retained, byte-identical and signature-verified, at
+`target/install-lightcorf-20261031/backups/Lightcorf-0.11.0.app-backup`.
+The same backup directory holds verified copies of the active library, application settings
+and macOS preferences taken immediately before replacement. Earlier preparation artifacts
+remain available. Installation evidence is in `target/install-lightcorf-20261031/`.
+
+The installed app passed seven-sample Core Image → Native → Core Image acceptance across
+three launches: imports, Tri-X, sharpening 15, explicit edits, Reset/undo, virtual copies,
+saved history/versions, processor selection/cancellation and JPEG/PNG exports. All **24**
+exports match the staged acceptance exports byte-for-byte, including the Core Image round trip.
+Photo and settings screenshots were inspected; Metal stayed active without fallback, with
+no queued render work, headless screenshot fallback or panic. The final Core Image render
+was 30.3 ms and UI update 2.42 ms; Native was 30.5 ms and 2.40 ms (acceptance samples, not a
+controlled performance comparison). The app is closed and ready for normal launch.
+
+All eight gates in `cargo +1.95.0 xtask ci` passed for this installation record with pinned
+craft-fonts and 21 optional corpus/model/font skips. The post-CI preservation check also
+matched all 2,798 files. Reports are saved beside the installation evidence as `ci-report.json`
+and `ci-summary.md`.
+
+Remote checks for source-record commit `65281902` passed Windows ARM64, FreeBSD, packaging
+and Nix. The [Linux gate](https://github.com/tcholewa/lightcorf/actions/runs/41039571972)
+stopped on Rust 1.99.1's `chunks_exact_to_as_chunks` style lint in
+`crates/pipeline/src/output.rs` and `crates/raw/tests/orf_corpus.rs`; that separate toolchain
+compatibility follow-up remains open. The installed build uses Rust 1.95 and passed all eight
+local source gates before packaging and its installed native acceptance above.
 
 ## SYNC.4 source update (2026-10-30)
+
+Historical preparation record; INSTALL.1 above records the subsequent replacement.
 
 Upstream main `445dd310` (0.15.0, 635 commits since `31ee2643`) is integrated into
 `lightcorf`, preserving the three previously unpushed local commits and all earlier fork history.
@@ -33,7 +75,7 @@ All 2,814 preservation hashes match.
 The ARM64 release was built from `6f303fadd54aac7c0b0e3317ae2d5dc50b51a13d`, after both
 upstream merges passed CI. The app and isolated RAW helper pass strict ad-hoc signature checks;
 all required font licences are bundled. This is a local Mac build, not a notarized release.
-The CLI reports 0.15.0. Nothing has been installed over 0.11.0.
+The CLI reported 0.15.0. At preparation time, 0.11.0 remained installed.
 
 | Artifact | Location |
 |---|---|
@@ -62,10 +104,10 @@ ID `com.diffico.lightcraft.bw.coreimage` and the existing `LightCraft BW Core Im
 Verify the installed copy and repeat acceptance in a scratch library before opening personal data.
 The app replacement and installed-copy acceptance are not part of this preparation record.
 
-## Lightcorf (current installation)
+## Previous Lightcorf 0.11.0 installation
 
-Current installation: **0.11.0**, source `04743d8f`, installed 2026-10-22 with HEIF and the pinned
-fonts at `~/Applications/Lightcorf.app`. This is the only installed LightCraft/Lightcorf app.
+Previous installation: **0.11.0**, source `04743d8f`, installed 2026-10-22 with HEIF and the pinned
+fonts at `~/Applications/Lightcorf.app`, replaced by INSTALL.1 on 2026-10-31.
 Settings → Performance → RAW processing selects Apple Core Image or LightCraft Native (Rust),
 applied after restarting. The bundle identifier remains `com.diffico.lightcraft.bw.coreimage`.
 [NAME.2 installation record](#name2-lightcorf-installation-and-cleanup-2026-10-22) records verification and cleanup.
@@ -354,6 +396,7 @@ is explicitly requested. The everyday app needs no restoration.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-31 | minor | INSTALL.1: replace 0.11.0 with verified 0.15.0, preserve bundle/data identity and rollback snapshots, verify installed native acceptance and unchanged personal files |
 | 2026-10-30 | minor | SYNC.4: upstream 0.15.0 integration, green source CI, signed ARM64 bundle/archive, native processor-restart acceptance and rollback preparation; installed app remains 0.11.0 |
 | 2026-10-23 | minor | CLEAN.1: remove debug/release/cross-target caches, staged package binaries and temporary caches; retain installed software, data and verification evidence |
 | 2026-10-22 | minor | NAME.2: installed renamed ARM64 app, verified both RAW processors, removed two old bundles and 13 installer archives |
